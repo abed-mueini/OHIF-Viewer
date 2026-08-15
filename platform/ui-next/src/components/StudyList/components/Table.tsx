@@ -124,9 +124,9 @@ function TableContent({
     <div className="flex h-full flex-col">
       {(showColumnVisibility || title) && (
         <DataTable.Toolbar>
-          <div className="absolute left-0">{toolbarLeftComponent}</div>
+          <div className="min-w-0 justify-self-start overflow-hidden">{toolbarLeftComponent}</div>
           {title ? <DataTable.Title>{title}</DataTable.Title> : null}
-          <div className="absolute right-0 flex items-center">
+          <div className="flex min-w-0 items-center justify-self-end">
             {toolbarRightActionsComponent}
             {toolbarRightActionsComponent && <div className="bg-input mx-2 h-4 w-px" />}
             {/* Pagination appears to the left of the "View" button */}
@@ -143,23 +143,21 @@ function TableContent({
           renderFilterCell={({ columnId, value, setValue }) => {
             if (columnId === COLUMN_IDS.ACTIONS) {
               return (
-                <div className="text-right">
+                <div className="text-end">
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => table.setColumnFilters([])}
-                    aria-label="Reset filters"
+                    aria-label={t('Reset filters')}
                   >
-                    Reset
+                    {t('Reset')}
                   </Button>
                 </div>
               );
             }
             if (columnId === COLUMN_IDS.STUDY_DATE_TIME) {
               const dateRange =
-                value && typeof value === 'object'
-                  ? (value as StudyDateRangeFilter)
-                  : {};
+                value && typeof value === 'object' ? (value as StudyDateRangeFilter) : {};
               const startDate = dateRange.startDate ?? '';
               const endDate = dateRange.endDate ?? '';
 
@@ -189,7 +187,7 @@ function TableContent({
                   <InputMultiSelect.Field>
                     <InputMultiSelect.Summary />
                     <InputMultiSelect.Input
-                      ariaLabel="Filter Modalities"
+                      ariaLabel={t('Filter Modalities')}
                       placeholder=""
                     />
                   </InputMultiSelect.Field>
@@ -215,8 +213,7 @@ function TableContent({
             onClick: row => {
               const original = row.original as StudyRow;
               const canDoubleClickLaunch =
-                Boolean(onStudyDoubleClick) ||
-                getWorkflowsForStudy(original).length > 0;
+                Boolean(onStudyDoubleClick) || getWorkflowsForStudy(original).length > 0;
               // When a double click can launch, the second click must not read
               // as an unselect — clicking only ever selects. Otherwise toggle.
               if (canDoubleClickLaunch) {

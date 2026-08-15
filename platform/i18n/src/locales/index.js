@@ -3,6 +3,7 @@ import ar from './ar/';
 import de from './de';
 import en_US from './en-US/';
 import es from './es/';
+import fa from './fa/';
 import fr from './fr/';
 import ja_JP from './ja-JP/';
 import nl from './nl/';
@@ -18,6 +19,7 @@ export default {
   ...de,
   ...en_US,
   ...es,
+  ...fa,
   ...fr,
   ...ja_JP,
   ...nl,

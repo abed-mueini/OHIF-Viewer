@@ -78,7 +78,7 @@ function AppearanceModalDefault() {
                     key={preset.name}
                     value={preset.name}
                   >
-                    {preset.label}
+                    {t(preset.label, { defaultValue: preset.label })}
                   </SelectItem>
                 ))}
                 {(customCss || draftCss) && <SelectItem value="custom">{t('Custom')}</SelectItem>}
@@ -100,12 +100,13 @@ function AppearanceModalDefault() {
         {isCustomOpen && (
           <div className="mt-4 flex flex-col space-y-2">
             <textarea
+              dir="ltr"
               value={draftCss}
               onChange={handleTextChange}
               placeholder={t('Paste your custom theme color tokens here')}
               aria-label={t('Paste your custom theme color tokens here')}
               rows={8}
-              className="bg-muted text-foreground border-input placeholder:text-muted-foreground focus:ring-ring rounded-md border px-3 py-2 font-mono text-sm focus:outline-none focus:ring-1 focus:ring-inset"
+              className="bg-muted text-foreground border-input placeholder:text-muted-foreground focus:ring-ring rounded-md border px-3 py-2 text-left font-mono text-sm focus:outline-none focus:ring-1 focus:ring-inset"
             />
             {parseFailed && (
               <span
@@ -115,7 +116,7 @@ function AppearanceModalDefault() {
                 {t('No valid theme tokens found')}
               </span>
             )}
-            <div className="flex space-x-2">
+            <div className="flex gap-2">
               <Button
                 variant="default"
                 size="sm"

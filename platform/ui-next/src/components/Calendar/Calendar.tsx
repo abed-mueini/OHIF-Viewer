@@ -1,8 +1,10 @@
 import * as React from 'react';
 import { useMemo } from 'react';
 import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
-import { DayButton, DayPicker, getDefaultClassNames } from 'react-day-picker';
+import { DayButton, DayPicker as GregorianDayPicker, getDefaultClassNames } from 'react-day-picker';
 import type { Locale } from 'react-day-picker';
+import { DayPicker as PersianDayPicker, faIR as faIRJalaliLocale } from 'react-day-picker/persian';
+import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import {
   ar as arLocale,
@@ -54,34 +56,45 @@ function Calendar({
   formatters,
   components,
   locale: localeProp,
+  dir,
   ...props
-}: React.ComponentProps<typeof DayPicker> & {
+}: React.ComponentProps<typeof GregorianDayPicker> & {
   buttonVariant?: React.ComponentProps<typeof Button>['variant'];
 }) {
   const { i18n } = useTranslation('DatePicker');
   const defaultClassNames = getDefaultClassNames();
+  const language = i18n.language || 'en';
+  const isPersian = language.toLowerCase().split('-')[0] === 'fa';
+  const isRtl = i18n.dir(language) === 'rtl';
+  const CalendarComponent = isPersian ? PersianDayPicker : GregorianDayPicker;
 
   const locale = useMemo(() => {
     if (localeProp) {
       return localeProp;
     }
-    const lang = i18n.language || 'en';
-    return LOCALE_MAP[lang] ?? enUS;
-  }, [i18n.language, localeProp]);
+    if (isPersian) {
+      return faIRJalaliLocale as Locale;
+    }
+    return LOCALE_MAP[language] ?? enUS;
+  }, [isPersian, language, localeProp]);
 
   return (
-    <DayPicker
+    <CalendarComponent
       showOutsideDays={showOutsideDays}
       locale={locale}
+      dir={dir ?? (isRtl ? 'rtl' : 'ltr')}
       className={cn(
         'bg-background group/calendar p-3 [--cell-size:2rem] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent',
-        String.raw`rtl:**:[.rdp-button\_next>svg]:rotate-180`,
-        String.raw`rtl:**:[.rdp-button\_previous>svg]:rotate-180`,
         className
       )}
       captionLayout={captionLayout}
       formatters={{
-        formatMonthDropdown: date => date.toLocaleString('default', { month: 'short' }),
+        ...(!isPersian && {
+          formatMonthDropdown: date => format(date, 'MMM', { locale }),
+        }),
+        ...(isPersian && {
+          formatWeekdayName: date => ['ی', 'د', 'س', 'چ', 'پ', 'ج', 'ش'][date.getDay()],
+        }),
         ...formatters,
       }}
       classNames={{
@@ -119,7 +132,7 @@ function Calendar({
           'select-none font-medium',
           captionLayout === 'label'
             ? 'text-sm'
-            : '[&>svg]:text-muted-foreground flex h-8 items-center gap-1 rounded-md pl-2 pr-1 text-sm [&>svg]:size-3.5',
+            : '[&>svg]:text-muted-foreground flex h-8 items-center gap-1 rounded-md text-sm [padding-inline-end:0.25rem] [padding-inline-start:0.5rem] [&>svg]:size-3.5',
           defaultClassNames.caption_label
         ),
         table: 'w-full border-collapse',
@@ -135,12 +148,18 @@ function Calendar({
           defaultClassNames.week_number
         ),
         day: cn(
-          'group/day relative aspect-square h-full w-full select-none p-0 text-center [&:first-child[data-selected=true]_button]:rounded-l-md [&:last-child[data-selected=true]_button]:rounded-r-md',
+          'group/day relative aspect-square h-full w-full select-none p-0 text-center [&:first-child[data-selected=true]_button]:[border-end-start-radius:0.375rem] [&:first-child[data-selected=true]_button]:[border-start-start-radius:0.375rem] [&:last-child[data-selected=true]_button]:[border-end-end-radius:0.375rem] [&:last-child[data-selected=true]_button]:[border-start-end-radius:0.375rem]',
           defaultClassNames.day
         ),
-        range_start: cn('bg-accent rounded-l-md', defaultClassNames.range_start),
+        range_start: cn(
+          'bg-accent [border-end-start-radius:0.375rem] [border-start-start-radius:0.375rem]',
+          defaultClassNames.range_start
+        ),
         range_middle: cn('rounded-none', defaultClassNames.range_middle),
-        range_end: cn('bg-accent rounded-r-md', defaultClassNames.range_end),
+        range_end: cn(
+          'bg-accent [border-end-end-radius:0.375rem] [border-start-end-radius:0.375rem]',
+          defaultClassNames.range_end
+        ),
         today: cn(
           'bg-accent text-accent-foreground rounded-md data-[selected=true]:rounded-none',
           defaultClassNames.today
@@ -166,7 +185,12 @@ function Calendar({
         },
         Chevron: ({ className, orientation, ...props }) => {
           if (orientation === 'left') {
-            return (
+            return isRtl ? (
+              <ChevronRightIcon
+                className={cn('size-4', className)}
+                {...props}
+              />
+            ) : (
               <ChevronLeftIcon
                 className={cn('size-4', className)}
                 {...props}
@@ -175,7 +199,12 @@ function Calendar({
           }
 
           if (orientation === 'right') {
-            return (
+            return isRtl ? (
+              <ChevronLeftIcon
+                className={cn('size-4', className)}
+                {...props}
+              />
+            ) : (
               <ChevronRightIcon
                 className={cn('size-4', className)}
                 {...props}

@@ -1,0 +1,18 @@
+{
+  "Appearance": "ظاهر",
+  "Theme": "پوسته",
+  "Default Theme": "تونال: آبی اوهایف",
+  "Tonal: Orchid": "تونال: ارکیده",
+  "Tonal: Arctic": "تونال: قطبی",
+  "Tonal: Verdant": "تونال: سبز",
+  "Neutral: Midnight": "خنثی: نیمه‌شب",
+  "Neutral: Slate": "خنثی: خاکستری",
+  "Neutral: Deep": "خنثی: عمیق",
+  "Custom": "سفارشی",
+  "Custom Theme": "پوسته سفارشی",
+  "Hide": "پنهان‌کردن",
+  "Apply": "اعمال",
+  "Clear": "پاک‌کردن",
+  "No valid theme tokens found": "هیچ توکن معتبری برای پوسته یافت نشد. قالب مورد انتظار سطرهایی مانند --primary: 220 90% 60% است",
+  "Paste your custom theme color tokens here": "توکن‌های رنگ پوسته سفارشی را اینجا جای‌گذاری کنید"
+}

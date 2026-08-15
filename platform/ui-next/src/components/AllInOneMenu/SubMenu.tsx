@@ -1,6 +1,7 @@
 import React, { useCallback, useContext } from 'react';
 import { MenuContext, MenuProps } from './Menu';
 import { Icons } from '@ohif/ui-next';
+import { useTranslation } from 'react-i18next';
 export interface SubMenuProps extends MenuProps {
   itemLabel: string;
   onClick?: () => void;
@@ -8,6 +9,8 @@ export interface SubMenuProps extends MenuProps {
 }
 
 const SubMenu = (props: SubMenuProps) => {
+  const { i18n } = useTranslation();
+  const isRtl = i18n.dir(i18n.language) === 'rtl';
   const { showSubMenu } = useContext(MenuContext);
 
   const onClickHandler = useCallback(() => {
@@ -26,8 +29,11 @@ const SubMenu = (props: SubMenuProps) => {
         </div>
       )}
       <span className="flex-grow">{props.itemLabel}</span>
-      <div className="ml-2 flex-shrink-0">
-        <Icons.ByName name="content-next"></Icons.ByName>
+      <div className="flex-shrink-0 [margin-inline-start:0.5rem]">
+        <Icons.ByName
+          name="content-next"
+          className={isRtl ? 'rotate-180' : undefined}
+        />
       </div>
     </div>
   );

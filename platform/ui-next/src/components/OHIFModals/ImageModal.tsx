@@ -41,7 +41,7 @@ function ImageVisual({ children, className }: ImageVisualProps) {
   return (
     <div
       className={cn(
-        'flex-1 items-center justify-center rounded-2xl bg-background/80 p-4 sm:flex-[7]',
+        'bg-background/80 flex-1 items-center justify-center rounded-2xl p-4 sm:flex-[7]',
         'flex', // ensure the container is a flex box
         className
       )}
@@ -180,9 +180,9 @@ function ImageSize({
       <label className="block text-base">{children}</label>
 
       {/* Flex container for width/height inputs */}
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center gap-4">
         {/* Width group */}
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-2">
           <span className="text-foreground text-base">{finalWidthLabel}</span>
           <Input
             value={width}
@@ -194,7 +194,7 @@ function ImageSize({
         </div>
 
         {/* Height/Length group */}
-        <div className="text-foreground flex items-center space-x-2 text-base">
+        <div className="text-foreground flex items-center gap-2 text-base">
           <span className="text-foreground text-base">{finalHeightLabel}</span>
           <Input
             value={height}
@@ -228,7 +228,7 @@ function SwitchOption({
   className,
 }: SwitchOptionProps) {
   return (
-    <div className={cn('text-foreground flex items-center space-x-2', className)}>
+    <div className={cn('text-foreground flex items-center gap-2', className)}>
       <Switch
         checked={checked}
         defaultChecked={defaultChecked}

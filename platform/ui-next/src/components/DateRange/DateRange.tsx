@@ -1,8 +1,14 @@
 import * as React from 'react';
-import { format, parse, isValid } from 'date-fns';
+import { format, isValid } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../lib/utils';
+import {
+  formatCalendarInput,
+  parseCalendarInput,
+  parseDicomDate,
+  toDicomDate,
+} from '../../utils/calendarDate';
 import { Calendar } from '../Calendar';
 import * as Popover from '../Popover';
 
@@ -24,34 +30,42 @@ export function DatePickerWithRange({
   onChange,
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & DatePickerWithRangeProps) {
-  const { t } = useTranslation('DatePicker');
-  const [start, setStart] = React.useState<string>(
-    startDate ? format(parse(startDate, 'yyyyMMdd', new Date()), 'yyyy-MM-dd') : ''
+  const { t, i18n } = useTranslation('DatePicker');
+  const language = i18n.language;
+  const isRtl = i18n.dir(language) === 'rtl';
+  const formatDicomForDisplay = React.useCallback(
+    (value: string) => {
+      if (!value) {
+        return '';
+      }
+      const parsed = parseDicomDate(value);
+      return isValid(parsed) ? formatCalendarInput(parsed, language) : '';
+    },
+    [language]
   );
-  const [end, setEnd] = React.useState<string>(
-    endDate ? format(parse(endDate, 'yyyyMMdd', new Date()), 'yyyy-MM-dd') : ''
-  );
+  const [start, setStart] = React.useState<string>(() => formatDicomForDisplay(startDate));
+  const [end, setEnd] = React.useState<string>(() => formatDicomForDisplay(endDate));
   const [openEnd, setOpenEnd] = React.useState(false);
 
   const handleStartSelect = (selectedDate: Date | undefined) => {
     if (selectedDate) {
-      const formattedDate = format(selectedDate, 'yyyy-MM-dd');
+      const formattedDate = formatCalendarInput(selectedDate, language);
       setStart(formattedDate);
       setOpenEnd(true);
       onChange({
         startDate: format(selectedDate, 'yyyyMMdd'),
-        endDate: end.replace(/-/g, ''),
+        endDate: toDicomDate(end, language),
       });
     }
   };
 
   const handleEndSelect = (selectedDate: Date | undefined) => {
     if (selectedDate) {
-      const formattedDate = format(selectedDate, 'yyyy-MM-dd');
+      const formattedDate = formatCalendarInput(selectedDate, language);
       setEnd(formattedDate);
       setOpenEnd(false);
       onChange({
-        startDate: start.replace(/-/g, ''),
+        startDate: toDicomDate(start, language),
         endDate: format(selectedDate, 'yyyyMMdd'),
       });
     }
@@ -59,7 +73,7 @@ export function DatePickerWithRange({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'start' | 'end') => {
     const value = e.target.value;
-    const date = parse(value, 'yyyy-MM-dd', new Date());
+    const date = parseCalendarInput(value, language);
     if (type === 'start') {
       setStart(value);
       if (isValid(date)) {
@@ -74,9 +88,14 @@ export function DatePickerWithRange({
   };
 
   React.useEffect(() => {
-    setStart(startDate ? format(parse(startDate, 'yyyyMMdd', new Date()), 'yyyy-MM-dd') : '');
-    setEnd(endDate ? format(parse(endDate, 'yyyyMMdd', new Date()), 'yyyy-MM-dd') : '');
-  }, [startDate, endDate]);
+    setStart(formatDicomForDisplay(startDate));
+    setEnd(formatDicomForDisplay(endDate));
+  }, [startDate, endDate, formatDicomForDisplay]);
+
+  const parsedStart = start ? parseCalendarInput(start, language) : undefined;
+  const parsedEnd = end ? parseCalendarInput(end, language) : undefined;
+  const selectedStart = parsedStart && isValid(parsedStart) ? parsedStart : undefined;
+  const selectedEnd = parsedEnd && isValid(parsedEnd) ? parsedEnd : undefined;
 
   return (
     <div className={cn('flex gap-2', className)}>
@@ -84,17 +103,26 @@ export function DatePickerWithRange({
         <Popover.PopoverTrigger asChild>
           <div className="relative w-full">
             {!start && (
-              <CalendarIcon className="text-primary absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 transform" />
+              <CalendarIcon
+                className="text-primary absolute top-1/2 h-4 w-4 -translate-y-1/2 transform"
+                style={{ insetInlineEnd: '0.5rem' }}
+              />
             )}
             <input
               id={`${id}-start`}
+              dir={start ? 'ltr' : i18n.dir(language)}
               type="text"
               placeholder={t('Start', 'Start')}
               autoComplete="off"
               value={start}
               onChange={e => handleInputChange(e, 'start')}
+              style={{
+                paddingInlineStart: '0.375rem',
+                paddingInlineEnd: '1.5rem',
+                textAlign: isRtl ? 'right' : 'left',
+              }}
               className={cn(
-                'border-input focus:border-ring hover:text-foreground placeholder:text-muted-foreground h-7 w-full justify-start rounded border bg-background pl-1.5 pr-0.5 py-1 text-left text-base font-normal hover:bg-background'
+                'border-input focus:border-ring hover:text-foreground placeholder:text-muted-foreground bg-background hover:bg-background h-7 w-full justify-start rounded border py-1 text-start text-base font-normal'
               )}
               data-cy="input-date-range-start"
             />
@@ -108,8 +136,8 @@ export function DatePickerWithRange({
             autoFocus
             mode="single"
             captionLayout="dropdown"
-            defaultMonth={start ? parse(start, 'yyyy-MM-dd', new Date()) : new Date()}
-            selected={start ? parse(start, 'yyyy-MM-dd', new Date()) : undefined}
+            defaultMonth={selectedStart ?? new Date()}
+            selected={selectedStart}
             onSelect={handleStartSelect}
             startMonth={new Date(1900, 0)}
             endMonth={new Date(new Date().getFullYear() + 1, 11)}
@@ -125,17 +153,26 @@ export function DatePickerWithRange({
         <Popover.PopoverTrigger asChild>
           <div className="relative w-full">
             {!end && (
-              <CalendarIcon className="text-primary absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 transform" />
+              <CalendarIcon
+                className="text-primary absolute top-1/2 h-4 w-4 -translate-y-1/2 transform"
+                style={{ insetInlineEnd: '0.5rem' }}
+              />
             )}
             <input
               id={`${id}-end`}
+              dir={end ? 'ltr' : i18n.dir(language)}
               type="text"
               placeholder={t('End', 'End')}
               autoComplete="off"
               value={end}
               onChange={e => handleInputChange(e, 'end')}
+              style={{
+                paddingInlineStart: '0.375rem',
+                paddingInlineEnd: '1.5rem',
+                textAlign: isRtl ? 'right' : 'left',
+              }}
               className={cn(
-                'border-input focus:border-ring hover:text-foreground placeholder:text-muted-foreground h-7 w-full justify-start rounded border bg-background pl-1.5 pr-0.5 py-1 text-left text-base font-normal hover:bg-background'
+                'border-input focus:border-ring hover:text-foreground placeholder:text-muted-foreground bg-background hover:bg-background h-7 w-full justify-start rounded border py-1 text-start text-base font-normal'
               )}
               data-cy="input-date-range-end"
             />
@@ -149,8 +186,8 @@ export function DatePickerWithRange({
             autoFocus
             mode="single"
             captionLayout="dropdown"
-            defaultMonth={start ? parse(start, 'yyyy-MM-dd', new Date()) : new Date()}
-            selected={end ? parse(end, 'yyyy-MM-dd', new Date()) : undefined}
+            defaultMonth={selectedEnd ?? selectedStart ?? new Date()}
+            selected={selectedEnd}
             onSelect={handleEndSelect}
             startMonth={new Date(1900, 0)}
             endMonth={new Date(new Date().getFullYear() + 1, 11)}

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '../../Button';
 import { Icons } from '../../Icons';
 import { useLayout } from './Layout';
@@ -8,6 +9,7 @@ type PreviewToggleButtonProps = React.HTMLAttributes<HTMLButtonElement> & {
   shouldShow: boolean;
   onClick: () => void;
   defaultAriaLabel: string;
+  isRtl: boolean;
 };
 
 function PreviewToggleButton({
@@ -16,6 +18,7 @@ function PreviewToggleButton({
   shouldShow,
   onClick,
   defaultAriaLabel,
+  isRtl,
 }: PreviewToggleButtonProps) {
   if (!shouldShow) {
     return null;
@@ -30,7 +33,7 @@ function PreviewToggleButton({
     >
       <Icons.PanelRight
         aria-hidden="true"
-        className="text-primary h-4 w-4"
+        className={`text-primary h-4 w-4 ${isRtl ? 'rotate-180' : ''}`}
       />
     </Button>
   );
@@ -38,8 +41,9 @@ function PreviewToggleButton({
 
 export function OpenPreviewButton({
   className,
-  'aria-label': ariaLabel = 'Open preview',
+  'aria-label': ariaLabel,
 }: React.HTMLAttributes<HTMLButtonElement> & { 'aria-label'?: string }) {
+  const { t, i18n } = useTranslation('StudyList');
   const { isPreviewOpen, openPreview } = useLayout();
   return (
     <PreviewToggleButton
@@ -47,15 +51,17 @@ export function OpenPreviewButton({
       aria-label={ariaLabel}
       shouldShow={!isPreviewOpen}
       onClick={openPreview}
-      defaultAriaLabel="Open preview"
+      defaultAriaLabel={t('Open preview')}
+      isRtl={i18n.dir(i18n.language) === 'rtl'}
     />
   );
 }
 
 export function ClosePreviewButton({
   className,
-  'aria-label': ariaLabel = 'Close preview',
+  'aria-label': ariaLabel,
 }: React.HTMLAttributes<HTMLButtonElement> & { 'aria-label'?: string }) {
+  const { t, i18n } = useTranslation('StudyList');
   const { isPreviewOpen, closePreview } = useLayout();
   return (
     <PreviewToggleButton
@@ -63,7 +69,8 @@ export function ClosePreviewButton({
       aria-label={ariaLabel}
       shouldShow={isPreviewOpen}
       onClick={closePreview}
-      defaultAriaLabel="Close preview"
+      defaultAriaLabel={t('Close preview')}
+      isRtl={i18n.dir(i18n.language) === 'rtl'}
     />
   );
 }

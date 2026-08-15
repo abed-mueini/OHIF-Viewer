@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../Table';
 import { Icons } from '../../Icons';
 
@@ -21,17 +22,22 @@ type PreviewSeriesListProps = {
 };
 
 export function PreviewSeriesList({ series, onSeriesClick }: PreviewSeriesListProps) {
+  const { t } = useTranslation('StudyList');
+
   return (
     <div className="w-full px-2">
       <Table noScroll>
         <TableHeader>
           <TableRow className="hover:bg-transparent">
-            <TableHead className="pl-0 text-base font-normal">
-              <span className="text-foreground">Modality</span>
-              <span className="text-muted-foreground"> / Series</span>
+            <TableHead className="text-base font-normal [padding-inline-start:0]">
+              <span className="text-foreground">{t('Modality')}</span>
+              <span className="text-muted-foreground"> / {t('Series')}</span>
             </TableHead>
-            <TableHead className="text-foreground w-8 pr-0 text-right text-base font-normal">
-              <Icons.Series className="ml-auto h-4 w-4" />
+            <TableHead className="text-foreground w-8 text-base font-normal [padding-inline-end:0] [text-align:end]">
+              <Icons.Series
+                className="h-4 w-4 [margin-inline-start:auto]"
+                aria-hidden="true"
+              />
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -47,13 +53,15 @@ export function PreviewSeriesList({ series, onSeriesClick }: PreviewSeriesListPr
                 key={seriesUID}
                 className="hover:text-muted-foreground cursor-default hover:bg-transparent"
               >
-                <TableCell className="pl-0 text-base">
+                <TableCell className="text-base [padding-inline-start:0]">
                   <div className="flex items-center gap-2">
                     <span className="text-foreground font-normal">{modality}</span>
                     <span className="font-normal">{description}</span>
                   </div>
                 </TableCell>
-                <TableCell className="w-8 pr-0 text-right text-base">{numInstances}</TableCell>
+                <TableCell className="w-8 text-base [padding-inline-end:0] [text-align:end]">
+                  {numInstances}
+                </TableCell>
               </TableRow>
             );
           })}

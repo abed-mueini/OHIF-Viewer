@@ -6,6 +6,7 @@ import ProgressItemDetail from './ProgressItemDetail';
 import ProgressItem from './ProgressItem';
 import { Icons } from '../Icons';
 import { ProgressDropdownOption, ProgressDropdownOptionPropType } from './types';
+import { useTranslation } from 'react-i18next';
 
 const ProgressDropdown = ({
   options: optionsProps,
@@ -19,6 +20,8 @@ const ProgressDropdown = ({
   children?: ReactNode;
   onChange?: ({ selectedOption }) => void;
 }): JSX.Element => {
+  const { i18n } = useTranslation();
+  const isRtl = i18n.dir(i18n.language) === 'rtl';
   const element = useRef(null);
   const [open, setOpen] = useState(false);
   const toggleOpen = () => setOpen(s => !s);
@@ -106,28 +109,40 @@ const ProgressDropdown = ({
             <div className="flex grow">
               {selectedOption && <ProgressItemDetail option={selectedOption} />}
 
-              {!selectedOption && <div className="ml-1 grow text-base leading-6">{children}</div>}
+              {!selectedOption && (
+                <div
+                  className="grow text-base leading-6"
+                  style={{ marginInlineStart: '0.25rem' }}
+                >
+                  {children}
+                </div>
+              )}
             </div>
-            <Icons.ChevronDown className="text-primary mt-1.5 ml-1 mr-2" />
+            <Icons.ChevronDown
+              className="text-primary mt-1.5"
+              style={{ marginInlineStart: '0.25rem', marginInlineEnd: '0.5rem' }}
+            />
           </div>
           <button
-            className={classnames('ml-1.5 w-[26px] rounded text-base', {
+            className={classnames('w-[26px] rounded text-base', {
               'bg-primary/60 hover:bg-primary/80': canMoveNext,
               'bg-popover pointer-events-none': !canMoveNext,
             })}
+            style={{ marginInlineStart: '0.375rem' }}
           >
             <Icons.ArrowRight
-              className={classnames('text-foreground relative left-0.5 h-6 w-6', {
+              className={classnames('text-foreground relative h-6 w-6', isRtl && 'rotate-180', {
                 'text-foreground': canMoveNext,
                 'text-': !canMoveNext,
               })}
+              style={{ insetInlineStart: '0.125rem' }}
               onClick={handleNextButtonClick}
             />
           </button>
         </div>
         <div
           className={classnames(
-            'absolute top-7 left-0 right-8 z-10 mt-0.5 origin-top',
+            'absolute top-7 z-10 mt-0.5 origin-top',
             'bg-popover overflow-hidden transition-[max-height] duration-300',
             'border-input/50 rounded border shadow',
             'py-1',
@@ -136,6 +151,7 @@ const ProgressDropdown = ({
               'max-h-[500px]': open,
             }
           )}
+          style={{ insetInlineStart: 0, insetInlineEnd: '2rem' }}
         >
           {options.map((option, index) => (
             <ProgressItem

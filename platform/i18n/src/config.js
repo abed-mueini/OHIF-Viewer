@@ -1,8 +1,8 @@
 const debugMode = !!(process.env.NODE_ENV !== 'production' && process.env.REACT_APP_I18N_DEBUG);
 
 const detectionOptions = {
-  // order and from where user language should be detected
-  order: ['querystring', 'cookie', 'localStorage', 'navigator', 'htmlTag', 'path', 'subdomain'],
+  // Respect explicit or saved preferences; otherwise i18next uses the Persian default.
+  order: ['querystring', 'localStorage', 'cookie'],
 
   // keys or params to lookup language from
   lookupQuerystring: 'lng',

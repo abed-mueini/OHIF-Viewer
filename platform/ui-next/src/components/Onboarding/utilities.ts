@@ -42,7 +42,12 @@ const defaultShowHandler = (Shepherd: ShepherdBase) => {
     progress.className = 'shepherd-progress text-lg text-muted-foreground';
     progress.innerText = `${Shepherd.activeTour?.steps.indexOf(currentStep) + 1}/${Shepherd.activeTour?.steps.length}`;
     progress.style.position = 'absolute';
-    progress.style.left = '13px';
+    progress.style.direction = 'ltr';
+    if (document.documentElement.dir === 'rtl') {
+      progress.style.right = '13px';
+    } else {
+      progress.style.left = '13px';
+    }
     progress.style.bottom = '20px';
     progress.style.zIndex = '1';
 

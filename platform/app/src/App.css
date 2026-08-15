@@ -2,3 +2,7 @@ body {
   overscroll-behavior: none;
   touch-action: none;
 }
+
+html[lang^='fa'] body {
+  font-family: 'Vazirmatn', 'Noto Sans Arabic', 'Geeza Pro', Tahoma, sans-serif;
+}

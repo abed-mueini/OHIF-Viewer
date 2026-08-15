@@ -2,11 +2,14 @@ import React, { useState, useMemo, ReactElement } from 'react';
 import { Icons } from '../Icons';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '../Tooltip';
 import { ProgressDropdownOption, ProgressDropdownOptionPropType } from './types';
+import { useTranslation } from 'react-i18next';
 
 const MAX_TOOLTIP_LENGTH = 150;
-const iconClassNames = 'grow-0 text-highlight h-4 w-4 mt-1 mr-2 mb-0 ml-1';
+const iconClassNames = 'grow-0 text-highlight h-4 w-4 mt-1 mb-0';
+const iconStyle = { marginInlineStart: '0.25rem', marginInlineEnd: '0.5rem' };
 
 const ProgressItemDetail = ({ option }: { option: ProgressDropdownOption }): ReactElement => {
+  const { t } = useTranslation('Common');
   const { label, info, completed } = option;
   const [truncate, setTruncate] = useState(true);
   const handleOnHideTooltip = () => setTruncate(true);
@@ -36,11 +39,11 @@ const ProgressItemDetail = ({ option }: { option: ProgressDropdownOption }): Rea
           className="text-primary font-bold"
           onClick={handleReadMoreClick}
         >
-          &nbsp;Read more...
+          &nbsp;{t('Read more...')}
         </button>
       </>
     );
-  }, [info, truncate]);
+  }, [info, t, truncate]);
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
@@ -55,10 +58,16 @@ const ProgressItemDetail = ({ option }: { option: ProgressDropdownOption }): Rea
           <Icons.ByName
             name={icon}
             className={iconClassNames}
+            style={iconStyle}
           />
         </div>
       )}
-      {!icon && <div className={iconClassNames} />}
+      {!icon && (
+        <div
+          className={iconClassNames}
+          style={iconStyle}
+        />
+      )}
     </>
   );
 

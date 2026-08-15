@@ -41,9 +41,11 @@ const Item = ({
       )}
       <span className="flex-grow">{label}</span>
       {secondaryLabel && (
-        <span className="text-muted-foreground ml-2 flex-shrink-0">{secondaryLabel}</span>
+        <span className="text-muted-foreground flex-shrink-0 [margin-inline-start:0.5rem]">
+          {secondaryLabel}
+        </span>
       )}
-      {rightIcon && <div className="ml-2 flex-shrink-0">{rightIcon}</div>}
+      {rightIcon && <div className="flex-shrink-0 [margin-inline-start:0.5rem]">{rightIcon}</div>}
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import usePatientInfo from '../../hooks/usePatientInfo';
 import { Icons } from '@ohif/ui-next';
 
@@ -17,6 +18,8 @@ const formatWithEllipsis = (str, maxLength) => {
 };
 
 function HeaderPatientInfo({ servicesManager, appConfig }: withAppTypes) {
+  const { t, i18n } = useTranslation('Header');
+  const isRtl = i18n.dir(i18n.language) === 'rtl';
   const initialExpandedState =
     appConfig.showPatientInfo === PatientInfoVisibility.VISIBLE ||
     appConfig.showPatientInfo === PatientInfoVisibility.VISIBLE_READONLY;
@@ -62,11 +65,11 @@ function HeaderPatientInfo({ servicesManager, appConfig }: withAppTypes) {
           </>
         ) : (
           <div className="text-primary self-center text-[13px]">
-            {isMixedPatients ? 'Multiple Patients' : 'Patient'}
+            {isMixedPatients ? t('Multiple Patients') : t('Patient')}
           </div>
         )}
       </div>
-      <Icons.ArrowLeft className={`text-primary ${expanded ? 'rotate-180' : ''}`} />
+      <Icons.ArrowLeft className={`text-primary ${expanded !== isRtl ? 'rotate-180' : ''}`} />
     </div>
   );
 }

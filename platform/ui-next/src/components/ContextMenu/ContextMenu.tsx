@@ -1,10 +1,19 @@
 import * as React from 'react';
 import * as ContextMenuPrimitive from '@radix-ui/react-context-menu';
+import { useTranslation } from 'react-i18next';
 
 import { cn } from '../../lib/utils';
 import { CheckIcon, ChevronRightIcon, DotFilledIcon } from '@radix-ui/react-icons';
 
-const ContextMenu = ContextMenuPrimitive.Root;
+function ContextMenu(props: React.ComponentProps<typeof ContextMenuPrimitive.Root>) {
+  const { i18n } = useTranslation();
+  return (
+    <ContextMenuPrimitive.Root
+      {...props}
+      dir={props.dir ?? i18n.dir(i18n.language)}
+    />
+  );
+}
 
 const ContextMenuTrigger = ContextMenuPrimitive.Trigger;
 
@@ -21,20 +30,28 @@ const ContextMenuSubTrigger = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof ContextMenuPrimitive.SubTrigger> & {
     inset?: boolean;
   }
->(({ className, inset, children, ...props }, ref) => (
-  <ContextMenuPrimitive.SubTrigger
-    ref={ref}
-    className={cn(
-      'focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none',
-      inset && 'pl-8',
-      className
-    )}
-    {...props}
-  >
-    {children}
-    <ChevronRightIcon className="ml-auto h-4 w-4" />
-  </ContextMenuPrimitive.SubTrigger>
-));
+>(({ className, inset, children, ...props }, ref) => {
+  const { i18n } = useTranslation();
+  const isRtl = i18n.dir(i18n.language) === 'rtl';
+
+  return (
+    <ContextMenuPrimitive.SubTrigger
+      ref={ref}
+      className={cn(
+        'focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none',
+        inset && '[padding-inline-start:2rem]',
+        className
+      )}
+      {...props}
+    >
+      {children}
+      <ChevronRightIcon
+        className={`h-4 w-4 ${isRtl ? 'rotate-180' : ''}`}
+        style={{ marginInlineStart: 'auto' }}
+      />
+    </ContextMenuPrimitive.SubTrigger>
+  );
+});
 ContextMenuSubTrigger.displayName = ContextMenuPrimitive.SubTrigger.displayName;
 
 const ContextMenuSubContent = React.forwardRef<
@@ -79,7 +96,7 @@ const ContextMenuItem = React.forwardRef<
     ref={ref}
     className={cn(
       'focus:bg-accent focus:text-accent-foreground relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-      inset && 'pl-8',
+      inset && '[padding-inline-start:2rem]',
       className
     )}
     {...props}
@@ -94,13 +111,16 @@ const ContextMenuCheckboxItem = React.forwardRef<
   <ContextMenuPrimitive.CheckboxItem
     ref={ref}
     className={cn(
-      'focus:bg-accent focus:text-accent-foreground relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+      'focus:bg-accent focus:text-accent-foreground relative flex cursor-default select-none items-center rounded-sm py-1.5 text-sm outline-none [padding-inline-start:2rem] [padding-inline-end:0.5rem] data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       className
     )}
     checked={checked}
     {...props}
   >
-    <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+    <span
+      className="absolute flex h-3.5 w-3.5 items-center justify-center"
+      style={{ insetInlineStart: '0.5rem' }}
+    >
       <ContextMenuPrimitive.ItemIndicator>
         <CheckIcon className="h-4 w-4" />
       </ContextMenuPrimitive.ItemIndicator>
@@ -117,12 +137,15 @@ const ContextMenuRadioItem = React.forwardRef<
   <ContextMenuPrimitive.RadioItem
     ref={ref}
     className={cn(
-      'focus:bg-accent focus:text-accent-foreground relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+      'focus:bg-accent focus:text-accent-foreground relative flex cursor-default select-none items-center rounded-sm py-1.5 text-sm outline-none [padding-inline-start:2rem] [padding-inline-end:0.5rem] data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       className
     )}
     {...props}
   >
-    <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+    <span
+      className="absolute flex h-3.5 w-3.5 items-center justify-center"
+      style={{ insetInlineStart: '0.5rem' }}
+    >
       <ContextMenuPrimitive.ItemIndicator>
         <DotFilledIcon className="h-4 w-4 fill-current" />
       </ContextMenuPrimitive.ItemIndicator>
@@ -140,7 +163,11 @@ const ContextMenuLabel = React.forwardRef<
 >(({ className, inset, ...props }, ref) => (
   <ContextMenuPrimitive.Label
     ref={ref}
-    className={cn('text-foreground px-2 py-1.5 text-sm font-semibold', inset && 'pl-8', className)}
+    className={cn(
+      'text-foreground px-2 py-1.5 text-sm font-semibold',
+      inset && '[padding-inline-start:2rem]',
+      className
+    )}
     {...props}
   />
 ));
@@ -161,7 +188,10 @@ ContextMenuSeparator.displayName = ContextMenuPrimitive.Separator.displayName;
 const ContextMenuShortcut = ({ className, ...props }: React.HTMLAttributes<HTMLSpanElement>) => {
   return (
     <span
-      className={cn('text-muted-foreground ml-auto text-xs tracking-widest', className)}
+      className={cn(
+        'text-muted-foreground text-xs tracking-widest [margin-inline-start:auto]',
+        className
+      )}
       {...props}
     />
   );

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '../Button';
 import {
   DropdownMenu,
@@ -15,6 +16,8 @@ import { useDataTable } from './context';
  * Uses the TanStack table instance from DataTable context.
  */
 export function Pagination<TData>() {
+  const { t, i18n } = useTranslation('DataTable');
+  const isRtl = i18n.dir(i18n.language) === 'rtl';
   const { table } = useDataTable<TData>();
   const { pageIndex, pageSize } = table.getState().pagination ?? { pageIndex: 0, pageSize: 50 };
 
@@ -26,16 +29,20 @@ export function Pagination<TData>() {
   const canNext = table.getCanNextPage();
 
   return (
-    <div className="mr-2 flex items-center gap-0.5">
+    <div
+      className="flex items-center gap-0.5"
+      style={{ marginInlineEnd: '0.5rem' }}
+    >
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
+            dir={i18n.dir(i18n.language)}
             variant="ghost"
             size="sm"
             className="text-primary/80 px-2 text-sm leading-tight"
-            aria-label="Rows per page"
+            aria-label={t('Rows per page')}
           >
-            {`${start}-${end} of ${total}`}
+            {t('{{start}}-{{end}} of {{total}}', { start, end, total })}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
@@ -49,7 +56,7 @@ export function Pagination<TData>() {
               className="flex items-center gap-[2px]"
             >
               <Icons.Checked className={`h-6 w-6 ${pageSize === size ? '' : 'invisible'}`} />
-              {size} per page
+              {t('{{size}} per page', { size })}
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>
@@ -57,21 +64,29 @@ export function Pagination<TData>() {
       <Button
         variant="ghost"
         size="icon"
-        aria-label="Previous page"
+        aria-label={t('Previous page')}
         onClick={() => table.previousPage()}
         disabled={!canPrev}
-        className="ml-1"
+        style={{ marginInlineStart: '0.25rem' }}
       >
-        <Icons.ChevronLeft className="h-3 w-3" />
+        {isRtl ? (
+          <Icons.ChevronRight className="h-3 w-3" />
+        ) : (
+          <Icons.ChevronLeft className="h-3 w-3" />
+        )}
       </Button>
       <Button
         variant="ghost"
         size="icon"
-        aria-label="Next page"
+        aria-label={t('Next page')}
         onClick={() => table.nextPage()}
         disabled={!canNext}
       >
-        <Icons.ChevronRight className="h-3 w-3" />
+        {isRtl ? (
+          <Icons.ChevronLeft className="h-3 w-3" />
+        ) : (
+          <Icons.ChevronRight className="h-3 w-3" />
+        )}
       </Button>
     </div>
   );

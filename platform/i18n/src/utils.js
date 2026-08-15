@@ -13,7 +13,7 @@ const languagesMap = {
   'en-US': 'English (USA)',
   es: 'Spanish',
   et: 'Estonian',
-  fa: 'Persian',
+  fa: 'فارسی',
   fi: 'Finnish',
   fil: 'Filipino',
   fr: 'French',

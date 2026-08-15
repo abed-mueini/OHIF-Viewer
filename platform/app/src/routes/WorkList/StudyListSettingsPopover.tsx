@@ -88,6 +88,7 @@ export function defaultSettingsMenuItems({
 export function StudyListSettingsPopover() {
   // SettingsPopover.Workflow now uses useStudyListWorkflows internally
   const { t } = useTranslation();
+  const { t: tStudyList } = useTranslation('StudyList');
   const [appConfig] = useAppConfig();
   const navigate = useNavigate();
   const { servicesManager } = useSystem();
@@ -105,9 +106,9 @@ export function StudyListSettingsPopover() {
   const items: SettingsMenuItem[] =
     typeof buildItems === 'function'
       ? (() => {
-          const result = (
-            buildItems as (defaults: SettingsMenuItem[]) => SettingsMenuItem[]
-          )(defaults);
+          const result = (buildItems as (defaults: SettingsMenuItem[]) => SettingsMenuItem[])(
+            defaults
+          );
           return Array.isArray(result) ? result : defaults;
         })()
       : defaults;
@@ -118,7 +119,7 @@ export function StudyListSettingsPopover() {
         <Button
           variant="ghost"
           size="icon"
-          aria-label="Open settings"
+          aria-label={tStudyList('Open settings')}
         >
           <Icons.SettingsStudyList
             aria-hidden="true"

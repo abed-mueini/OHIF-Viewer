@@ -1,4 +1,7 @@
 import * as React from 'react';
+import { isValid } from 'date-fns';
+import i18n from 'i18next';
+import { useTranslation } from 'react-i18next';
 import type { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '../../DataTable';
 import type { ColumnMeta } from '../../DataTable/types';
@@ -8,6 +11,12 @@ import { ActionCell } from '../components/ActionCell';
 import { tokenizeModalities } from '../utils/tokenizeModalities';
 import { formatDICOMDate } from '../../../utils/formatDICOMDate';
 import { formatDICOMTime } from '../../../utils/formatDICOMTime';
+import {
+  formatCalendarInput,
+  localizeDigits,
+  parseDicomDate,
+  usesPersianCalendar,
+} from '../../../utils/calendarDate';
 import { parseStudyDateTimestamp } from '../../../utils/parseStudyDateTimestamp';
 
 // Column ID constants - shared across the codebase
@@ -53,9 +62,26 @@ export function textColumn(
     id,
     accessorFn: row => (row as Record<string, unknown>)[id] ?? '',
     header: ({ column }) => <DataTable.ColumnHeader column={column} />,
-    cell: ({ row }) => <div className="truncate">{row.getValue<string>(id)}</div>,
+    cell: ({ row }) => (
+      <div
+        dir="auto"
+        className="truncate"
+      >
+        {row.getValue<string>(id)}
+      </div>
+    ),
     meta: { label, minWidth: 120, ...meta },
   };
+}
+
+function DescriptionCell({ description }: { description: string }) {
+  const { t } = useTranslation('StudyList');
+
+  return (
+    <div className={!description ? 'text-muted-foreground/40' : ''}>
+      {description || t('No Description')}
+    </div>
+  );
 }
 
 export const defaultColumns: ColumnDef<StudyRow, unknown>[] = [
@@ -66,7 +92,14 @@ export const defaultColumns: ColumnDef<StudyRow, unknown>[] = [
       return r.patientName ?? '';
     },
     header: ({ column }) => <DataTable.ColumnHeader column={column} />,
-    cell: ({ row }) => <div className="truncate">{row.getValue(COLUMN_IDS.PATIENT)}</div>,
+    cell: ({ row }) => (
+      <div
+        dir="auto"
+        className="truncate"
+      >
+        {row.getValue(COLUMN_IDS.PATIENT)}
+      </div>
+    ),
     meta: {
       label: 'Patient',
       headerClassName: 'min-w-[165px]',
@@ -82,7 +115,14 @@ export const defaultColumns: ColumnDef<StudyRow, unknown>[] = [
       return r.mrn ?? '';
     },
     header: ({ column }) => <DataTable.ColumnHeader column={column} />,
-    cell: ({ row }) => <div className="truncate">{row.getValue(COLUMN_IDS.MRN)}</div>,
+    cell: ({ row }) => (
+      <div
+        dir="ltr"
+        className="truncate"
+      >
+        {row.getValue(COLUMN_IDS.MRN)}
+      </div>
+    ),
     meta: {
       label: 'MRN',
       headerClassName: 'min-w-[120px]',
@@ -95,17 +135,26 @@ export const defaultColumns: ColumnDef<StudyRow, unknown>[] = [
     id: COLUMN_IDS.STUDY_DATE_TIME,
     accessorFn: row => {
       const r = row as StudyRow;
+      const language = i18n.language || 'en-US';
+      const usesJalali = usesPersianCalendar(language);
       // Date drives the cell: with no valid date we show nothing, even if a
       // time is present.
-      const date = formatDICOMDate(r.date ?? '', {
-        fallbackFormat: 'MMM-DD-YYYY',
-        invalidFallback: '',
-      });
+      const parsedDate = parseDicomDate(r.date ?? '');
+      const date =
+        usesJalali && isValid(parsedDate)
+          ? formatCalendarInput(parsedDate, language)
+          : formatDICOMDate(r.date ?? '', {
+              fallbackFormat: 'MMM-DD-YYYY',
+              invalidFallback: '',
+            });
       if (!date) {
         return '';
       }
-      const time = formatDICOMTime(r.time ?? '', { invalidFallback: '' });
-      return time ? `${date} ${time}` : date;
+      const time = formatDICOMTime(r.time ?? '', {
+        ...(usesJalali ? { strFormat: 'HH:mm' } : {}),
+        invalidFallback: '',
+      });
+      return localizeDigits(time ? `${date} ${time}` : date, language);
     },
     filterFn: (row, _colId, filter) => {
       const range =
@@ -132,7 +181,15 @@ export const defaultColumns: ColumnDef<StudyRow, unknown>[] = [
     },
     header: ({ column }) => <DataTable.ColumnHeader column={column} />,
     cell: ({ row }) => {
-      return <div className="truncate">{row.getValue(COLUMN_IDS.STUDY_DATE_TIME)}</div>;
+      return (
+        <div
+          dir="ltr"
+          className="truncate"
+          style={{ textAlign: usesPersianCalendar(i18n.language) ? 'right' : 'left' }}
+        >
+          {row.getValue(COLUMN_IDS.STUDY_DATE_TIME)}
+        </div>
+      );
     },
     sortingFn: (a, b) => {
       const aRow = a.original as StudyRow;
@@ -156,7 +213,14 @@ export const defaultColumns: ColumnDef<StudyRow, unknown>[] = [
       return r.modalities ?? '';
     },
     header: ({ column }) => <DataTable.ColumnHeader column={column} />,
-    cell: ({ row }) => <div className="truncate">{row.getValue(COLUMN_IDS.MODALITIES)}</div>,
+    cell: ({ row }) => (
+      <div
+        dir="ltr"
+        className="truncate"
+      >
+        {row.getValue(COLUMN_IDS.MODALITIES)}
+      </div>
+    ),
     filterFn: (row, colId, filter) => {
       const selected = Array.isArray(filter) ? (filter as string[]) : [];
       if (!selected.length) {
@@ -184,8 +248,8 @@ export const defaultColumns: ColumnDef<StudyRow, unknown>[] = [
     cell: ({ row }) => {
       const description = row.getValue(COLUMN_IDS.DESCRIPTION) as string;
       return (
-        <div className={!description ? 'text-muted-foreground/40' : ''}>
-          {description || 'No Description'}
+        <div dir="auto">
+          <DescriptionCell description={description} />
         </div>
       );
     },
@@ -204,7 +268,14 @@ export const defaultColumns: ColumnDef<StudyRow, unknown>[] = [
       return r.accession ?? '';
     },
     header: ({ column }) => <DataTable.ColumnHeader column={column} />,
-    cell: ({ row }) => <div className="truncate">{row.getValue(COLUMN_IDS.ACCESSION)}</div>,
+    cell: ({ row }) => (
+      <div
+        dir="ltr"
+        className="truncate"
+      >
+        {row.getValue(COLUMN_IDS.ACCESSION)}
+      </div>
+    ),
     meta: {
       label: 'Accession',
       headerClassName: 'min-w-[140px]',
@@ -222,7 +293,14 @@ export const defaultColumns: ColumnDef<StudyRow, unknown>[] = [
     header: ({ column }) => <DataTable.ColumnHeader column={column} />,
     cell: ({ row }) => {
       const value = row.getValue(COLUMN_IDS.INSTANCES) as number;
-      return <div className="text-right">{value}</div>;
+      return (
+        <div
+          dir="ltr"
+          className="text-right"
+        >
+          {localizeDigits(String(value), i18n.language)}
+        </div>
+      );
     },
     sortingFn: (a, b, colId) => (a.getValue(colId) as number) - (b.getValue(colId) as number),
     meta: {

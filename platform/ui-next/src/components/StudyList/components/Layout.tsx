@@ -138,7 +138,7 @@ function Table({
   onStudyDoubleClick,
   children,
 }: TableProps) {
-  const { defaultPreviewSizePercent } = useLayout();
+  const { defaultPreviewSizePercent, isPreviewOpen } = useLayout();
 
   // If children are provided, use them (for custom content)
   // Otherwise, render the StudyList.Table with the provided props
@@ -176,7 +176,11 @@ function Table({
     </div>
   );
 
-  return <ResizablePanel defaultSize={100 - defaultPreviewSizePercent}>{content}</ResizablePanel>;
+  return (
+    <ResizablePanel defaultSize={isPreviewOpen ? 100 - defaultPreviewSizePercent : 100}>
+      {content}
+    </ResizablePanel>
+  );
 }
 
 function Preview({

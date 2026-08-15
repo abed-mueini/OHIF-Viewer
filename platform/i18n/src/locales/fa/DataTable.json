@@ -1,0 +1,11 @@
+{
+  "{{start}}-{{end}} of {{total}}": "{{start}} تا {{end}} از {{total}}",
+  "{{size}} per page": "{{size}} ردیف در هر صفحه",
+  "Next page": "صفحه بعدی",
+  "No results.": "نتیجه‌ای یافت نشد.",
+  "Not enough room to display this column": "فضای کافی برای نمایش این ستون وجود ندارد",
+  "Previous page": "صفحه قبلی",
+  "Rows per page": "تعداد ردیف‌ها در هر صفحه",
+  "Sort {{label}}": "مرتب‌سازی بر اساس {{label}}",
+  "View": "نمایش"
+}

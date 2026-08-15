@@ -1,10 +1,19 @@
 import * as React from 'react';
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
 import { CheckIcon, ChevronRightIcon, DotFilledIcon } from '@radix-ui/react-icons';
+import { useTranslation } from 'react-i18next';
 
 import { cn } from '../../lib/utils';
 
-const DropdownMenu = DropdownMenuPrimitive.Root;
+function DropdownMenu(props: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
+  const { i18n } = useTranslation();
+  return (
+    <DropdownMenuPrimitive.Root
+      {...props}
+      dir={props.dir ?? i18n.dir(i18n.language)}
+    />
+  );
+}
 
 const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger;
 
@@ -22,21 +31,29 @@ const DropdownMenuSubTrigger = React.forwardRef<
     inset?: boolean;
     disabled?: boolean;
   }
->(({ className, inset, children, disabled, ...props }, ref) => (
-  <DropdownMenuPrimitive.SubTrigger
-    ref={ref}
-    className={cn(
-      'focus:bg-accent data-[state=open]:bg-accent flex cursor-default select-none items-center rounded px-2 py-1 text-base outline-none',
-      inset && 'pl-8',
-      disabled && 'pointer-events-none opacity-50',
-      className
-    )}
-    {...props}
-  >
-    {children}
-    <ChevronRightIcon className="ml-auto h-4 w-4" />
-  </DropdownMenuPrimitive.SubTrigger>
-));
+>(({ className, inset, children, disabled, ...props }, ref) => {
+  const { i18n } = useTranslation();
+  const isRtl = i18n.dir(i18n.language) === 'rtl';
+
+  return (
+    <DropdownMenuPrimitive.SubTrigger
+      ref={ref}
+      className={cn(
+        'focus:bg-accent data-[state=open]:bg-accent flex cursor-default select-none items-center rounded px-2 py-1 text-base outline-none',
+        inset && '[padding-inline-start:2rem]',
+        disabled && 'pointer-events-none opacity-50',
+        className
+      )}
+      {...props}
+    >
+      {children}
+      <ChevronRightIcon
+        className={`h-4 w-4 ${isRtl ? 'rotate-180' : ''}`}
+        style={{ marginInlineStart: 'auto' }}
+      />
+    </DropdownMenuPrimitive.SubTrigger>
+  );
+});
 DropdownMenuSubTrigger.displayName = DropdownMenuPrimitive.SubTrigger.displayName;
 
 const DropdownMenuSubContent = React.forwardRef<
@@ -88,7 +105,7 @@ const DropdownMenuItem = React.forwardRef<
     ref={ref}
     className={cn(
       'focus:bg-accent focus:text-accent-foreground relative flex cursor-default select-none items-center rounded px-1 py-1 text-base outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-      inset && 'pl-8',
+      inset && '[padding-inline-start:2rem]',
       className
     )}
     {...props}
@@ -103,13 +120,16 @@ const DropdownMenuCheckboxItem = React.forwardRef<
   <DropdownMenuPrimitive.CheckboxItem
     ref={ref}
     className={cn(
-      'focus:bg-accent focus:text-accent-foreground relative flex cursor-default select-none items-center rounded py-1 pl-8 pr-2 text-base outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+      'focus:bg-accent focus:text-accent-foreground relative flex cursor-default select-none items-center rounded py-1 text-base outline-none transition-colors [padding-inline-start:2rem] [padding-inline-end:0.5rem] data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       className
     )}
     checked={checked}
     {...props}
   >
-    <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+    <span
+      className="absolute flex h-3.5 w-3.5 items-center justify-center"
+      style={{ insetInlineStart: '0.5rem' }}
+    >
       <DropdownMenuPrimitive.ItemIndicator>
         <CheckIcon className="h-4 w-4" />
       </DropdownMenuPrimitive.ItemIndicator>
@@ -126,12 +146,15 @@ const DropdownMenuRadioItem = React.forwardRef<
   <DropdownMenuPrimitive.RadioItem
     ref={ref}
     className={cn(
-      'focus:bg-accent focus:text-accent-foreground relative flex cursor-default select-none items-center rounded py-1 pl-8 pr-2 text-base outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+      'focus:bg-accent focus:text-accent-foreground relative flex cursor-default select-none items-center rounded py-1 text-base outline-none transition-colors [padding-inline-start:2rem] [padding-inline-end:0.5rem] data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       className
     )}
     {...props}
   >
-    <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+    <span
+      className="absolute flex h-3.5 w-3.5 items-center justify-center"
+      style={{ insetInlineStart: '0.5rem' }}
+    >
       <DropdownMenuPrimitive.ItemIndicator>
         <DotFilledIcon className="h-4 w-4 fill-current" />
       </DropdownMenuPrimitive.ItemIndicator>
@@ -149,7 +172,11 @@ const DropdownMenuLabel = React.forwardRef<
 >(({ className, inset, ...props }, ref) => (
   <DropdownMenuPrimitive.Label
     ref={ref}
-    className={cn('text-muted-foreground px-2 py-1 text-sm', inset && 'pl-8', className)}
+    className={cn(
+      'text-muted-foreground px-2 py-1 text-sm',
+      inset && '[padding-inline-start:2rem]',
+      className
+    )}
     {...props}
   />
 ));
@@ -170,7 +197,7 @@ DropdownMenuSeparator.displayName = DropdownMenuPrimitive.Separator.displayName;
 const DropdownMenuShortcut = ({ className, ...props }: React.HTMLAttributes<HTMLSpanElement>) => {
   return (
     <span
-      className={cn('ml-auto text-sm tracking-widest opacity-60', className)}
+      className={cn('text-sm tracking-widest opacity-60 [margin-inline-start:auto]', className)}
       {...props}
     />
   );

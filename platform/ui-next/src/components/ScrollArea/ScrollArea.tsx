@@ -1,5 +1,6 @@
 import * as React from 'react';
 import * as ScrollAreaPrimitive from '@radix-ui/react-scroll-area';
+import { useTranslation } from 'react-i18next';
 
 import { cn } from '../../lib/utils';
 import { Icons } from '../Icons';
@@ -35,6 +36,7 @@ const ScrollArea = React.forwardRef<
   React.ElementRef<typeof ScrollAreaPrimitive.Root>,
   ScrollAreaProps
 >(({ className, children, showArrows = false, ...props }, ref) => {
+  const { i18n } = useTranslation();
   const [showBottomArrow, setShowBottomArrow] = React.useState(false);
   const [showTopArrow, setShowTopArrow] = React.useState(false);
   const viewportRef = React.useRef<HTMLDivElement>(null);
@@ -57,6 +59,7 @@ const ScrollArea = React.forwardRef<
     <ScrollAreaPrimitive.Root
       ref={ref}
       className={cn('relative h-full overflow-hidden', className, '[&>div>div]:!block')}
+      dir={props.dir ?? i18n.dir(i18n.language)}
       type={props.type}
       {...props}
     >
@@ -108,7 +111,8 @@ const ScrollBar = React.forwardRef<
     orientation={orientation}
     className={cn(
       'flex touch-none select-none transition-colors',
-      orientation === 'vertical' && 'h-full w-2.5 border-l border-l-transparent p-[2px]',
+      orientation === 'vertical' &&
+        'h-full w-2.5 p-[2px] [border-inline-start-color:transparent] [border-inline-start-width:1px]',
       orientation === 'horizontal' && 'h-2 flex-col border-t border-t-transparent p-[1px]',
       className
     )}

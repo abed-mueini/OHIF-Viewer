@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Thumbnail } from '../../Thumbnail';
 import { TooltipProvider } from '../../Tooltip';
 import {
@@ -47,6 +48,7 @@ function PreviewContent({
    */
   onThumbnailImageError?: (seriesInstanceUid: string) => void;
 }) {
+  const { t } = useTranslation('StudyList');
   const isToggleVisible = seriesView === 'all';
   const [seriesViewMode, setSeriesViewMode] = React.useState<PreviewSeriesViewMode>('thumbnails');
   const effectiveSeriesViewMode: PreviewSeriesViewMode = isToggleVisible
@@ -78,7 +80,7 @@ function PreviewContent({
         </PreviewPatientSummary>
         <div className="text-muted-foreground flex h-5 w-full items-center justify-between gap-1 px-2 text-base">
           <span className="leading-tight">
-            {series?.length ? study?.description || 'No Description' : 'No Series'}
+            {series?.length ? study?.description || t('No Description') : t('No Series')}
           </span>
           {isToggleVisible && (
             <ToggleGroup
@@ -88,14 +90,14 @@ function PreviewContent({
             >
               <ToggleGroupItem
                 value="thumbnails"
-                aria-label="Thumbnail view"
+                aria-label={t('Thumbnail view')}
                 className="text-primary"
               >
                 <Icons.ThumbnailView />
               </ToggleGroupItem>
               <ToggleGroupItem
                 value="list"
-                aria-label="List view"
+                aria-label={t('List view')}
                 className="text-primary"
               >
                 <Icons.ListView />
@@ -107,7 +109,7 @@ function PreviewContent({
           {effectiveSeriesViewMode === 'thumbnails' ? (
             <div className="flex flex-col">
               {imagingSeries.length > 0 && (
-                <div className="grid grid-cols-[repeat(auto-fit,_minmax(0,135px))] place-items-start gap-[4px] pr-2">
+                <div className="grid grid-cols-[repeat(auto-fit,_minmax(0,135px))] place-items-start gap-[4px] [padding-inline-end:0.5rem]">
                   {imagingSeries.map((seriesItem, index) => {
                     const seriesUID =
                       seriesItem.seriesInstanceUid || seriesItem.SeriesInstanceUID || String(index);
@@ -124,7 +126,7 @@ function PreviewContent({
                         onImageLoadError={() => onThumbnailImageError?.(seriesUID)}
                         imageAltText={seriesItem.description || seriesItem.SeriesDescription || ''}
                         description={
-                          seriesItem.description || seriesItem.SeriesDescription || '(empty)'
+                          seriesItem.description || seriesItem.SeriesDescription || t('(empty)')
                         }
                         seriesNumber={seriesItem.seriesNumber ?? seriesItem.SeriesNumber ?? ''}
                         numInstances={seriesItem.numSeriesInstances ?? seriesItem.numInstances ?? 0}
@@ -147,7 +149,7 @@ function PreviewContent({
                 </div>
               )}
               {nonImagingSeries.length > 0 && (
-                <div className="mt-1 grid grid-cols-[repeat(auto-fit,_minmax(0,275px))] place-items-start gap-[2px] pr-2">
+                <div className="mt-1 grid grid-cols-[repeat(auto-fit,_minmax(0,275px))] place-items-start gap-[2px] [padding-inline-end:0.5rem]">
                   {nonImagingSeries.map((seriesItem, index) => {
                     const seriesUID =
                       seriesItem.seriesInstanceUid || seriesItem.SeriesInstanceUID || String(index);
@@ -157,7 +159,7 @@ function PreviewContent({
                         displaySetInstanceUID={`series-${seriesUID}`}
                         imageAltText={seriesItem.description || seriesItem.SeriesDescription || ''}
                         description={
-                          seriesItem.description || seriesItem.SeriesDescription || '(empty)'
+                          seriesItem.description || seriesItem.SeriesDescription || t('(empty)')
                         }
                         seriesNumber={seriesItem.seriesNumber ?? seriesItem.SeriesNumber ?? ''}
                         numInstances={seriesItem.numSeriesInstances ?? seriesItem.numInstances ?? 0}

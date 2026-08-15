@@ -1,0 +1,14 @@
+{
+  "emptyFilenameError": "نام فایل نمی‌تواند خالی باشد.",
+  "fileType": "نوع فایل",
+  "filename": "نام فایل",
+  "formTitle": "ابعاد، نام فایل و نوع دلخواه تصویر خروجی را مشخص کنید.",
+  "imageHeight": "ارتفاع تصویر (px)",
+  "imagePreview": "پیش‌نمایش تصویر",
+  "imageWidth": "عرض تصویر (px)",
+  "keepAspectRatio": "حفظ نسبت تصویر",
+  "loadingPreview": "در حال بارگذاری پیش‌نمایش تصویر...",
+  "minHeightError": "حداقل ارتفاع معتبر 100px است.",
+  "minWidthError": "حداقل عرض معتبر 100px است.",
+  "showAnnotations": "نمایش حاشیه‌نویسی‌ها"
+}

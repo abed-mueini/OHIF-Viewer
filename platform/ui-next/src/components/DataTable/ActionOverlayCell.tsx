@@ -71,14 +71,15 @@ function Value({ children }: ValueProps) {
   }
 
   const { isActive, computedAlign } = context;
-  const valueAlignmentClass =
-    computedAlign === 'end' ? 'text-right' : computedAlign === 'center' ? 'text-center' : '';
   const valueVisibilityClass = isActive
     ? 'invisible opacity-0'
     : 'group-hover:invisible group-hover:opacity-0 group-hover:text-transparent';
 
   return (
-    <div className={`transition-opacity ${valueAlignmentClass} ${valueVisibilityClass}`}>
+    <div
+      className={`transition-opacity ${valueVisibilityClass}`}
+      style={{ textAlign: computedAlign }}
+    >
       {children}
     </div>
   );
@@ -100,11 +101,13 @@ function Overlay({ children }: OverlayProps) {
 
   const { isActive, computedAlign, cell } = context;
   const overlayPositionClass =
-    computedAlign === 'center'
-      ? 'inset-y-0 inset-x-0 justify-center px-2'
-      : computedAlign === 'start'
-        ? 'inset-y-0 left-0 px-2'
-        : 'inset-y-0 right-0 px-2';
+    computedAlign === 'center' ? 'inset-y-0 inset-x-0 justify-center px-2' : 'inset-y-0 px-2';
+  const overlayPositionStyle =
+    computedAlign === 'start'
+      ? { insetInlineStart: 0 }
+      : computedAlign === 'end'
+        ? { insetInlineEnd: 0 }
+        : undefined;
   const overlayVisibilityClass = isActive
     ? 'bg-popover opacity-100'
     : 'opacity-0 group-hover:bg-muted group-hover:opacity-100';
@@ -112,6 +115,7 @@ function Overlay({ children }: OverlayProps) {
   return (
     <div
       className={`absolute z-10 flex items-center ${overlayPositionClass} ${overlayVisibilityClass}`}
+      style={overlayPositionStyle}
       onMouseDown={e => {
         e.stopPropagation();
         if (!cell.row.getIsSelected()) {

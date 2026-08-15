@@ -33,15 +33,21 @@ export const FooterAction: FooterActionComponent = ({ children, className }: Foo
   );
 
   // Decide on the justification class based on presence of Left/Right
-  let justifyClass = 'justify-between'; // default
+  let justifyClass = 'sm:justify-between'; // default
   if (hasLeft && !hasRight) {
-    justifyClass = 'justify-start';
+    justifyClass = 'sm:justify-start';
   } else if (!hasLeft && hasRight) {
-    justifyClass = 'justify-end';
+    justifyClass = 'sm:justify-end';
   }
   // If both or neither are present, keep justify-between (or adjust if you like)
   return (
-    <div className={cn('flex w-full flex-shrink-0 items-center', justifyClass, className)}>
+    <div
+      className={cn(
+        'flex w-full flex-shrink-0 flex-col items-stretch gap-2 sm:flex-row sm:items-center',
+        justifyClass,
+        className
+      )}
+    >
       {children}
     </div>
   );
@@ -50,12 +56,14 @@ export const FooterAction: FooterActionComponent = ({ children, className }: Foo
 FooterAction.displayName = 'FooterAction';
 
 FooterAction.Left = ({ children }: FooterActionProps) => {
-  return <div className="flex items-center">{children}</div>;
+  return <div className="flex w-full items-center sm:w-auto">{children}</div>;
 };
 FooterAction.Left.displayName = 'FooterAction.Left';
 
 FooterAction.Right = ({ children }: FooterActionProps) => {
-  return <div className="flex items-center space-x-2">{children}</div>;
+  return (
+    <div className="grid w-full grid-cols-2 items-center gap-2 sm:flex sm:w-auto">{children}</div>
+  );
 };
 FooterAction.Right.displayName = 'FooterAction.Right';
 

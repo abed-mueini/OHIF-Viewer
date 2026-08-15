@@ -19,7 +19,8 @@ type ViewOptionsProps = {
 };
 
 export function ViewOptions<TData>({ buttonText = 'View' }: ViewOptionsProps) {
-  const { t } = useTranslation('DataTable');
+  const { t: tDataTable } = useTranslation('DataTable');
+  const { t: tStudyList } = useTranslation('StudyList');
   const { table } = useDataTable<TData>();
   const unfitColumnIds = useUnfitColumnIds();
   const columns = table.getAllColumns().filter(c => c.getCanHide());
@@ -32,7 +33,7 @@ export function ViewOptions<TData>({ buttonText = 'View' }: ViewOptionsProps) {
           size="sm"
           className="gap-1 text-sm"
         >
-          {buttonText}
+          {buttonText === 'View' ? tDataTable('View') : buttonText}
           <Icons.ChevronDown className="h-2 w-2" />
         </Button>
       </DropdownMenuTrigger>
@@ -40,6 +41,7 @@ export function ViewOptions<TData>({ buttonText = 'View' }: ViewOptionsProps) {
         {columns.map(column => {
           const meta = (column.columnDef.meta as ColumnMeta | undefined) ?? undefined;
           const label = meta?.label ?? column.id;
+          const translatedLabel = tStudyList(label, { defaultValue: label });
           const isUnfit = !column.getIsVisible() && unfitColumnIds.has(column.id);
           const checkbox = (
             <DropdownMenuCheckboxItem
@@ -48,7 +50,7 @@ export function ViewOptions<TData>({ buttonText = 'View' }: ViewOptionsProps) {
               onCheckedChange={v => column.toggleVisibility(!!v)}
               className="capitalize"
             >
-              {label}
+              {translatedLabel}
             </DropdownMenuCheckboxItem>
           );
 
@@ -62,7 +64,7 @@ export function ViewOptions<TData>({ buttonText = 'View' }: ViewOptionsProps) {
                   <span>{checkbox}</span>
                 </TooltipTrigger>
                 <TooltipContent side="left">
-                  {t('Not enough room to display this column')}
+                  {tDataTable('Not enough room to display this column')}
                 </TooltipContent>
               </Tooltip>
             );

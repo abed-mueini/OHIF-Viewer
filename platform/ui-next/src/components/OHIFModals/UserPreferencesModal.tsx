@@ -210,8 +210,9 @@ function Hotkey({ label, placeholder, className, value, onChange, hotkeys }: Hot
     <div className={cn('flex items-start justify-between gap-2', className)}>
       <Label className="flex-1 whitespace-normal break-words text-sm">{label}</Label>
       <Input
+        dir="ltr"
         className={cn(
-          'w-16 text-center transition-colors',
+          'w-24 text-center transition-colors',
           isRecording && 'bg-accent text-accent-foreground caret-accent-foreground'
         )}
         placeholder={isRecording ? t('Press keys') : translatedPlaceholder || ''}

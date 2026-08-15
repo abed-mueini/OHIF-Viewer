@@ -13,6 +13,30 @@ import { getLanguageLabel, getAvailableLanguagesInfo } from './utils.js';
 // by the pullTranslations.sh script
 import locales from './locales';
 
+const DEFAULT_LANGUAGE = 'fa';
+const FALLBACK_LANGUAGE = 'en-US';
+const RTL_LANGUAGES = new Set(['ar', 'fa', 'he']);
+
+// The detector reads `default[0]` when no preference exists. Explicitly map
+// every shipped language to English so its missing keys never fall into Persian.
+const LANGUAGE_FALLBACKS = Object.fromEntries(
+  Object.keys(locales).map(language => [
+    language,
+    language === FALLBACK_LANGUAGE ? [] : [FALLBACK_LANGUAGE],
+  ])
+);
+LANGUAGE_FALLBACKS.default = [DEFAULT_LANGUAGE, FALLBACK_LANGUAGE];
+
+function syncDocumentLanguage(language = DEFAULT_LANGUAGE) {
+  if (typeof document === 'undefined') {
+    return;
+  }
+
+  const normalizedLanguage = language.toLowerCase().split('-')[0];
+  document.documentElement.lang = language;
+  document.documentElement.dir = RTL_LANGUAGES.has(normalizedLanguage) ? 'rtl' : 'ltr';
+}
+
 function addLocales(newLocales) {
   customDebug(`Adding locales ${newLocales}`, 'info');
 
@@ -39,12 +63,11 @@ const locizeOptions = {
   projectId: process.env.LOCIZE_PROJECTID,
   apiKey: process.env.LOCIZE_API_KEY,
   referenceLng: 'en-US',
-  fallbacklng: 'en-US',
+  fallbackLng: FALLBACK_LANGUAGE,
 };
 
 const envUseLocize = !!process.env.USE_LOCIZE;
 const envApiKeyAvailable = !!process.env.LOCIZE_API_KEY;
-const DEFAULT_LANGUAGE = 'en-US';
 
 function initI18n(
   detection = detectionOptions,
@@ -77,7 +100,7 @@ function initI18n(
       // init i18next
       // for all options read: https://www.i18next.com/overview/configuration-options
       .init({
-        fallbackLng: DEFAULT_LANGUAGE,
+        fallbackLng: LANGUAGE_FALLBACKS,
         saveMissing: apiKeyAvailable,
         debug: debugMode,
         keySeparator: false,
@@ -113,7 +136,7 @@ function initI18n(
       // init i18next
       // for all options read: https://www.i18next.com/overview/configuration-options
       .init({
-        fallbackLng: DEFAULT_LANGUAGE,
+        fallbackLng: LANGUAGE_FALLBACKS,
         resources: locales,
         debug: debugMode,
         keySeparator: false,
@@ -129,12 +152,14 @@ function initI18n(
 
   return initialized.then(function (t) {
     i18n.T = t;
+    syncDocumentLanguage(i18n.language);
     customDebug(`T function available.`, 'info');
   });
 }
 
 customDebug(`version ${pkg.version} loaded.`, 'info');
 
+i18n.on('languageChanged', syncDocumentLanguage);
 i18n.initializing = initI18n();
 i18n.initI18n = initI18n;
 i18n.addLocales = addLocales;

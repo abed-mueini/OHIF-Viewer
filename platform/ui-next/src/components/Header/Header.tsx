@@ -1,5 +1,6 @@
 import React, { ReactNode } from 'react';
 import classNames from 'classnames';
+import { useTranslation } from 'react-i18next';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -45,6 +46,8 @@ function Header({
   Secondary,
   ...props
 }: HeaderProps): ReactNode {
+  const { i18n } = useTranslation();
+  const isRtl = i18n.dir(i18n.language) === 'rtl';
   const onClickReturn = () => {
     if (isReturnEnabled && onClickReturnButton) {
       onClickReturnButton();
@@ -64,21 +67,24 @@ function Header({
           <div className="absolute left-0 top-1/2 flex -translate-y-1/2 items-center">
             <div
               className={classNames(
-                'mr-3 inline-flex items-center',
+                'inline-flex items-center gap-1',
                 isReturnEnabled && 'cursor-pointer'
               )}
+              style={{ marginInlineEnd: '0.75rem' }}
               onClick={onClickReturn}
               data-cy="return-to-work-list"
             >
-              {isReturnEnabled && <Icons.ArrowLeft className="text-primary ml-1 h-7 w-7" />}
-              <div className="ml-1">
+              {isReturnEnabled && (
+                <Icons.ArrowLeft className={`text-primary h-7 w-7 ${isRtl ? 'rotate-180' : ''}`} />
+              )}
+              <div>
                 {WhiteLabeling?.createLogoComponentFn?.(React, props) || <Icons.OHIFLogo />}
               </div>
             </div>
           </div>
           <div className="absolute top-1/2 left-[250px] h-8 -translate-y-1/2">{Secondary}</div>
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform">
-            <div className="flex items-center justify-center space-x-2">{children}</div>
+            <div className="flex items-center justify-center gap-2">{children}</div>
           </div>
           <div className="absolute right-0 top-1/2 flex -translate-y-1/2 select-none items-center">
             {UndoRedo}

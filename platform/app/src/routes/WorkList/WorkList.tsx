@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useAppConfig } from '@state';
 import type { RunInput } from '@ohif/core/src/classes/CommandsManager';
@@ -36,6 +37,7 @@ export default function WorkList({
   extensionManager,
   commandsManager,
 }: Props) {
+  const { t } = useTranslation('StudyList');
   const [appConfig] = useAppConfig();
   const { customizationService } = servicesManager.services;
   const LoadingIndicatorProgress = customizationService.getCustomization(
@@ -62,11 +64,23 @@ export default function WorkList({
     defaultValue: { open: true },
     clearOnUnload: false,
   });
+  const hasAppliedCompactPreviewDefault = useRef(false);
   const isPreviewOpen = previewState.open !== false;
   const setPreviewOpen = useCallback(
     (open: boolean) => updatePreviewState({ open }),
     [updatePreviewState]
   );
+
+  useEffect(() => {
+    if (hasAppliedCompactPreviewDefault.current) {
+      return;
+    }
+    hasAppliedCompactPreviewDefault.current = true;
+
+    if (window.matchMedia('(max-width: 767px)').matches && previewState.open !== false) {
+      updatePreviewState({ open: false });
+    }
+  }, [previewState.open, updatePreviewState]);
 
   // `workList.onStudyDoubleClick` is the command (or command list) run when a
   // study row is double-clicked — by default `launchDefaultMode`, which
@@ -102,7 +116,7 @@ export default function WorkList({
 
   const logoComponent = appConfig?.whiteLabeling?.createLogoComponentFn?.(React) ?? (
     <Icons.OHIFLogoHorizontal
-      aria-label="OHIF logo"
+      aria-label={t('OHIF logo')}
       className="h-[22px] w-[232px]"
     />
   );
@@ -158,14 +172,17 @@ export default function WorkList({
                   <div className="h-8 w-8" />
                 )
               }
-              title={'Study List'}
+              title={<span className="hidden xl:inline">{t('Study List')}</span>}
               onStudyDoubleClick={studyDoubleClickCommand ? onStudyDoubleClick : undefined}
               onSelectionChange={sel => setSelected((sel as StudyRow[])[0] ?? null)}
-              toolbarLeftComponent={logoComponent}
+              toolbarLeftComponent={<div className="hidden xl:block">{logoComponent}</div>}
               toolbarRightActionsComponent={toolbarActions}
               toolbarRightComponent={
                 !isPreviewOpen ? (
-                  <div className="relative -top-px mt-1 ml-2 flex items-center gap-1">
+                  <div
+                    className="relative -top-px mt-1 flex items-center gap-1"
+                    style={{ marginInlineStart: '0.5rem' }}
+                  >
                     <StudyListSettingsPopover />
                     <StudyList.OpenPreviewButton />
                   </div>
@@ -185,4 +202,3 @@ export default function WorkList({
     </div>
   );
 }
-

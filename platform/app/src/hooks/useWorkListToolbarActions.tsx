@@ -8,7 +8,7 @@ export function useWorkListToolbarActions(
   dataSource: any,
   onRefresh: () => void
 ): React.ReactNode {
-  const { t } = useTranslation();
+  const { t } = useTranslation('StudyList');
   const { show, hide } = useModal();
   const { customizationService } = servicesManager.services;
 
@@ -26,7 +26,7 @@ export function useWorkListToolbarActions(
 
   const uploadProps = uploadEnabled
     ? {
-        title: 'Upload files',
+        title: t('Upload files'),
         containerClassName: DicomUploadComponent?.containerClassName,
         closeButton: true,
         shouldCloseOnEsc: false,

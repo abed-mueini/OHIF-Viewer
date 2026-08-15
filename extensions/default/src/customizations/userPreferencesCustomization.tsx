@@ -196,14 +196,14 @@ function UserPreferencesModalDefault({ hide }: { hide: () => void }) {
     <UserPreferencesModal>
       <UserPreferencesModal.Body>
         {/* Language Section */}
-        <div className="mb-3 flex items-center space-x-14">
+        <div className="mb-3 flex flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:gap-14">
           <UserPreferencesModal.SubHeading>{t('Language')}</UserPreferencesModal.SubHeading>
           <Select
             defaultValue={state.languageValue}
             onValueChange={onLanguageChangeHandler}
           >
             <SelectTrigger
-              className="w-60"
+              className="w-full sm:w-60"
               aria-label="Language"
             >
               <SelectValue placeholder={t('Select language')} />
@@ -300,9 +300,7 @@ function UserPreferencesModalDefault({ hide }: { hide: () => void }) {
               hotkeysManager.setHotkeys(state.hotkeyDefinitions);
 
               if (toolGroupService && state.crosshairModifier != null) {
-                const bindings = [
-                  { mouseButton: 1, modifierKey: Number(state.crosshairModifier) },
-                ];
+                const bindings = [{ mouseButton: 1, modifierKey: Number(state.crosshairModifier) }];
                 toolGroupService.setToolBindings('mpr', 'Crosshairs', bindings);
                 toolGroupService.applyToolBindings('mpr', 'Crosshairs', {
                   replaceExisting: true,

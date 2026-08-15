@@ -1,10 +1,19 @@
 import * as React from 'react';
 import { CaretSortIcon, CheckIcon, ChevronDownIcon, ChevronUpIcon } from '@radix-ui/react-icons';
 import * as SelectPrimitive from '@radix-ui/react-select';
+import { useTranslation } from 'react-i18next';
 
 import { cn } from '../../lib/utils';
 
-const Select = SelectPrimitive.Root;
+function Select(props: React.ComponentProps<typeof SelectPrimitive.Root>) {
+  const { i18n } = useTranslation();
+  return (
+    <SelectPrimitive.Root
+      {...props}
+      dir={props.dir ?? i18n.dir(i18n.language)}
+    />
+  );
+}
 
 const SelectGroup = SelectPrimitive.Group;
 
@@ -109,12 +118,15 @@ const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      'focus:bg-accent focus:text-accent-foreground relative flex w-full cursor-default select-none items-center rounded py-1 pl-2 pr-8 text-base outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+      'focus:bg-accent focus:text-accent-foreground relative flex w-full cursor-default select-none items-center rounded py-1 text-base outline-none [padding-inline-end:2rem] [padding-inline-start:0.5rem] data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       className
     )}
     {...props}
   >
-    <span className="absolute right-2 flex h-3.5 w-3.5 items-center justify-center">
+    <span
+      className="absolute flex h-3.5 w-3.5 items-center justify-center"
+      style={{ insetInlineEnd: '0.5rem' }}
+    >
       <SelectPrimitive.ItemIndicator>
         <CheckIcon className="h-4 w-4" />
       </SelectPrimitive.ItemIndicator>

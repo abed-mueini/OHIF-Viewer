@@ -1,0 +1,13 @@
+{
+  "Copy to Clipboard": "کپی تصویر",
+  "File name": "نام فایل",
+  "Image size": "اندازه تصویر",
+  "Image size in pixels": "اندازه تصویر بر حسب پیکسل",
+  "Include annotations": "شامل حاشیه‌نویسی‌ها",
+  "Include warning message": "شامل پیام هشدار",
+  "Width": "عرض",
+  "Height": "ارتفاع",
+  "Save Image": "ذخیره تصویر",
+  "Image copied to clipboard": "تصویر در کلیپ‌بورد کپی شد",
+  "Failed to copy image to clipboard": "کپی تصویر در کلیپ‌بورد ناموفق بود"
+}

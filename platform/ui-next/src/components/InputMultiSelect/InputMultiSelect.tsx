@@ -214,10 +214,10 @@ function Summary() {
   return (
     <Badge
       variant="default"
-      className="inline-flex h-5 items-center gap-1 shrink-0 px-2"
+      className="inline-flex h-5 shrink-0 items-center gap-1 px-2"
     >
       <span
-        className="truncate max-w-[160px]"
+        className="max-w-[160px] truncate"
         title={firstLabel}
       >
         {text}
@@ -290,7 +290,7 @@ function Content({ children, fitToContent = false, maxWidth }: ContentProps) {
   return createPortal(
     <div
       ref={overlayRef}
-      className="z-[1000] mt-1 rounded-md border border-input bg-popover shadow-md"
+      className="border-input bg-popover z-[1000] mt-1 rounded-md border shadow-md"
       style={{
         position: 'fixed',
         left: coords.left,
@@ -306,7 +306,7 @@ function Content({ children, fitToContent = false, maxWidth }: ContentProps) {
       }}
     >
       <ScrollArea
-        className="h-auto min-h-0 max-h-[inherit]"
+        className="h-auto max-h-[inherit] min-h-0"
         type="auto"
       >
         <CommandList
@@ -349,7 +349,7 @@ function Options() {
             </span>
             <Icons.Checked
               className={cn(
-                'ml-auto block h-6 w-6 shrink-0',
+                'block h-6 w-6 shrink-0 [margin-inline-start:auto]',
                 selectedSet.has(opt.value) ? 'opacity-70' : 'invisible'
               )}
               aria-hidden="true"

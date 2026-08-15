@@ -5,15 +5,18 @@ import { ProgressDropdownOption, ProgressDropdownOptionPropType } from './types'
 
 const ProgressDiscreteBar = ({ options }: { options: ProgressDropdownOption[] }): ReactElement => {
   return (
-    <div className="flex">
+    <div className="flex gap-1">
       {options.map((option, i) => (
         <div
           key={i}
-          className={classnames('mr-1 h-1 grow first:rounded-l-sm last:mr-0 last:rounded-r-sm', {
-            'bg-background': !option.activated && !option.completed,
-            'bg-primary/40': option.activated && !option.completed,
-            'bg-highlight': option.completed,
-          })}
+          className={classnames(
+            'h-1 grow first:[border-end-start-radius:0.125rem] first:[border-start-start-radius:0.125rem] last:[border-end-end-radius:0.125rem] last:[border-start-end-radius:0.125rem]',
+            {
+              'bg-background': !option.activated && !option.completed,
+              'bg-primary/40': option.activated && !option.completed,
+              'bg-highlight': option.completed,
+            }
+          )}
         />
       ))}
     </div>
