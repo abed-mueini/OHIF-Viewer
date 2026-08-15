@@ -42,6 +42,21 @@ function removeCustomStyleElement() {
   }
 }
 
+function syncBrowserTheme() {
+  window.requestAnimationFrame(() => {
+    const background = getComputedStyle(document.body).getPropertyValue('--background').trim();
+    if (!background) {
+      return;
+    }
+
+    const lightness = background.match(/([\d.]+)%\s*$/)?.[1];
+    document.documentElement.style.colorScheme = Number(lightness) >= 50 ? 'light' : 'dark';
+
+    const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    themeColor?.setAttribute('content', `hsl(${background})`);
+  });
+}
+
 function parseCssVars(cssText: string): string[] {
   const vars: string[] = [];
 
@@ -128,6 +143,8 @@ export function ActiveThemeProvider({ children }: { children: React.ReactNode })
       removeCustomStyleElement();
     }
 
+    syncBrowserTheme();
+
     if (theme === 'default') {
       localStorage.removeItem(STORAGE_KEY_THEME);
     } else {
@@ -147,6 +164,7 @@ export function ActiveThemeProvider({ children }: { children: React.ReactNode })
     setActiveThemeState('custom');
     removeThemeClasses();
     localStorage.setItem(STORAGE_KEY_THEME, 'custom');
+    syncBrowserTheme();
     return true;
   }, []);
 
@@ -159,6 +177,7 @@ export function ActiveThemeProvider({ children }: { children: React.ReactNode })
     setActiveThemeState('default');
     removeThemeClasses();
     localStorage.removeItem(STORAGE_KEY_THEME);
+    syncBrowserTheme();
   }, []);
 
   // Persist URL param override to localStorage
@@ -174,16 +193,18 @@ export function ActiveThemeProvider({ children }: { children: React.ReactNode })
   }, []);
 
   // Apply initial theme on mount (including custom theme re-injection on reload)
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     if (activeTheme === 'custom' && customCss) {
       applyCustomTheme(customCss);
     } else if (activeTheme !== 'default') {
       document.body.classList.add(`theme-${activeTheme}`);
     }
+    syncBrowserTheme();
 
     return () => {
       removeThemeClasses();
       removeCustomStyleElement();
+      syncBrowserTheme();
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 

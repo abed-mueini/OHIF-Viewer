@@ -1,0 +1,37 @@
+{
+  "name": "clinical-light",
+  "label": "Light: Clinical",
+  "colorScheme": "light",
+  "cssVars": {
+    "light": {
+      "highlight": "184 72% 30%",
+      "neutral": "215 13% 47%",
+      "neutral-light": "210 22% 78%",
+      "neutral-dark": "216 26% 25%",
+      "background": "210 36% 97%",
+      "foreground": "218 32% 14%",
+      "card": "0 0% 100%",
+      "card-foreground": "218 32% 14%",
+      "popover": "0 0% 100%",
+      "popover-foreground": "218 32% 14%",
+      "primary": "203 88% 36%",
+      "primary-foreground": "0 0% 100%",
+      "secondary": "210 40% 92%",
+      "secondary-foreground": "213 40% 25%",
+      "muted": "210 30% 94%",
+      "muted-foreground": "215 16% 40%",
+      "accent": "199 65% 91%",
+      "accent-foreground": "203 88% 28%",
+      "destructive": "0 72% 44%",
+      "destructive-foreground": "0 0% 100%",
+      "border": "214 25% 86%",
+      "input": "214 24% 78%",
+      "ring": "203 88% 36%",
+      "chart-1": "203 88% 40%",
+      "chart-2": "168 62% 34%",
+      "chart-3": "35 88% 48%",
+      "chart-4": "225 65% 55%",
+      "chart-5": "350 68% 48%"
+    }
+  }
+}

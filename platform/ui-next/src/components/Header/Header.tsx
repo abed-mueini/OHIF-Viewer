@@ -78,7 +78,9 @@ function Header({
                 <Icons.ArrowLeft className={`text-primary h-7 w-7 ${isRtl ? 'rotate-180' : ''}`} />
               )}
               <div>
-                {WhiteLabeling?.createLogoComponentFn?.(React, props) || <Icons.OHIFLogo />}
+                {WhiteLabeling?.createLogoComponentFn?.(React, props) || (
+                  <Icons.OHIFLogo className="text-foreground" />
+                )}
               </div>
             </div>
           </div>

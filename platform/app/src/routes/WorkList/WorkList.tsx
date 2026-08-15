@@ -139,7 +139,7 @@ export default function WorkList({
   }, [isLoadingData, data]);
 
   return (
-    <div className="flex h-screen min-h-0 flex-col overflow-hidden bg-black">
+    <div className="worklist-shell bg-background text-foreground flex h-screen min-h-0 flex-col overflow-hidden transition-colors duration-200">
       <InvestigationalUseDialog dialogConfiguration={appConfig?.investigationalUseDialog} />
       <div className="flex h-full min-h-0 flex-col">
         <div className="flex min-h-0 flex-1 flex-col">

@@ -64,15 +64,15 @@ const InvestigationalUseDialog = ({
   }
 
   return (
-    <div className="fixed bottom-2 z-50 flex h-[86px] w-full justify-center">
-      <div className="bg-popover border-muted flex w-[90%] items-center justify-between rounded-lg border-2 px-[22px] py-[10px] shadow-lg">
-        <div className="flex items-center gap-4">
-          <Icons.InvestigationalUse className="h-18 w-18" />
-          <div className="flex flex-col">
-            <div className="text-highlight text-[19px]">
+    <div className="fixed inset-x-3 bottom-3 z-50 flex justify-center sm:inset-x-6">
+      <div className="bg-popover border-input/70 flex w-full max-w-5xl flex-col gap-3 rounded-lg border px-4 py-3 shadow-xl sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+          <Icons.InvestigationalUse className="h-12 w-12 shrink-0 sm:h-16 sm:w-16" />
+          <div className="min-w-0 flex-1">
+            <div className="text-highlight text-base font-medium leading-6 sm:text-[19px]">
               {t('OHIF Viewer is for investigational use only')}
             </div>
-            <div className="text-foreground text-[13px]">
+            <div className="text-foreground mt-0.5 text-sm leading-5">
               <span
                 className="text-primary cursor-pointer"
                 onClick={() => window.open('https://ohif.org/', '_blank')}
@@ -85,6 +85,7 @@ const InvestigationalUseDialog = ({
         <Button
           onClick={handleConfirmAndHide}
           dataCY="confirm-and-hide-button"
+          className="w-full shrink-0 sm:w-auto"
         >
           {t('Confirm and hide')}
         </Button>

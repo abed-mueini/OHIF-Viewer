@@ -89,7 +89,7 @@ const Thumbnail = ({
         )}
       >
         <div className="h-[114px] w-[128px]">
-          <div className="relative bg-background">
+          <div className="bg-background relative">
             {shouldRenderThumbnailImage ? (
               <img
                 src={imageSrc}
@@ -106,7 +106,7 @@ const Thumbnail = ({
             )}
 
             {/* bottom left */}
-            <div className="absolute bottom-0 left-0 flex h-[14px] items-center gap-[4px] rounded-tr pt-[10px] pb-[10px] pr-[6px] pl-[5px]">
+            <div className="absolute bottom-0 left-0 flex h-[20px] items-center gap-[4px] rounded-tr bg-black/60 px-[6px] backdrop-blur-[1px]">
               <div
                 className={classnames(
                   'h-[10px] w-[10px] rounded-[2px]',
@@ -115,7 +115,7 @@ const Thumbnail = ({
                 )}
               ></div>
               <div
-                className="text-foreground text-[11px] font-semibold"
+                className="text-[11px] font-semibold text-white"
                 data-cy="series-modality-label"
               >
                 {modality}

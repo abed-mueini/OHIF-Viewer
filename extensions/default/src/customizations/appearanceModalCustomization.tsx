@@ -78,7 +78,7 @@ function AppearanceModalDefault() {
                     key={preset.name}
                     value={preset.name}
                   >
-                    {t(preset.label, { defaultValue: preset.label })}
+                    {t(`ThemePreset.${preset.name}`, { defaultValue: preset.label })}
                   </SelectItem>
                 ))}
                 {(customCss || draftCss) && <SelectItem value="custom">{t('Custom')}</SelectItem>}

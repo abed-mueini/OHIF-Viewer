@@ -256,7 +256,10 @@ function Table<TData>({ children, className, tableClassName }: TableProps) {
   return (
     <div
       ref={wrapperRef}
-      className={cn('border-input/50 min-h-0 flex-1 rounded-md border', className)}
+      className={cn(
+        'border-input/50 bg-card/70 min-h-0 flex-1 rounded-md border shadow-sm',
+        className
+      )}
     >
       <div className="flex h-full flex-col">
         {/* Header + filter row */}
@@ -354,12 +357,7 @@ type BodyProps<TData> = {
  * Automatically uses pagination if getPaginationRowModel is configured on the table.
  * Consumers can either rely on the default row renderer or provide a custom one.
  */
-function Body<TData>({
-  rowProps,
-  emptyMessage,
-  isLoading,
-  loadingComponent,
-}: BodyProps<TData>) {
+function Body<TData>({ rowProps, emptyMessage, isLoading, loadingComponent }: BodyProps<TData>) {
   const { t } = useTranslation('DataTable');
   const resolvedEmptyMessage = emptyMessage ?? t('No results.');
   const { table } = useDataTable<TData>();
