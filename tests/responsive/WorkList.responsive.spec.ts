@@ -74,6 +74,10 @@ test.describe('WorkList Live Resize (US-RSP-001)', () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.waitForFunction(() => window.innerWidth === 390, { timeout: 10_000 });
     await waitForStableLayout(page);
+    // Allow the "close preview on mobile" default effect to run after the
+    // viewport shrinks below md — otherwise the preview Sheet briefly counts
+    // as overflow while it animates out.
+    await page.waitForTimeout(800);
     await expectNoHorizontalOverflow(page, 'WorkList after resize to 390px');
 
     // Grow back to desktop and re-verify.

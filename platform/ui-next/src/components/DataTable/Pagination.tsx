@@ -42,7 +42,17 @@ export function Pagination<TData>() {
             className="text-primary/80 px-2 text-sm leading-tight"
             aria-label={t('Rows per page')}
           >
-            {t('{{start}}-{{end}} of {{total}}', { start, end, total })}
+            {/* Hide the range summary on very narrow viewports; the prev/next
+                buttons remain, and the summary reappears from sm upwards. */}
+            <span className="hidden sm:inline">
+              {t('{{start}}-{{end}} of {{total}}', { start, end, total })}
+            </span>
+            <span
+              className="sm:hidden"
+              aria-hidden="true"
+            >
+              {t('{{total}}', { total })}
+            </span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">

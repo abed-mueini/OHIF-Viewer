@@ -241,10 +241,16 @@
 @layer base {
   html {
     font-family: 'Inter', sans-serif;
+    /* The app shell is a fixed h-screen/overflow-hidden layout; nothing
+     * should ever scroll horizontally. `clip` (not `hidden`) avoids creating
+     * a scroll container, and keeps exit-animated overlays (sheets/dialogs
+     * sliding out) from inflating the document scroll width. */
+    overflow-x: clip;
   }
 
   body {
     @apply !bg-background;
+    overflow-x: clip;
   }
 }
 

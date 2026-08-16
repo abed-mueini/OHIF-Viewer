@@ -64,8 +64,8 @@ const InvestigationalUseDialog = ({
   }
 
   return (
-    <div className="fixed inset-x-3 bottom-3 z-50 flex justify-center sm:inset-x-6">
-      <div className="bg-popover border-input/70 flex w-full max-w-5xl flex-col gap-3 rounded-lg border px-4 py-3 shadow-xl sm:flex-row sm:items-center sm:justify-between sm:px-6">
+    <div className="fixed inset-x-3 bottom-3 z-50 flex justify-center px-2 sm:inset-x-6 sm:px-0">
+      <div className="bg-popover border-input/70 sm:max-h-none flex max-h-[60vh] w-full max-w-5xl flex-col gap-3 overflow-y-auto rounded-lg border px-4 py-3 shadow-xl sm:flex-row sm:items-center sm:justify-between sm:overflow-visible sm:px-6">
         <div className="flex min-w-0 items-center gap-3 sm:gap-4">
           <Icons.InvestigationalUse className="h-12 w-12 shrink-0 sm:h-16 sm:w-16" />
           <div className="min-w-0 flex-1">

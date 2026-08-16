@@ -1,5 +1,7 @@
 import * as React from 'react';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '../../Resizable';
+import { useResponsiveLayout } from '../../../hooks/useResponsiveLayout';
+import { Sheet, SheetContent } from '../../Sheet';
 import { Table as StudyListTable, type TableProps as StudyListTableProps } from './Table';
 import { WorkflowsProvider, type Mode } from './WorkflowsProvider';
 
@@ -80,6 +82,10 @@ function LayoutRoot({
     [onIsPreviewOpenChange]
   );
 
+  // Keep the module-level ref used by the mobile preview Sheet in sync with
+  // the current open/close callbacks (they can change identity on re-render).
+  layoutActionsRef.current = { openPreview, closePreview };
+
   const value = React.useMemo<LayoutContextValue>(
     () => ({
       isPreviewOpen,
@@ -139,6 +145,9 @@ function Table({
   children,
 }: TableProps) {
   const { defaultPreviewSizePercent, isPreviewOpen } = useLayout();
+  // US-RSP-104: below desktop the preview renders as an overlay Sheet, so the
+  // table panel always takes the full width regardless of preview state.
+  const { isDesktop } = useResponsiveLayout();
 
   // If children are provided, use them (for custom content)
   // Otherwise, render the StudyList.Table with the provided props
@@ -177,7 +186,9 @@ function Table({
   );
 
   return (
-    <ResizablePanel defaultSize={isPreviewOpen ? 100 - defaultPreviewSizePercent : 100}>
+    <ResizablePanel
+      defaultSize={isPreviewOpen && isDesktop ? 100 - defaultPreviewSizePercent : 100}
+    >
       {content}
     </ResizablePanel>
   );
@@ -191,6 +202,29 @@ function Preview({
   children?: React.ReactNode;
 }) {
   const { isPreviewOpen, defaultPreviewSizePercent, minPreviewSizePercent } = useLayout();
+  // US-RSP-104: on phones/tablets the preview overlays the table as a
+  // logical-side sheet instead of squeezing the resizable panel group.
+  const { isDesktop } = useResponsiveLayout();
+
+  if (!isDesktop) {
+    return (
+      <Sheet
+        open={isPreviewOpen}
+        onOpenChange={open => {
+          const { openPreview, closePreview } = layoutActionsRef.current;
+          open ? openPreview() : closePreview();
+        }}
+      >
+        <SheetContent
+          side="inline-end"
+          className="w-[min(100vw,26rem)]"
+        >
+          {children}
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
   if (!isPreviewOpen) {
     return null;
   }
@@ -206,6 +240,12 @@ function Preview({
     </>
   );
 }
+
+// Preview is rendered inside LayoutRoot's tree; expose a stable ref so the
+// mobile Sheet's onOpenChange can call the current open/close callbacks.
+const layoutActionsRef: { current: { openPreview: () => void; closePreview: () => void } } = {
+  current: { openPreview: () => {}, closePreview: () => {} },
+};
 
 LayoutRoot.displayName = 'Layout';
 

@@ -66,13 +66,15 @@ export default function WorkList({
     clearOnUnload: false,
   });
   const hasAppliedCompactPreviewDefault = useRef(false);
-  const isPreviewOpen = previewState.open !== false;
+  const { isMobile, isServerRender, width } = useResponsiveLayout();
+  // Suppress the preview until the viewport is measured: on mobile the
+  // compact-default effect below closes it right after mount, and rendering
+  // it before that would flash the preview Sheet open for a frame.
+  const isPreviewOpen = !isServerRender && previewState.open !== false;
   const setPreviewOpen = useCallback(
     (open: boolean) => updatePreviewState({ open }),
     [updatePreviewState]
   );
-
-  const { isMobile, isServerRender, width } = useResponsiveLayout();
 
   useEffect(() => {
     if (hasAppliedCompactPreviewDefault.current || isServerRender) {

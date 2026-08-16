@@ -143,6 +143,18 @@ import {
 import { LayoutSelector } from './LayoutSelector';
 import { ToolSettings } from './OHIFToolSettings';
 import { ContextMenuViewport } from './ContextMenuViewport';
+import {
+  Sheet,
+  SheetPortal,
+  SheetOverlay,
+  SheetTrigger,
+  SheetClose,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetBody,
+  SheetFooter,
+} from './Sheet';
 export * from './StudyList';
 export { DataRow } from './DataRow';
 export { MeasurementTable } from './MeasurementTable';
@@ -184,6 +196,16 @@ export {
   DialogFooter,
   DialogTitle,
   DialogDescription,
+  Sheet,
+  SheetPortal,
+  SheetOverlay,
+  SheetTrigger,
+  SheetClose,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetBody,
+  SheetFooter,
   Combobox,
   Popover,
   PopoverContent,

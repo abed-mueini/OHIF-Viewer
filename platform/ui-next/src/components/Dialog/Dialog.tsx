@@ -89,7 +89,9 @@ const DialogContent = React.forwardRef<
   // When isDraggable, we remove the built‑in centering so our inline transform takes over.
   const contentClassName = cn(
     unstyled ? '' : 'w-full',
-    'max-w-md bg-card text-card-foreground border-border/70 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] fixed left-[50%] top-[50%] z-50 grid gap-4 border p-4 shadow-2xl duration-200 sm:rounded-lg',
+    // Mobile: never wider than the viewport minus a small gutter; the body
+    // area is expected to scroll internally (US-RSP-105).
+    'max-w-[calc(100vw-1.5rem)] bg-card text-card-foreground border-border/70 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] fixed left-[50%] top-[50%] z-50 grid max-h-[90vh] gap-4 overflow-y-auto border p-4 shadow-2xl duration-200 sm:max-h-none sm:max-w-md sm:rounded-lg',
     !isDraggable ? 'translate-x-[-50%] translate-y-[-50%]' : '',
     className
   );
@@ -153,7 +155,13 @@ DialogHeader.displayName = 'DialogHeader';
 
 const DialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
-    className={cn('flex flex-col-reverse gap-2 sm:flex-row sm:justify-end', className)}
+    className={cn(
+      // Mobile: full-width stacked buttons with 44px min touch height;
+      // sm+: standard end-aligned row.
+      'flex flex-col-reverse gap-2 sm:flex-row sm:justify-end',
+      '[&>button]:min-h-11 sm:[&>button]:min-h-0',
+      className
+    )}
     {...props}
   />
 );

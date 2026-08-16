@@ -1,6 +1,7 @@
 import React from 'react';
 import Actions from './Sources/Actions';
 import Add from './Sources/Add';
+import FilterSettings from './Sources/FilterSettings';
 import Cancel from './Sources/Cancel';
 import ChevronClosed from './Sources/ChevronClosed';
 import ChevronOpen from './Sources/ChevronOpen';
@@ -485,6 +486,7 @@ export const Icons = {
   Upload,
   Actions,
   Add,
+  FilterSettings,
   Cancel,
   Code,
   ColorChange,

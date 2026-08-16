@@ -109,7 +109,7 @@ function PreviewContent({
           {effectiveSeriesViewMode === 'thumbnails' ? (
             <div className="flex flex-col">
               {imagingSeries.length > 0 && (
-                <div className="grid grid-cols-[repeat(auto-fit,_minmax(0,135px))] place-items-start gap-[4px] [padding-inline-end:0.5rem]">
+                <div className="grid grid-cols-[repeat(auto-fit,_minmax(0,135px))] place-items-start gap-[4px] [padding-inline-end:0.5rem] max-lg:grid-cols-[repeat(auto-fill,_minmax(0,118px))]">
                   {imagingSeries.map((seriesItem, index) => {
                     const seriesUID =
                       seriesItem.seriesInstanceUid || seriesItem.SeriesInstanceUID || String(index);
@@ -149,7 +149,7 @@ function PreviewContent({
                 </div>
               )}
               {nonImagingSeries.length > 0 && (
-                <div className="mt-1 grid grid-cols-[repeat(auto-fit,_minmax(0,275px))] place-items-start gap-[2px] [padding-inline-end:0.5rem]">
+                <div className="mt-1 grid grid-cols-[repeat(auto-fit,_minmax(0,275px))] place-items-start gap-[2px] [padding-inline-end:0.5rem] max-lg:grid-cols-[repeat(auto-fill,_minmax(0,200px))]">
                   {nonImagingSeries.map((seriesItem, index) => {
                     const seriesUID =
                       seriesItem.seriesInstanceUid || seriesItem.SeriesInstanceUID || String(index);
