@@ -11,6 +11,7 @@ import {
   Icons,
   InvestigationalUseDialog,
   useSessionStorage,
+  useResponsiveLayout,
   type StudyRow,
   type OnStudyDoubleClick,
 } from '@ohif/ui-next';
@@ -71,16 +72,18 @@ export default function WorkList({
     [updatePreviewState]
   );
 
+  const { isMobile, isServerRender, width } = useResponsiveLayout();
+
   useEffect(() => {
-    if (hasAppliedCompactPreviewDefault.current) {
+    if (hasAppliedCompactPreviewDefault.current || isServerRender) {
       return;
     }
     hasAppliedCompactPreviewDefault.current = true;
 
-    if (window.matchMedia('(max-width: 767px)').matches && previewState.open !== false) {
+    if (isMobile && previewState.open !== false) {
       updatePreviewState({ open: false });
     }
-  }, [previewState.open, updatePreviewState]);
+  }, [isMobile, isServerRender, previewState.open, updatePreviewState]);
 
   // `workList.onStudyDoubleClick` is the command (or command list) run when a
   // study row is double-clicked — by default `launchDefaultMode`, which
@@ -124,12 +127,14 @@ export default function WorkList({
   const toolbarActions = useWorkListToolbarActions(servicesManager, dataSource, onRefresh);
 
   const previewDefaultSize = useMemo(() => {
-    if (typeof window !== 'undefined' && window.innerWidth > 0) {
-      const percent = (325 / window.innerWidth) * 100;
+    // Pre-first-measurement (SSR) falls back to a safe default; the panel
+    // re-normalizes once the responsive hook reports a real width.
+    if (width > 0) {
+      const percent = (325 / width) * 100;
       return Math.min(Math.max(percent, 15), 50);
     }
     return 30;
-  }, []);
+  }, [width]);
 
   useEffect(() => {
     if (isLoadingData) {

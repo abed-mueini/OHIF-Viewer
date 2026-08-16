@@ -12,6 +12,8 @@ module.exports = {
       md: '768px',
       lg: '1024px',
       xl: '1280px',
+      // Keep in sync with BREAKPOINTS in platform/ui-next/src/hooks/useResponsiveLayout.ts
+      '2xl': '1536px',
     },
     fontFamily: {
       inter: ['Inter', 'sans-serif'],

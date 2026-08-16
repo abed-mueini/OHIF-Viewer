@@ -29,7 +29,44 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
+      // Responsive specs run in their own dedicated projects below.
+      testIgnore: /.*\.responsive\.spec\.ts/,
       use: { ...devices['Desktop Chrome'], deviceScaleFactor: 1 },
+    },
+    // Responsive matrix (US-RSP-002). Specs under tests/responsive/ opt in
+    // via the `@responsive` tag and run against mobile, tablet and desktop.
+    {
+      name: 'responsive-mobile',
+      testMatch: /.*\.responsive\.spec\.ts/,
+      use: {
+        ...devices['Pixel 5'],
+        viewport: { width: 390, height: 844 },
+        deviceScaleFactor: 1,
+        isMobile: true,
+        hasTouch: true,
+      },
+    },
+    {
+      name: 'responsive-tablet',
+      testMatch: /.*\.responsive\.spec\.ts/,
+      use: {
+        // Chromium (not the iPad WebKit default) — matches the suite-wide
+        // browser policy; WebKit is blocked on SharedArrayBuffer support.
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1024, height: 768 },
+        deviceScaleFactor: 1,
+        isMobile: false,
+        hasTouch: true,
+      },
+    },
+    {
+      name: 'responsive-desktop',
+      testMatch: /.*\.responsive\.spec\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1440, height: 900 },
+        deviceScaleFactor: 1,
+      },
     },
     // TODO: Fix firefox tests
     // {

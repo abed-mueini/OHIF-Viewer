@@ -4,6 +4,35 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Canonical OHIF responsive layout tokens.
+ *
+ * These mirror `BREAKPOINTS` in `platform/ui-next/src/hooks/useResponsiveLayout.ts`
+ * and `screens` in `platform/ui/tailwind.config.js`. Keep all three in sync.
+ */
+@layer base {
+  :root {
+    /* Breakpoints (px) */
+    --ohif-bp-sm: 640px;
+    --ohif-bp-md: 768px;
+    --ohif-bp-lg: 1024px;
+    --ohif-bp-xl: 1280px;
+    --ohif-bp-2xl: 1536px;
+
+    /* Minimum interactive target size (WCAG 2.5.5) */
+    --ohif-touch-target: 44px;
+
+    /* App chrome metrics */
+    --ohif-header-height: 3rem;
+    --ohif-toolbar-height: 2.75rem;
+    --ohif-panel-width: 20rem;
+    --ohif-panel-width-lg: 24rem;
+    --ohif-preview-panel-width: 22rem;
+    --ohif-content-padding: 0.75rem;
+    --ohif-content-padding-sm: 0.5rem;
+  }
+}
+
 /* OHIF Theme */
 
 @layer base {
