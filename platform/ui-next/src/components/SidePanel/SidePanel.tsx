@@ -3,6 +3,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Icons } from '../Icons';
 import { TooltipTrigger, TooltipContent, Tooltip } from '../Tooltip';
 import { Separator } from '../Separator';
+import { useTranslation } from 'react-i18next';
+import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 
 /**
  * SidePanel component properties.
@@ -58,24 +60,22 @@ const closeIconWidth = 30;
 const gridHorizontalPadding = 10;
 const tabSpacerWidth = 2;
 
-const baseClasses = 'bg-background border-background justify-start box-content flex flex-col';
+const baseClasses =
+  'bg-background border-background justify-start box-content relative z-10 flex min-h-0 flex-col overflow-hidden';
 
 const openStateIconName = {
   left: 'SidePanelCloseLeft',
   right: 'SidePanelCloseRight',
 };
 
-const getTabWidth = (numTabs: number) => {
-  if (numTabs < 3) {
-    return 68;
-  } else {
-    return 40;
-  }
+const getTabWidth = (numTabs: number, isTouch: boolean) => {
+  const width = numTabs < 3 ? 68 : 40;
+  return isTouch ? Math.max(width, 44) : width;
 };
 
-const getGridWidth = (numTabs: number, gridAvailableWidth: number) => {
+const getGridWidth = (numTabs: number, gridAvailableWidth: number, isTouch: boolean) => {
   const spacersWidth = (numTabs - 1) * tabSpacerWidth;
-  const tabsWidth = getTabWidth(numTabs) * numTabs;
+  const tabsWidth = getTabWidth(numTabs, isTouch) * numTabs;
 
   if (gridAvailableWidth > tabsWidth + spacersWidth) {
     return tabsWidth + spacersWidth;
@@ -84,13 +84,13 @@ const getGridWidth = (numTabs: number, gridAvailableWidth: number) => {
   return gridAvailableWidth;
 };
 
-const getNumGridColumns = (numTabs: number, gridWidth: number) => {
+const getNumGridColumns = (numTabs: number, gridWidth: number, isTouch: boolean) => {
   if (numTabs === 1) {
     return 1;
   }
 
   // Start by calculating the number of tabs assuming each tab was accompanied by a spacer.
-  const tabWidth = getTabWidth(numTabs);
+  const tabWidth = getTabWidth(numTabs, isTouch);
   const numTabsWithOneSpacerEach = Math.floor(gridWidth / (tabWidth + tabSpacerWidth));
 
   // But there is always one less spacer than tabs, so now check if an extra tab with one less spacer fits.
@@ -109,17 +109,22 @@ const getTabClassNames = (
   numTabs: number,
   tabIndex: number,
   isActiveTab: boolean,
-  isTabDisabled: boolean
+  isTabDisabled: boolean,
+  isTouch: boolean
 ) =>
-  classnames('h-[28px] mb-[2px] cursor-pointer text-foreground bg-primary/10 hover:bg-primary/20', {
-    'hover:text-primary': !isActiveTab && !isTabDisabled,
-    'rounded-l': tabIndex % numColumns === 0,
-    'rounded-r': (tabIndex + 1) % numColumns === 0 || tabIndex === numTabs - 1,
-  });
+  classnames(
+    'focus-visible:ring-ring mb-[2px] cursor-pointer bg-primary/10 text-foreground hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2',
+    isTouch ? 'min-h-11 min-w-11' : 'h-[28px]',
+    {
+      'hover:text-primary': !isActiveTab && !isTabDisabled,
+      'rounded-l': tabIndex % numColumns === 0,
+      'rounded-r': (tabIndex + 1) % numColumns === 0 || tabIndex === numTabs - 1,
+    }
+  );
 
-const getTabStyle = (numTabs: number) => {
+const getTabStyle = (numTabs: number, isTouch: boolean) => {
   return {
-    width: `${getTabWidth(numTabs)}px`,
+    width: `${getTabWidth(numTabs, isTouch)}px`,
   };
 };
 
@@ -196,7 +201,14 @@ const SidePanel = ({
   collapsedInsideBorderSize = 8,
   collapsedOutsideBorderSize = 4,
 }: SidePanelProps) => {
+  const { i18n } = useTranslation();
+  const { isTouch } = useResponsiveLayout();
+  // `side` is logical (panel registration). Physical slide margins and icons
+  // must mirror in RTL or the collapsed tab ends up underneath the viewport.
+  const visualSide =
+    i18n.dir(i18n.language) === 'rtl' ? (side === 'left' ? 'right' : 'left') : side;
   const [panelOpen, setPanelOpen] = useState(isExpanded);
+  const panelOpenRef = React.useRef(panelOpen);
   const [activeTabIndex, setActiveTabIndex] = useState(activeTabIndexProp ?? 0);
 
   const [styleMap, setStyleMap] = useState(
@@ -215,23 +227,27 @@ const SidePanel = ({
     expandedWidth - closeIconWidth - gridHorizontalPadding
   );
 
-  const [gridWidth, setGridWidth] = useState(getGridWidth(tabs.length, gridAvailableWidth));
+  const [gridWidth, setGridWidth] = useState(
+    getGridWidth(tabs.length, gridAvailableWidth, isTouch)
+  );
   const openStatus = panelOpen ? 'open' : 'closed';
-  const style = Object.assign({}, styleMap[openStatus][side], baseStyle);
+  const style = Object.assign({}, styleMap[openStatus][visualSide], baseStyle);
 
   const updatePanelOpen = useCallback(
     (isOpen: boolean) => {
+      if (isOpen === panelOpenRef.current) {
+        return;
+      }
+
+      panelOpenRef.current = isOpen;
       setPanelOpen(isOpen);
-      if (isOpen !== panelOpen) {
-        // only fire events for changes
-        if (isOpen && onOpen) {
-          onOpen();
-        } else if (onClose && !isOpen) {
-          onClose();
-        }
+      if (isOpen && onOpen) {
+        onOpen();
+      } else if (onClose && !isOpen) {
+        onClose();
       }
     },
-    [panelOpen, onOpen, onClose]
+    [onOpen, onClose]
   );
 
   const updateActiveTabIndex = useCallback(
@@ -250,8 +266,9 @@ const SidePanel = ({
   );
 
   useEffect(() => {
-    updatePanelOpen(isExpanded);
-  }, [isExpanded, updatePanelOpen]);
+    panelOpenRef.current = isExpanded;
+    setPanelOpen(isExpanded);
+  }, [isExpanded]);
 
   useEffect(() => {
     setStyleMap(
@@ -267,7 +284,7 @@ const SidePanel = ({
 
     const gridAvailableWidth = expandedWidth - closeIconWidth - gridHorizontalPadding;
     setGridAvailableWidth(gridAvailableWidth);
-    setGridWidth(getGridWidth(tabs.length, gridAvailableWidth));
+    setGridWidth(getGridWidth(tabs.length, gridAvailableWidth, isTouch));
   }, [
     collapsedInsideBorderSize,
     collapsedWidth,
@@ -275,6 +292,7 @@ const SidePanel = ({
     expandedInsideBorderSize,
     tabs.length,
     collapsedOutsideBorderSize,
+    isTouch,
   ]);
 
   useEffect(() => {
@@ -285,28 +303,44 @@ const SidePanel = ({
     const _childComponents = Array.isArray(tabs) ? tabs : [tabs];
     return (
       <>
-        <div
+        <button
+          type="button"
           className={classnames(
-            'bg-popover flex h-[28px] w-full cursor-pointer items-center rounded-md',
-            side === 'left' ? 'justify-end pr-2' : 'justify-start pl-2'
+            'bg-popover focus-visible:ring-ring flex w-full cursor-pointer items-center rounded-md border-0 p-0 focus-visible:outline-none focus-visible:ring-2',
+            isTouch ? 'min-h-11' : 'h-[28px]',
+            visualSide === 'left' ? 'justify-end pr-2' : 'justify-start pl-2'
           )}
           onClick={() => {
             updatePanelOpen(!panelOpen);
           }}
+          onKeyDown={event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              updatePanelOpen(!panelOpen);
+            }
+          }}
           data-cy={`side-panel-header-${side}`}
+          aria-label={tabs[0]?.label}
+          aria-expanded={false}
         >
           <Icons.NavigationPanelReveal
-            className={classnames('text-primary', side === 'left' && 'rotate-180 transform')}
+            className={classnames('text-primary', visualSide === 'left' && 'rotate-180 transform')}
           />
-        </div>
+        </button>
         <div className={classnames('mt-3 flex flex-col space-y-3')}>
           {_childComponents.map((childComponent, index) => (
             <Tooltip key={index}>
-              <TooltipTrigger>
-                <div
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
                   id={`${childComponent.name}-btn`}
                   data-cy={`${childComponent.name}-btn`}
-                  className="text-primary hover:cursor-pointer"
+                  className={classnames(
+                    'text-primary focus-visible:ring-ring hover:cursor-pointer focus-visible:outline-none focus-visible:ring-2',
+                    isTouch && 'min-h-11 min-w-11 flex items-center justify-center'
+                  )}
+                  aria-label={childComponent.label}
+                  disabled={childComponent.disabled}
                   onClick={() => {
                     return childComponent.disabled ? null : updateActiveTabIndex(index, true);
                   }}
@@ -321,13 +355,13 @@ const SidePanel = ({
                       height: '22px',
                     },
                   })}
-                </div>
+                </button>
               </TooltipTrigger>
-              <TooltipContent side={side === 'left' ? 'right' : 'left'}>
+              <TooltipContent side={visualSide === 'left' ? 'right' : 'left'}>
                 <div
                   className={classnames(
                     'flex items-center',
-                    side === 'left' ? 'justify-end' : 'justify-start'
+                    visualSide === 'left' ? 'justify-end' : 'justify-start'
                   )}
                 >
                   {getToolTipContent(childComponent.label, childComponent.disabled)}
@@ -342,26 +376,36 @@ const SidePanel = ({
 
   const getCloseIcon = () => {
     return (
-      <div
+      <button
+        type="button"
         className={classnames(
-          'absolute flex cursor-pointer items-center justify-center',
-          side === 'left' ? 'right-0' : 'left-0'
+          'focus-visible:ring-ring absolute flex cursor-pointer items-center justify-center border-0 p-0 focus-visible:outline-none focus-visible:ring-2',
+          isTouch ? 'min-h-11 min-w-11' : 'h-[28px]',
+          visualSide === 'left' ? 'right-0' : 'left-0'
         )}
         style={{ width: `${closeIconWidth}px` }}
         onClick={() => {
           updatePanelOpen(!panelOpen);
         }}
+        onKeyDown={event => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            updatePanelOpen(!panelOpen);
+          }
+        }}
         data-cy={`side-panel-header-${side}`}
+        aria-label={tabs[0]?.label}
+        aria-expanded={true}
       >
-        {React.createElement(Icons[openStateIconName[side]] || Icons.MissingIcon, {
+        {React.createElement(Icons[openStateIconName[visualSide]] || Icons.MissingIcon, {
           className: 'text-primary',
         })}
-      </div>
+      </button>
     );
   };
 
   const getTabGridComponent = () => {
-    const numCols = getNumGridColumns(tabs.length, gridWidth);
+    const numCols = getNumGridColumns(tabs.length, gridWidth, isTouch);
 
     return (
       <>
@@ -380,16 +424,21 @@ const SidePanel = ({
                     </div>
                   )}
                   <Tooltip key={tabIndex}>
-                    <TooltipTrigger>
-                      <div
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
                         className={getTabClassNames(
                           numCols,
                           tabs.length,
                           tabIndex,
                           tabIndex === activeTabIndex,
-                          disabled
+                          disabled,
+                          isTouch
                         )}
-                        style={getTabStyle(tabs.length)}
+                        style={getTabStyle(tabs.length, isTouch)}
+                        aria-label={tab.label}
+                        aria-pressed={tabIndex === activeTabIndex}
+                        disabled={disabled}
                         onClick={() => {
                           return disabled ? null : updateActiveTabIndex(tabIndex);
                         }}
@@ -409,7 +458,7 @@ const SidePanel = ({
                             },
                           })}
                         </div>
-                      </div>
+                      </button>
                     </TooltipTrigger>
                     <TooltipContent side="bottom">
                       {getToolTipContent(tab.label, disabled)}
@@ -428,13 +477,23 @@ const SidePanel = ({
     return (
       <div
         className={classnames(
-          'text-primary flex grow cursor-pointer select-none justify-center self-center text-[13px]'
+          'text-primary focus-visible:ring-ring flex grow select-none items-center justify-center self-center text-[13px] focus-visible:outline-none focus-visible:ring-2'
         )}
-        data-cy={`${tabs[0].name}-btn`}
-        onClick={() => updatePanelOpen(!panelOpen)}
       >
         {getCloseIcon()}
-        <span>{tabs[0].label}</span>
+        <button
+          type="button"
+          className={classnames(
+            'focus-visible:ring-ring min-w-0 flex-1 border-0 focus-visible:outline-none focus-visible:ring-2',
+            isTouch && 'min-h-11'
+          )}
+          data-cy={`${tabs[0].name}-btn`}
+          aria-label={tabs[0].label}
+          aria-pressed={panelOpen}
+          onClick={() => updatePanelOpen(!panelOpen)}
+        >
+          <span>{tabs[0].label}</span>
+        </button>
       </div>
     );
   };
@@ -464,7 +523,15 @@ const SidePanel = ({
           {getOpenStateComponent()}
           {tabs.map((tab, tabIndex) => {
             if (tabIndex === activeTabIndex) {
-              return <tab.content key={tabIndex} />;
+              return (
+                <div
+                  key={tabIndex}
+                  className="min-h-0 flex-1 overflow-y-auto overscroll-contain"
+                  data-cy={`side-panel-content-${side}`}
+                >
+                  <tab.content />
+                </div>
+              );
             }
             return null;
           })}

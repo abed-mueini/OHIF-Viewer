@@ -10,6 +10,7 @@ import { Icons } from '../../components/Icons/Icons';
 import { Tooltip, TooltipTrigger, TooltipContent } from '../../components/Tooltip/Tooltip';
 import { cn } from '../../lib/utils';
 import { useTranslation } from 'react-i18next';
+import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 
 /**
  * DataRow is a complex UI component that displays a selectable, interactive row with hierarchical data.
@@ -136,7 +137,8 @@ const DataRowComponent = React.forwardRef<HTMLDivElement, DataRowProps>(
     },
     ref
   ) => {
-    const { t } = useTranslation('DataRow');
+    const { t, i18n } = useTranslation('DataRow');
+    const { isTouch } = useResponsiveLayout();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const isTitleLong = title?.length > 25;
 
@@ -176,7 +178,6 @@ const DataRowComponent = React.forwardRef<HTMLDivElement, DataRowProps>(
     };
 
     const renderDetailText = (text: string, indent: number = 0) => {
-      const indentation = '  '.repeat(indent);
       if (text === '') {
         return (
           <div
@@ -190,11 +191,16 @@ const DataRowComponent = React.forwardRef<HTMLDivElement, DataRowProps>(
       return (
         <div
           key={cleanText}
-          className="whitespace-pre-wrap"
+          className="whitespace-pre-wrap break-words"
           data-cy="data-row-detail-line"
+          style={{ paddingInlineStart: indent ? `${indent}rem` : undefined }}
         >
-          {indentation}
-          <span className="font-medium">{cleanText}</span>
+          <bdi
+            dir="auto"
+            className="font-medium"
+          >
+            {indent ? cleanText.trimStart() : cleanText}
+          </bdi>
         </div>
       );
     };
@@ -216,15 +222,15 @@ const DataRowComponent = React.forwardRef<HTMLDivElement, DataRowProps>(
                 )}
               </div>
               {hiddenLines.length > 0 && (
-                <div className="text-muted-foreground mt-1 flex items-center text-sm">
+                <div className="text-muted-foreground mt-1 flex items-center gap-1 text-sm">
                   <span>...</span>
-                  <Icons.Info className="mr-1 h-5 w-5" />
+                  <Icons.Info className="h-5 w-5" />
                 </div>
               )}
             </div>
           </TooltipTrigger>
           <TooltipContent
-            side="right"
+            side={i18n.dir(i18n.language) === 'rtl' ? 'left' : 'right'}
             align="start"
             className="max-w-md"
           >
@@ -241,12 +247,12 @@ const DataRowComponent = React.forwardRef<HTMLDivElement, DataRowProps>(
     return (
       <div
         ref={ref}
-        className={cn('flex flex-col', !isVisible && 'opacity-60', className)}
+        className={cn('flex min-w-0 flex-col', !isVisible && 'opacity-60', className)}
       >
         <div
-          className={`flex items-center ${
+          className={`flex min-w-0 items-center ${
             isSelected ? 'bg-popover' : 'bg-muted'
-          } group relative cursor-pointer`}
+          } min-h-7 group relative cursor-pointer`}
           onClick={onSelect}
           data-cy="data-row"
         >
@@ -260,7 +266,7 @@ const DataRowComponent = React.forwardRef<HTMLDivElement, DataRowProps>(
           {/* Number Box */}
           {number !== null && (
             <div
-              className={`flex h-7 max-h-7 w-7 flex-shrink-0 items-center justify-center rounded-l border-r border-background text-base ${
+              className={`border-background flex h-7 max-h-7 w-7 flex-shrink-0 items-center justify-center text-base [border-inline-end-width:1px] [border-inline-end-style:solid] [border-start-start-radius:0.25rem] [border-end-start-radius:0.25rem] ${
                 isSelected ? 'bg-highlight text-black' : 'bg-muted text-muted-foreground'
               } overflow-hidden`}
             >
@@ -269,11 +275,11 @@ const DataRowComponent = React.forwardRef<HTMLDivElement, DataRowProps>(
           )}
 
           {/* add some space if there is not segment index */}
-          {number === null && <div className="ml-1 h-7"></div>}
+          {number === null && <div className="h-7 w-1"></div>}
           {colorHex && (
             <div className="flex h-7 w-5 items-center justify-center">
               <span
-                className="ml-2 h-2 w-2 rounded-full"
+                className="h-2 w-2 rounded-full"
                 style={{ backgroundColor: colorHex }}
                 data-cy="data-row-colorhex"
               ></span>
@@ -281,7 +287,7 @@ const DataRowComponent = React.forwardRef<HTMLDivElement, DataRowProps>(
           )}
 
           {/* Label with Conditional Tooltip */}
-          <div className="ml-2 flex-1 overflow-hidden">
+          <div className="min-w-0 flex-1 overflow-hidden px-2">
             {isTitleLong ? (
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -291,14 +297,14 @@ const DataRowComponent = React.forwardRef<HTMLDivElement, DataRowProps>(
                       isSelected ? 'text-highlight' : 'text-muted-foreground'
                     } [overflow:hidden] [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical]`}
                   >
-                    {title}
+                    <bdi dir="auto">{title}</bdi>
                   </span>
                 </TooltipTrigger>
                 <TooltipContent
                   side="top"
                   align="center"
                 >
-                  {title}
+                  <bdi dir="auto">{title}</bdi>
                 </TooltipContent>
               </Tooltip>
             ) : (
@@ -308,20 +314,26 @@ const DataRowComponent = React.forwardRef<HTMLDivElement, DataRowProps>(
                   isSelected ? 'text-highlight' : 'text-muted-foreground'
                 } [overflow:hidden] [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical]`}
               >
-                {title}
+                <bdi dir="auto">{title}</bdi>
               </span>
             )}
           </div>
 
           {/* Actions and Visibility Toggle */}
-          <div className="relative ml-2 flex items-center space-x-1">
+          <div
+            className="relative flex shrink-0 items-center gap-1 [padding-inline-end:0.25rem]"
+            data-cy="data-row-actions"
+          >
             {/* Visibility Toggle Icon */}
             <Button
               size="icon"
               variant="ghost"
-              className={`h-6 w-6 transition-opacity ${
-                isSelected || !isVisible ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-              }`}
+              className={cn(
+                'transition-opacity',
+                isTouch ? 'h-11 w-11 opacity-100' : 'h-6 w-6',
+                !isTouch &&
+                  (isSelected || !isVisible ? 'opacity-100' : 'opacity-0 group-hover:opacity-100')
+              )}
               aria-label={isVisible ? t('Hide') : t('Show')}
               dataCY="data-row-visibility-toggle"
               onClick={e => {
@@ -333,7 +345,24 @@ const DataRowComponent = React.forwardRef<HTMLDivElement, DataRowProps>(
             </Button>
 
             {/* Lock Icon (if needed) */}
-            {isLocked && !disableEditing && (
+            {!disableEditing && isTouch && (
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-11 w-11"
+                aria-label={isLocked ? t('Unlock') : t('Lock')}
+                dataCY="data-row-lock-toggle"
+                onClick={e => {
+                  e.stopPropagation();
+                  onToggleLocked(e);
+                }}
+              >
+                <Icons.Lock
+                  className={cn('h-6 w-6', isLocked ? 'text-primary' : 'text-muted-foreground/40')}
+                />
+              </Button>
+            )}
+            {isLocked && !disableEditing && !isTouch && (
               <Icons.Lock className="text-muted-foreground h-6 w-6" />
             )}
 
@@ -348,12 +377,15 @@ const DataRowComponent = React.forwardRef<HTMLDivElement, DataRowProps>(
                   <Button
                     size="icon"
                     variant="ghost"
-                    className={`h-6 w-6 transition-opacity ${
-                      isSelected || isDropdownOpen
-                        ? 'opacity-100'
-                        : 'opacity-0 group-hover:opacity-100'
-                    }`}
-                    aria-label="Actions"
+                    className={cn(
+                      'transition-opacity',
+                      isTouch ? 'h-11 w-11 opacity-100' : 'h-6 w-6',
+                      !isTouch &&
+                        (isSelected || isDropdownOpen
+                          ? 'opacity-100'
+                          : 'opacity-0 group-hover:opacity-100')
+                    )}
+                    aria-label={t('Actions')}
                     dataCY="actionsMenuTrigger"
                     onClick={e => e.stopPropagation()} // Prevent row selection on button click
                   >
@@ -425,13 +457,17 @@ const DataRowComponent = React.forwardRef<HTMLDivElement, DataRowProps>(
         {/* Details Section */}
         {details && (details.primary?.length > 0 || details.secondary?.length > 0) && (
           <div
-            className="ml-7 px-2 py-2"
+            className="px-2 py-2"
+            style={{ marginInlineStart: '1.75rem' }}
             data-cy="data-row-details"
           >
             <div className="text-secondary-foreground flex items-center gap-1 text-base leading-normal">
               {details.primary?.length > 0 && renderDetails(details.primary, 'primary')}
               {details.secondary?.length > 0 && (
-                <div className="text-muted-foreground ml-auto text-sm">
+                <div
+                  className="text-muted-foreground text-sm"
+                  style={{ marginInlineStart: 'auto' }}
+                >
                   {renderDetails(details.secondary, 'secondary')}
                 </div>
               )}

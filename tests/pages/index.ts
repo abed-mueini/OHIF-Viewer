@@ -6,6 +6,9 @@ import { ViewportPageObject } from './ViewportPageObject';
 import { NotFoundStudyPageObject } from './NotFoundStudyPageObject';
 import { DicomTagBrowserPageObject } from './DicomTagBrowserPageObject';
 import { MagnifyGlassPageObject } from './MagnifyGlassPageObject';
+import { ReportDialogPageObject } from './ReportDialogPageObject';
+import { ResponsiveViewerPageObject } from './ResponsiveViewerPageObject';
+import { ResponsiveWorkListPageObject } from './ResponsiveWorkListPageObject';
 
 export {
   DOMOverlayPageObject,
@@ -16,4 +19,7 @@ export {
   NotFoundStudyPageObject,
   DicomTagBrowserPageObject,
   MagnifyGlassPageObject,
+  ReportDialogPageObject,
+  ResponsiveViewerPageObject,
+  ResponsiveWorkListPageObject,
 };

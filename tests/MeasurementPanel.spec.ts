@@ -10,7 +10,7 @@ import {
 
 test.beforeEach(async ({ page }) => {
   // Using same one as JumpToMeasurementMPR.spec.ts
-  const studyInstanceUID = '1.3.6.1.4.1.25403.345050719074.3824.20170125095438.5';
+  const studyInstanceUID = '1.3.6.1.4.1.25403.345050719074.3824.20170125095438.5&lng=en-US';
   const mode = 'viewer';
   await visitStudy(page, studyInstanceUID, mode, 2000);
 });

@@ -26,5 +26,11 @@
   "Foreground": "پیش‌زمینه",
   "SELECT A FOREGROUND": "یک پیش‌زمینه انتخاب کنید",
   "SELECT A SEGMENTATION": "یک قطعه‌بندی انتخاب کنید",
-  "Read more...": "بیشتر بخوانید..."
+  "Read more...": "بیشتر بخوانید...",
+  "Data source": "منبع داده",
+  "Select a data source": "انتخاب منبع داده",
+  "Select a series": "انتخاب سری",
+  "Create new series": "ایجاد سری جدید",
+  "Report name": "نام گزارش",
+  "Report name is required": "نام گزارش الزامی است"
 }

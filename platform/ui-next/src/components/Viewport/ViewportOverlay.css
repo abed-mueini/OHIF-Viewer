@@ -16,6 +16,35 @@
   bottom: 2.15rem;
 }
 
+/* US-RSP-205: compact density on small viewports — overlays must stay
+ * readable without covering the image. Below md the insets shrink and the
+ * font steps down one notch; secondary corners collapse to a tighter max
+ * width so DICOM text wraps instead of clipping. */
+@media (max-width: 767px) {
+  .overlay-top {
+    top: 0.75rem;
+  }
+  .overlay-bottom {
+    bottom: 0.75rem;
+  }
+  .viewport-overlay {
+    max-width: min(48vw, 11rem);
+    overflow-wrap: anywhere;
+  }
+}
+
+/* Respect device safe areas (notches/home indicator) on mobile. */
+@supports (padding: env(safe-area-inset-left)) {
+  @media (max-width: 767px) {
+    .viewport-overlay.left-viewport {
+      margin-left: env(safe-area-inset-left);
+    }
+    .viewport-overlay.right-viewport-scrollbar {
+      margin-right: env(safe-area-inset-right);
+    }
+  }
+}
+
 /* Base text styling without shadow */
 .overlay-text {
   /* No default shadow - will be applied by shadow classes */

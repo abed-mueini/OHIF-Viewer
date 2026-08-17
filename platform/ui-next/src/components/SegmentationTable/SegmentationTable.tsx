@@ -13,7 +13,10 @@ import { AddSegmentationRow } from './AddSegmentationRow';
 import { SegmentationHeader } from './SegmentationHeader';
 import { SegmentationCollapsed } from './SegmentationCollapsed';
 import { SegmentationExpanded } from './SegmentationExpanded';
+import { Button } from '../Button';
 import Icons from '../Icons';
+import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
+import { cn } from '../../lib/utils';
 
 // Only include props that aren't part of the context
 interface SegmentationTableProps extends Omit<SegmentationTableContextType, 'setShowConfig'> {
@@ -35,6 +38,7 @@ interface SegmentationTableComponent extends React.FC<SegmentationTableProps> {
 
 export const SegmentationTableRoot = (props: SegmentationTableProps) => {
   const { t } = useTranslation('SegmentationPanel');
+  const { isTouch } = useResponsiveLayout();
   const {
     data = [],
     mode,
@@ -122,26 +126,44 @@ export const SegmentationTableRoot = (props: SegmentationTableProps) => {
         setShowConfig: toggleShowConfig,
       }}
     >
-      <PanelSection defaultOpen={true}>
-        <PanelSection.Header className="flex items-center justify-between">
-          <span>{t(title)}</span>
-          {hasConfigComponent && (
-            <div
-              className="ml-auto mr-2"
-              data-cy={`segmentation-config-toggle${dataCyTypeSuffix}`}
-            >
-              <Icons.Settings
-                className="text-primary h-4 w-4"
-                onClick={e => {
-                  e.stopPropagation();
-                  toggleShowConfig();
-                }}
-              />
-            </div>
-          )}
-        </PanelSection.Header>
-        <PanelSection.Content>{processedChildren}</PanelSection.Content>
-      </PanelSection>
+      <div
+        className="relative min-h-0"
+        data-cy={`segmentation-table${dataCyTypeSuffix}`}
+      >
+        <PanelSection defaultOpen={true}>
+          <PanelSection.Header
+            className={cn(
+              'flex items-center justify-between',
+              hasConfigComponent && '[padding-inline-end:3rem]',
+              isTouch && 'min-h-11 h-auto'
+            )}
+          >
+            <span className="min-w-0 truncate">
+              <bdi dir="auto">{t(title)}</bdi>
+            </span>
+          </PanelSection.Header>
+          <PanelSection.Content>{processedChildren}</PanelSection.Content>
+        </PanelSection>
+        {hasConfigComponent && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className={cn(
+              'absolute z-10 [inset-inline-end:0.5rem]',
+              isTouch ? 'top-0 h-11 w-11' : 'top-0.5'
+            )}
+            dataCY={`segmentation-config-toggle${dataCyTypeSuffix}`}
+            aria-label={t('Settings')}
+            onClick={e => {
+              e.stopPropagation();
+              toggleShowConfig();
+            }}
+          >
+            <Icons.Settings className="text-primary h-4 w-4" />
+          </Button>
+        )}
+      </div>
     </SegmentationTableProvider>
   );
 };

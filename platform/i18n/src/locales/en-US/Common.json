@@ -26,5 +26,11 @@
   "Foreground": "Foreground",
   "SELECT A FOREGROUND": "SELECT A FOREGROUND",
   "SELECT A SEGMENTATION": "SELECT A SEGMENTATION",
-  "Read more...": "Read more..."
+  "Read more...": "Read more...",
+  "Data source": "Data source",
+  "Select a data source": "Select a data source",
+  "Select a series": "Select a series",
+  "Create new series": "Create new series",
+  "Report name": "Report name",
+  "Report name is required": "Report name is required"
 }

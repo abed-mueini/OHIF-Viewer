@@ -82,7 +82,11 @@ function PanelMeasurementTableTracking(props) {
   );
 
   return (
-    <ScrollArea>
+    <ScrollArea
+      className="min-h-0"
+      viewportClassName="overscroll-contain"
+      viewportDataCY="measurement-panel-scroll-viewport"
+    >
       <div data-cy="trackedMeasurements-panel">
         <PanelMeasurement
           measurementFilter={measurementFilter}

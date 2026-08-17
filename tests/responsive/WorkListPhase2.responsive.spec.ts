@@ -3,6 +3,7 @@ import {
   RESPONSIVE_LANGUAGES,
   expectNoHorizontalOverflow,
   setTestLanguage,
+  waitForStableAnimation,
   waitForStableLayout,
 } from '../utils/responsive';
 
@@ -82,6 +83,7 @@ test.describe('WorkList Mobile Filter Sheet (US-RSP-103)', () => {
     await page.locator('button[aria-label="Filters"]').click();
     const sheet = page.locator('[role="dialog"][aria-label="Filters"]');
     await expect(sheet).toBeVisible();
+    await waitForStableAnimation(sheet);
 
     const patientInput = sheet.locator('input').first();
     await patientInput.fill('no-such-patient-xyz');

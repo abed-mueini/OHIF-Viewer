@@ -2,11 +2,14 @@ import React from 'react';
 import { Icons } from '../Icons';
 import { useTranslation } from 'react-i18next';
 import { useSegmentationTableContext } from './contexts';
+import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
+import { cn } from '../../lib/utils';
 
 export const AddSegmentationRow: React.FC<{ children?: React.ReactNode }> = ({
   children = null,
 }) => {
   const { t } = useTranslation('SegmentationPanel');
+  const { isTouch } = useResponsiveLayout();
 
   const {
     onSegmentationAdd,
@@ -31,11 +34,16 @@ export const AddSegmentationRow: React.FC<{ children?: React.ReactNode }> = ({
   }
 
   return (
-    <div
+    <button
+      type="button"
       data-cy="addSegmentation"
-      className={`group ${disabled ? 'pointer-events-none cursor-not-allowed opacity-70' : ''}`}
+      className={cn(
+        'focus-visible:ring-ring group w-full rounded-[4px] text-start focus-visible:outline-none focus-visible:ring-2',
+        isTouch && 'min-h-11',
+        disabled && 'cursor-not-allowed opacity-70'
+      )}
+      disabled={disabled}
       onClick={() =>
-        !disabled &&
         onSegmentationAdd({
           segmentationId: '',
           segmentationRepresentationType: segmentationRepresentationTypes?.[0],
@@ -43,7 +51,7 @@ export const AddSegmentationRow: React.FC<{ children?: React.ReactNode }> = ({
       }
     >
       {children}
-      <div className="text-primary group-hover:bg-popover flex items-center rounded-[4px] pl-1 group-hover:cursor-pointer">
+      <div className="text-primary group-hover:bg-popover flex min-h-[inherit] items-center rounded-[4px] [padding-inline-start:0.25rem] group-hover:cursor-pointer">
         <div className="grid h-[28px] w-[28px] place-items-center">
           {disabled ? <Icons.Info /> : <Icons.Add />}
         </div>
@@ -51,6 +59,6 @@ export const AddSegmentationRow: React.FC<{ children?: React.ReactNode }> = ({
           {t(disabled ? 'Segmentation not supported' : 'Add segmentation')}
         </span>
       </div>
-    </div>
+    </button>
   );
 };

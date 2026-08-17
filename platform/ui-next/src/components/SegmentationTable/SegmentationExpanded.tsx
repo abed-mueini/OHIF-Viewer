@@ -12,34 +12,47 @@ import { Tooltip, TooltipTrigger, TooltipContent } from '../Tooltip/Tooltip';
 import { ScrollArea } from '../../components';
 import { useDynamicMaxHeight } from '../../hooks/useDynamicMaxHeight';
 import { SegmentationLabel } from './SegmentationLabel';
+import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
+import { cn } from '../../lib/utils';
+import { useTranslation } from 'react-i18next';
 
 // The Header container component
 const SegmentationExpandedHeader = ({ children }: { children: React.ReactNode }) => {
+  const { isTouch } = useResponsiveLayout();
   const { segmentation, isActive } = useSegmentationExpanded('SegmentationExpandedHeader');
   const { onSegmentationClick } = useSegmentationTableContext('SegmentationExpandedHeader');
 
   return (
     <PanelSection.Header
-      className={`bg-muted my-0 rounded-none border-l-[2px] pl-0 ${isActive ? 'border-primary/70' : 'border-primary/35'}`}
+      className={cn(
+        'bg-muted my-0 min-w-0 rounded-none [border-inline-start-width:2px] [padding-inline-start:0]',
+        isTouch && 'min-h-11 h-auto',
+        isActive ? 'border-primary/70' : 'border-primary/35'
+      )}
       onClick={e => {
         e.stopPropagation();
         onSegmentationClick(segmentation.segmentationId);
       }}
     >
-      <div className="text-foreground flex h-8 w-full items-center">{children}</div>
+      <div className={cn('text-foreground flex w-full min-w-0 items-center', !isTouch && 'h-8')}>
+        {children}
+      </div>
     </PanelSection.Header>
   );
 };
 
 // Dropdown menu component - specifically for dropdown menu content
 const SegmentationExpandedDropdownMenu = ({ children }: { children: React.ReactNode }) => {
+  const { t } = useTranslation('SegmentationPanel');
+  const { isTouch } = useResponsiveLayout();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
           size="icon"
-          className="ml-1"
+          className={cn('[margin-inline-start:0.25rem]', isTouch && 'h-11 w-11')}
+          aria-label={t('Actions')}
           onClick={e => e.stopPropagation()}
         >
           <Icons.More />
@@ -55,23 +68,29 @@ const SegmentationExpandedLabel = () => {
   const { segmentation } = useSegmentationExpanded('SegmentationExpandedLabel');
 
   return (
-    <div className="pl-1.5">
-      <SegmentationLabel segmentation={segmentation} />
+    <div className="min-w-0 flex-1 truncate [padding-inline-start:0.375rem]">
+      <bdi dir="auto">
+        <SegmentationLabel segmentation={segmentation} />
+      </bdi>
     </div>
   );
 };
 
 // Info component - for the info tooltip
 const SegmentationExpandedInfo = () => {
+  const { t } = useTranslation('SegmentationPanel');
+  const { isTouch } = useResponsiveLayout();
   const { segmentation } = useSegmentationExpanded('SegmentationExpandedInfo');
 
   return (
-    <div className="ml-auto mr-2">
+    <div style={{ marginInlineStart: 'auto', marginInlineEnd: '0.5rem' }}>
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
             variant="ghost"
             size="icon"
+            className={cn(isTouch && 'h-11 w-11')}
+            aria-label={t('Info')}
           >
             <Icons.Info className="h-6 w-6" />
           </Button>
@@ -89,7 +108,7 @@ const SegmentationExpandedContent = ({ children }: { children: React.ReactNode }
   const { isActive } = useSegmentationExpanded('SegmentationExpandedContent');
   return (
     <PanelSection.Content
-      className={`border-l-[2px] py-0 pb-6 pl-[8px] ${isActive ? 'border-primary/70' : 'border-primary/35'}`}
+      className={`py-0 pb-6 [border-inline-start-width:2px] [padding-inline-start:8px] ${isActive ? 'border-primary/70' : 'border-primary/35'}`}
     >
       <div className="segmentation-expanded-section">{children}</div>
     </PanelSection.Content>
@@ -110,13 +129,15 @@ const SegmentationExpandedRoot = ({ children }) => {
 
   return (
     <ScrollArea
-      className={`bg-background space-y-px`}
+      className="bg-background min-h-0 space-y-px"
+      style={{ height: maxHeight }}
+      viewportClassName="overscroll-contain"
+      viewportDataCY="segmentation-panel-scroll-viewport"
       showArrows={true}
     >
       <div
         ref={scrollableContainerRef}
-        style={{ maxHeight: maxHeight }}
-        className={`space-y-0 pl-0.5`}
+        className="space-y-0 [padding-inline-start:0.125rem]"
       >
         {data
           .filter(

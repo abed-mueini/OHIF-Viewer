@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 import { expect } from 'playwright-test-coverage';
 
 /**
@@ -103,4 +103,13 @@ export async function waitForStableLayout(page: Page, timeout = 60_000): Promise
     });
   // Allow one animation frame so resize observers settle before measuring.
   await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => resolve())));
+}
+
+/** Waits for finite CSS/Web Animations on an overlay before measuring or clicking it. */
+export async function waitForStableAnimation(locator: Locator): Promise<void> {
+  await locator.evaluate(async element => {
+    await Promise.all(
+      element.getAnimations().map(animation => animation.finished.catch(() => undefined))
+    );
+  });
 }

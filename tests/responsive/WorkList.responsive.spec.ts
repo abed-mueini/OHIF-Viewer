@@ -1,6 +1,7 @@
 import { test, expect } from '../utils';
 import {
   RESPONSIVE_LANGUAGES,
+  RESPONSIVE_VIEWPORTS,
   expectNoHorizontalOverflow,
   setTestLanguage,
   waitForStableLayout,
@@ -45,9 +46,12 @@ test.describe('WorkList Responsive Matrix', () => {
           expect(dir).toBe(language === 'fa' ? 'rtl' : 'ltr');
         });
 
-        test('should render the study list table with rows in the viewport', async ({ page }) => {
+        test('should render the study list table with rows in the viewport', async ({
+          page,
+          responsiveWorkListPageObject,
+        }) => {
           // The table container must exist and be fully horizontally visible.
-          const table = page.locator('[data-cy="study-list-table"], table').first();
+          const table = responsiveWorkListPageObject.table;
           await expect(table).toBeVisible();
 
           const tableBox = await table.boundingBox();
@@ -85,5 +89,41 @@ test.describe('WorkList Live Resize (US-RSP-001)', () => {
     await page.waitForFunction(() => window.innerWidth === 1440, { timeout: 10_000 });
     await waitForStableLayout(page);
     await expectNoHorizontalOverflow(page, 'WorkList after resize to 1440px');
+  });
+
+  test('covers every required breakpoint in RTL and LTR (US-RSP-402)', async ({
+    page,
+    responsiveWorkListPageObject,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'responsive-desktop', 'full width audit runs once');
+
+    const audits = [
+      { language: 'en-US', theme: 'default', themeParam: null },
+      { language: 'fa', theme: 'clinical-light', themeParam: 'clinical-light' },
+    ] as const;
+
+    for (const audit of audits) {
+      const params = new URLSearchParams({ lng: audit.language });
+      if (audit.themeParam) {
+        params.set('theme', audit.themeParam);
+      }
+      await page.goto(`/?${params.toString()}`, { waitUntil: 'domcontentloaded' });
+      await waitForStableLayout(page);
+
+      for (const [name, viewport] of Object.entries(RESPONSIVE_VIEWPORTS)) {
+        await page.setViewportSize(viewport);
+        await page.waitForFunction(width => window.innerWidth === width, viewport.width);
+        await waitForStableLayout(page);
+
+        await expect(responsiveWorkListPageObject.table).toBeVisible();
+        const tableBox = await responsiveWorkListPageObject.table.boundingBox();
+        expect(tableBox).not.toBeNull();
+        expect(tableBox!.width).toBeLessThanOrEqual(viewport.width + 1);
+        await expectNoHorizontalOverflow(
+          page,
+          `WorkList ${audit.language} ${audit.theme} at ${name}`
+        );
+      }
+    }
   });
 });

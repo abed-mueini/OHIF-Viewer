@@ -1,11 +1,12 @@
 import React from 'react';
-import { Button, Icons } from '@ohif/ui-next';
+import { Button, Icons, useResponsiveLayout } from '@ohif/ui-next';
 import { useSystem } from '@ohif/core';
 import { useTranslation } from 'react-i18next';
 
 export function StudyMeasurementsActions({ items, StudyInstanceUID, measurementFilter, actions }) {
   const { commandsManager } = useSystem();
   const { t } = useTranslation('MeasurementTable');
+  const { isTouch } = useResponsiveLayout();
   const disabled = !items?.length;
 
   if (disabled) {
@@ -13,12 +14,13 @@ export function StudyMeasurementsActions({ items, StudyInstanceUID, measurementF
   }
 
   return (
-    <div className="bg-background flex h-9 w-full items-center rounded pr-0.5">
-      <div className="flex space-x-1">
+    <div className="bg-background min-h-9 flex w-full items-center rounded [padding-inline-end:0.125rem]">
+      <div className="flex flex-wrap gap-1">
         <Button
           size="sm"
           variant="ghost"
-          className="pl-1.5"
+          className={isTouch ? 'min-h-11' : undefined}
+          dataCY="download-measurements-csv"
           onClick={() => {
             commandsManager.runCommand('downloadCSVMeasurementsReport', {
               StudyInstanceUID,
@@ -33,7 +35,8 @@ export function StudyMeasurementsActions({ items, StudyInstanceUID, measurementF
         <Button
           size="sm"
           variant="ghost"
-          className="pl-0.5"
+          className={isTouch ? 'min-h-11' : undefined}
+          dataCY="create-sr-report"
           onClick={e => {
             e.stopPropagation();
             if (actions?.createSR) {
@@ -52,7 +55,8 @@ export function StudyMeasurementsActions({ items, StudyInstanceUID, measurementF
         <Button
           size="sm"
           variant="ghost"
-          className="pl-0.5"
+          className={isTouch ? 'min-h-11' : undefined}
+          dataCY="delete-measurements"
           onClick={e => {
             e.stopPropagation();
             if (actions?.onDelete) {

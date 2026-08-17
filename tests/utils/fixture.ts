@@ -7,6 +7,8 @@ import {
   RightPanelPageObject,
   ViewportPageObject,
   NotFoundStudyPageObject,
+  ResponsiveViewerPageObject,
+  ResponsiveWorkListPageObject,
 } from '../pages';
 
 type PageObjects = {
@@ -16,6 +18,8 @@ type PageObjects = {
   rightPanelPageObject: RightPanelPageObject;
   viewportPageObject: ViewportPageObject;
   notFoundStudyPageObject: NotFoundStudyPageObject;
+  responsiveViewerPageObject: ResponsiveViewerPageObject;
+  responsiveWorkListPageObject: ResponsiveWorkListPageObject;
 };
 
 type TestFixtures = PageObjects & {
@@ -47,6 +51,12 @@ export const test = base.extend<TestFixtures>({
   },
   notFoundStudyPageObject: async ({ page }, use) => {
     await use(new NotFoundStudyPageObject(page));
+  },
+  responsiveViewerPageObject: async ({ page }, use) => {
+    await use(new ResponsiveViewerPageObject(page));
+  },
+  responsiveWorkListPageObject: async ({ page }, use) => {
+    await use(new ResponsiveWorkListPageObject(page));
   },
 });
 

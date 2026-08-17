@@ -97,7 +97,7 @@ const SheetContent = React.forwardRef<
         <DialogPrimitive.Content
           ref={ref}
           className={cn(
-            'bg-background text-foreground border-border/70 data-[state=open]:animate-in data-[state=closed]:animate-out z-50 flex flex-col gap-2 shadow-2xl duration-300',
+            'bg-background text-foreground border-border/70 data-[state=open]:animate-in data-[state=closed]:animate-out fixed z-50 flex flex-col gap-2 shadow-2xl duration-300',
             sideClasses[side],
             animation,
             'w-[min(100vw,26rem)]',
@@ -108,7 +108,7 @@ const SheetContent = React.forwardRef<
         >
           {children}
           <DialogPrimitive.Close
-            className="ring-offset-background focus:ring-ring text-primary absolute top-3 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none"
+            className="ring-offset-background focus:ring-ring text-primary min-h-11 min-w-11 absolute top-3 flex items-center justify-center rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none"
             style={{ insetInlineEnd: '0.75rem' }}
           >
             <Icons.Close className="h-4 w-4" />

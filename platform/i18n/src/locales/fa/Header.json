@@ -8,5 +8,8 @@
   "Study list": "فهرست مطالعات",
   "Logout": "خروج",
   "Patient": "بیمار",
-  "Multiple Patients": "چند بیمار"
+  "Multiple Patients": "چند بیمار",
+  "Patient ID": "شناسه بیمار",
+  "Sex": "جنسیت",
+  "Date of birth": "تاریخ تولد"
 }

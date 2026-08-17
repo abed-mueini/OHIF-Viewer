@@ -152,6 +152,7 @@ export function useResponsiveLayout(): ResponsiveLayout {
   }, []);
 
   return useMemo(() => {
+    const isMeasured = size !== null;
     const resolvedMatches = matches ?? {
       xs: true,
       sm: false,
@@ -171,9 +172,12 @@ export function useResponsiveLayout(): ResponsiveLayout {
       width,
       height: size?.height ?? 0,
       breakpoint,
-      isMobile: breakpoint === 'xs' || breakpoint === 'sm',
-      isTablet: breakpoint === 'md',
-      isDesktop: breakpoint === 'lg' || breakpoint === 'xl' || breakpoint === '2xl',
+      // Render desktop-first until the browser reports its real size. This
+      // prevents components that depend on a measured panel group from
+      // mounting their mobile branch before its refs exist.
+      isMobile: isMeasured && (breakpoint === 'xs' || breakpoint === 'sm'),
+      isTablet: isMeasured && breakpoint === 'md',
+      isDesktop: !isMeasured || breakpoint === 'lg' || breakpoint === 'xl' || breakpoint === '2xl',
       isTouch,
       matches: resolvedMatches,
       isServerRender: size === null,

@@ -1,29 +1,5 @@
 import { useRef, useState, useEffect, RefObject } from 'react';
 
-const _getMovementIntersectionObserver = ({
-  callback,
-  rootMargin,
-  threshold,
-}: {
-  callback: () => void;
-  rootMargin: string;
-  threshold: number[];
-}): IntersectionObserver => {
-  return new IntersectionObserver(
-    entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          callback();
-        }
-      });
-    },
-    {
-      threshold,
-      rootMargin,
-    }
-  );
-};
-
 /**
  * Calculates the maximum height for an element based on its position
  * relative to the bottom of the viewport.
@@ -44,60 +20,53 @@ export function useDynamicMaxHeight(
   maxHeight: string;
 } {
   const ref = useRef<HTMLDivElement>(null);
-  const [maxHeight, setMaxHeight] = useState<string>('100vh'); // Start with full viewport height initially
+  const [maxHeight, setMaxHeight] = useState<string>('100vh');
 
   useEffect(() => {
-    const calculateMaxHeight = () => {
-      if (ref.current) {
-        const rect = ref.current.getBoundingClientRect();
-        const availableHeight = window.innerHeight - rect.top - buffer;
-        setMaxHeight(`${Math.max(minHeight, availableHeight)}px`);
-      }
-    };
-
-    // Two intersection observers to trigger a recalculation when the target element
-    // moves up or down. One for moving up and one for moving down.
-    // Note that with this approach we don't need to use a resize observer nor
-    // a window resize listener.
-
-    // The trick is to use a margin for the IntersectionObserver to detect movement.
-    // See more below.
-    const rootMarginHeight = maxHeight === '100vh' ? `${window.innerHeight}px` : `${maxHeight}`;
-
-    // Note that we use a fine grained threshold because we don't know how
-    // much it will move and we want any movement to trigger the intersection observer.
-    const threshold = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
-
-    // The trick here is to use the calculated maxHeight as the root margin height
-    // so that any movement of the target element down (i.e. "out of the" viewport)
-    // will trigger the intersection observer.
-    const moveDownIntersectionObserver = _getMovementIntersectionObserver({
-      callback: calculateMaxHeight,
-      rootMargin: `0px 0px ${rootMarginHeight} 0px`,
-      threshold,
-    });
-
-    // The trick here is to use the calculated maxHeight as the negative
-    // root margin height so that any movement of the target element up
-    // (i.e. "into the" viewport) will trigger the intersection observer.
-    const moveUpIntersectionObserver = _getMovementIntersectionObserver({
-      callback: calculateMaxHeight,
-      rootMargin: `0px 0px -${rootMarginHeight} 0px`,
-      threshold,
-    });
-
-    if (ref.current) {
-      moveUpIntersectionObserver.observe(ref.current);
-      moveDownIntersectionObserver.observe(ref.current);
+    const element = ref.current;
+    if (!element) {
+      return;
     }
 
-    // Cleanup listener and requestAnimationFrame on component unmount
-    return () => {
-      moveUpIntersectionObserver.disconnect();
-      moveDownIntersectionObserver.disconnect();
+    let frameId: number | undefined;
+    const calculateMaxHeight = () => {
+      const rect = element.getBoundingClientRect();
+      const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+      const nextMaxHeight = `${Math.max(minHeight, viewportHeight - rect.top - buffer)}px`;
+      setMaxHeight(current => (current === nextMaxHeight ? current : nextMaxHeight));
     };
-    // Dependencies: buffer, minHeight, and data.
-  }, [data, buffer, minHeight, maxHeight]);
+
+    const scheduleCalculation = () => {
+      if (frameId !== undefined) {
+        cancelAnimationFrame(frameId);
+      }
+      frameId = requestAnimationFrame(calculateMaxHeight);
+    };
+
+    const visualViewport = window.visualViewport;
+    const resizeObserver = new ResizeObserver(scheduleCalculation);
+    resizeObserver.observe(element);
+    if (element.parentElement) {
+      resizeObserver.observe(element.parentElement);
+    }
+
+    window.addEventListener('resize', scheduleCalculation);
+    window.addEventListener('orientationchange', scheduleCalculation);
+    visualViewport?.addEventListener('resize', scheduleCalculation);
+    visualViewport?.addEventListener('scroll', scheduleCalculation);
+    scheduleCalculation();
+
+    return () => {
+      if (frameId !== undefined) {
+        cancelAnimationFrame(frameId);
+      }
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', scheduleCalculation);
+      window.removeEventListener('orientationchange', scheduleCalculation);
+      visualViewport?.removeEventListener('resize', scheduleCalculation);
+      visualViewport?.removeEventListener('scroll', scheduleCalculation);
+    };
+  }, [data, buffer, minHeight]);
 
   return { ref, maxHeight };
 }

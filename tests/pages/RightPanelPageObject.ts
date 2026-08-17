@@ -68,6 +68,9 @@ export class RightPanelPageObject {
 
     return {
       button: actionsButton,
+      renameItem: this.page.getByTestId('Rename'),
+      deleteItem: this.page.getByTestId('Delete'),
+      changeColorItem: this.page.getByTestId('Change Color'),
       click: async () => {
         await actionsButton.click();
       },
@@ -141,6 +144,15 @@ export class RightPanelPageObject {
       get rowDataColorHex() {
         return row.getByTestId('data-row-colorhex');
       },
+      get visibilityToggle() {
+        return row.getByTestId('data-row-visibility-toggle');
+      },
+      get lockToggle() {
+        return row.getByTestId('data-row-lock-toggle');
+      },
+      get actionContainer() {
+        return row.getByTestId('data-row-actions');
+      },
       click: async () => {
         await row.getByTestId('data-row-title').click();
       },
@@ -163,6 +175,10 @@ export class RightPanelPageObject {
 
   async toggle() {
     await this.page.getByTestId('side-panel-header-right').click();
+  }
+
+  async openMobile() {
+    await this.page.getByTestId('mobile-right-panel-open').click();
   }
 
   get measurementsPanel() {
@@ -206,7 +222,10 @@ export class RightPanelPageObject {
     return {
       panel: {
         deleteAll: async () => {
-          await page.getByRole('button', { name: 'Delete' }).click();
+          await page.getByTestId('delete-measurements').click();
+        },
+        createReport: async () => {
+          await page.getByTestId('create-sr-report').click();
         },
         getMeasurementCount: async () => {
           return await measurementTableRows.count();
@@ -269,7 +288,7 @@ export class RightPanelPageObject {
 
   /** The "Add Segment" row button of the active segmentation in the visible panel */
   private get addSegmentButton() {
-    const button = this.page.getByRole('button', { name: 'Add Segment' });
+    const button = this.page.getByTestId('add-segment');
     return {
       button,
       click: async () => {
@@ -302,6 +321,7 @@ export class RightPanelPageObject {
       // Retrying-friendly locator for `expect(...).toHaveCount(n)` — prefer this
       // over the one-shot getSegmentCount() when asserting row counts.
       rows: page.getByTestId('data-row'),
+      scrollViewport: page.getByTestId('segment-rows-scroll-viewport'),
       /**
        * @deprecated One-shot count that races the render. Prefer
        * `expect(panel.rows).toHaveCount(n)` for assertions. Use this only to
@@ -314,8 +334,11 @@ export class RightPanelPageObject {
       getSegmentLabels: () => {
         return page.getByTestId('data-row-title');
       },
-      // No data-cy exists in this panel, using Segmentation header button
-      locator: page.getByRole('button', { name: 'Segmentations' }),
+      locator: typeSuffix
+        ? page
+            .getByTestId(`segmentation-table-${typeSuffix}`)
+            .or(page.getByTestId('segmentation-table'))
+        : page.getByTestId('segmentation-table'),
       nthSegment(index: number) {
         return getSegmentByIdx(index);
       },

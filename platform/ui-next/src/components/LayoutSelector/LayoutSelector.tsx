@@ -262,7 +262,17 @@ const Preset = ({
         className
       )}
       onClick={handleClick}
+      onKeyDown={event => {
+        if (!disabled && (event.key === 'Enter' || event.key === ' ')) {
+          event.preventDefault();
+          handleClick();
+        }
+      }}
       data-cy={title}
+      data-layout-disabled={disabled || undefined}
+      aria-disabled={disabled || undefined}
+      role="button"
+      tabIndex={disabled ? -1 : 0}
     >
       <div className="flex-shrink-0">
         <Icons.ByName
@@ -278,10 +288,16 @@ const Preset = ({
 type GridSelectorProps = {
   rows?: number;
   columns?: number;
+  maxCells?: number;
   className?: string;
 };
 
-const GridSelector = ({ rows = 3, columns = 4, className }: GridSelectorProps) => {
+const GridSelector = ({
+  rows = 3,
+  columns = 4,
+  maxCells = Infinity,
+  className,
+}: GridSelectorProps) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | undefined>(undefined);
   const { onSelection } = useLayoutSelector();
 
@@ -298,7 +314,17 @@ const GridSelector = ({ rows = 3, columns = 4, className }: GridSelectorProps) =
     return x <= hoverX && y <= hoverY;
   };
 
+  const isDisabled = (index: number) => {
+    const x = index % columns;
+    const y = Math.floor(index / columns);
+    return (x + 1) * (y + 1) > maxCells;
+  };
+
   const handleSelection = (index: number) => {
+    if (isDisabled(index)) {
+      return;
+    }
+
     const x = index % columns;
     const y = Math.floor(index / columns);
     onSelection({
@@ -320,10 +346,24 @@ const GridSelector = ({ rows = 3, columns = 4, className }: GridSelectorProps) =
       {Array.from(Array(rows * columns).keys()).map(index => (
         <div
           key={index}
-          className={cn('cursor-pointer', isHovered(index) ? 'bg-primary' : 'bg-accent')}
+          className={cn(
+            'cursor-pointer',
+            isDisabled(index) && 'cursor-not-allowed opacity-40',
+            isHovered(index) ? 'bg-primary' : 'bg-accent'
+          )}
           data-cy={`Layout-${index % columns}-${Math.floor(index / columns)}`}
+          data-layout-disabled={isDisabled(index) || undefined}
+          aria-disabled={isDisabled(index) || undefined}
+          role="button"
+          tabIndex={isDisabled(index) ? -1 : 0}
           onClick={() => handleSelection(index)}
-          onMouseEnter={() => setHoveredIndex(index)}
+          onKeyDown={event => {
+            if (!isDisabled(index) && (event.key === 'Enter' || event.key === ' ')) {
+              event.preventDefault();
+              handleSelection(index);
+            }
+          }}
+          onMouseEnter={() => !isDisabled(index) && setHoveredIndex(index)}
           onMouseLeave={() => setHoveredIndex(undefined)}
         />
       ))}
@@ -332,7 +372,7 @@ const GridSelector = ({ rows = 3, columns = 4, className }: GridSelectorProps) =
 };
 
 const Divider = ({ className }: { className?: string }) => (
-  <div className={cn('h-px bg-background', className)}></div>
+  <div className={cn('bg-background h-px', className)}></div>
 );
 
 const HelpText = ({ children, className }: { children: React.ReactNode; className?: string }) => (

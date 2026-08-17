@@ -1,5 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { DicomTagBrowserPageObject } from './DicomTagBrowserPageObject';
+import { ReportDialogPageObject } from './ReportDialogPageObject';
 
 export class DOMOverlayPageObject {
   readonly page: Page;
@@ -58,6 +59,10 @@ export class DOMOverlayPageObject {
 
       get dicomTagBrowser() {
         return new DicomTagBrowserPageObject(page);
+      },
+
+      get report() {
+        return new ReportDialogPageObject(page);
       },
 
       get colorPicker() {

@@ -114,7 +114,7 @@ function ViewerHeader({ appConfig }: withAppTypes<{ appConfig: AppTypes.Config }
         )
       }
       UndoRedo={
-        <div className="text-primary flex cursor-pointer items-center">
+        <div className="text-primary hidden cursor-pointer items-center lg:flex">
           <Button
             variant="ghost"
             className="hover:bg-muted"
@@ -138,7 +138,12 @@ function ViewerHeader({ appConfig }: withAppTypes<{ appConfig: AppTypes.Config }
         </div>
       }
     >
-      <div className="relative flex justify-center gap-[4px]">
+      {/* US-RSP-202: the primary toolbar wraps (never horizontally scrolls)
+          below lg; each tool keeps its hit target intact. */}
+      <div
+        className="viewer-primary-toolbar [&_button]:min-h-11 [&_button]:min-w-11 relative flex min-w-0 max-w-full flex-wrap justify-center gap-[4px]"
+        data-cy="viewer-primary-toolbar"
+      >
         <Toolbar buttonSection="primary" />
       </div>
     </Header>

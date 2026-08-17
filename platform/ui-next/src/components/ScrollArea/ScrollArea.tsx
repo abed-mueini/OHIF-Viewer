@@ -13,6 +13,10 @@ interface ScrollAreaProps extends React.ComponentPropsWithoutRef<typeof ScrollAr
   /** Flag to show/hide scroll indicator arrows at top and bottom */
   showArrows?: boolean;
   type?: 'auto' | 'always' | 'scroll';
+  /** Additional classes for the actual scrolling viewport. */
+  viewportClassName?: string;
+  /** Stable test id for the actual scrolling viewport. */
+  viewportDataCY?: string;
 }
 
 /**
@@ -35,56 +39,71 @@ interface ScrollAreaProps extends React.ComponentPropsWithoutRef<typeof ScrollAr
 const ScrollArea = React.forwardRef<
   React.ElementRef<typeof ScrollAreaPrimitive.Root>,
   ScrollAreaProps
->(({ className, children, showArrows = false, ...props }, ref) => {
-  const { i18n } = useTranslation();
-  const [showBottomArrow, setShowBottomArrow] = React.useState(false);
-  const [showTopArrow, setShowTopArrow] = React.useState(false);
-  const viewportRef = React.useRef<HTMLDivElement>(null);
+>(
+  (
+    { className, children, showArrows = false, viewportClassName, viewportDataCY, ...props },
+    ref
+  ) => {
+    const { i18n } = useTranslation();
+    const [showBottomArrow, setShowBottomArrow] = React.useState(false);
+    const [showTopArrow, setShowTopArrow] = React.useState(false);
+    const viewportRef = React.useRef<HTMLDivElement>(null);
 
-  const checkScroll = React.useCallback(() => {
-    if (viewportRef.current) {
-      const { scrollHeight, clientHeight, scrollTop } = viewportRef.current;
-      setShowBottomArrow(scrollHeight > clientHeight && scrollTop < scrollHeight - clientHeight);
-      setShowTopArrow(scrollTop > 0);
-    }
-  }, []);
+    const checkScroll = React.useCallback(() => {
+      if (viewportRef.current) {
+        const { scrollHeight, clientHeight, scrollTop } = viewportRef.current;
+        setShowBottomArrow(scrollHeight > clientHeight && scrollTop < scrollHeight - clientHeight);
+        setShowTopArrow(scrollTop > 0);
+      }
+    }, []);
 
-  React.useEffect(() => {
-    checkScroll();
-    window.addEventListener('resize', checkScroll);
-    return () => window.removeEventListener('resize', checkScroll);
-  }, [checkScroll]);
+    React.useEffect(() => {
+      checkScroll();
+      const viewport = viewportRef.current;
+      const resizeObserver = viewport ? new ResizeObserver(checkScroll) : undefined;
+      resizeObserver?.observe(viewport);
+      const visualViewport = window.visualViewport;
+      window.addEventListener('resize', checkScroll);
+      visualViewport?.addEventListener('resize', checkScroll);
+      return () => {
+        resizeObserver?.disconnect();
+        window.removeEventListener('resize', checkScroll);
+        visualViewport?.removeEventListener('resize', checkScroll);
+      };
+    }, [checkScroll]);
 
-  return (
-    <ScrollAreaPrimitive.Root
-      ref={ref}
-      className={cn('relative h-full overflow-hidden', className, '[&>div>div]:!block')}
-      dir={props.dir ?? i18n.dir(i18n.language)}
-      type={props.type}
-      {...props}
-    >
-      <ScrollAreaPrimitive.Viewport
-        ref={viewportRef}
-        className="h-full w-full rounded-[inherit]"
-        onScroll={checkScroll}
+    return (
+      <ScrollAreaPrimitive.Root
+        ref={ref}
+        className={cn('relative h-full overflow-hidden', className, '[&>div>div]:!block')}
+        dir={props.dir ?? i18n.dir(i18n.language)}
+        type={props.type}
+        {...props}
       >
-        {children}
-      </ScrollAreaPrimitive.Viewport>
-      <ScrollBar />
-      <ScrollAreaPrimitive.Corner />
-      {showArrows && showTopArrow && (
-        <div className="from-background via-background/80 pointer-events-none absolute -top-1 left-0 right-0 flex h-8 items-center justify-center bg-gradient-to-b to-transparent">
-          <Icons.ChevronOpen className="text-foreground/50 h-8 w-8 rotate-180" />
-        </div>
-      )}
-      {showArrows && showBottomArrow && (
-        <div className="from-background via-background/80 pointer-events-none absolute -bottom-1 left-0 right-0 flex h-8 items-center justify-center bg-gradient-to-t to-transparent">
-          <Icons.ChevronOpen className="text-foreground/50 h-8 w-8" />
-        </div>
-      )}
-    </ScrollAreaPrimitive.Root>
-  );
-});
+        <ScrollAreaPrimitive.Viewport
+          ref={viewportRef}
+          className={cn('h-full w-full overscroll-y-contain rounded-[inherit]', viewportClassName)}
+          data-cy={viewportDataCY}
+          onScroll={checkScroll}
+        >
+          {children}
+        </ScrollAreaPrimitive.Viewport>
+        <ScrollBar />
+        <ScrollAreaPrimitive.Corner />
+        {showArrows && showTopArrow && (
+          <div className="from-background via-background/80 pointer-events-none absolute -top-1 left-0 right-0 flex h-8 items-center justify-center bg-gradient-to-b to-transparent">
+            <Icons.ChevronOpen className="text-foreground/50 h-8 w-8 rotate-180" />
+          </div>
+        )}
+        {showArrows && showBottomArrow && (
+          <div className="from-background via-background/80 pointer-events-none absolute -bottom-1 left-0 right-0 flex h-8 items-center justify-center bg-gradient-to-t to-transparent">
+            <Icons.ChevronOpen className="text-foreground/50 h-8 w-8" />
+          </div>
+        )}
+      </ScrollAreaPrimitive.Root>
+    );
+  }
+);
 
 ScrollArea.displayName = ScrollAreaPrimitive.Root.displayName;
 

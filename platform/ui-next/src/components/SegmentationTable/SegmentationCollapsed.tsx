@@ -21,11 +21,19 @@ import {
   SelectItem,
   SelectValue,
 } from '../../components';
+import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
+import { cn } from '../../lib/utils';
 
 // Main header component
 const SegmentationCollapsedHeader = ({ children }: { children: React.ReactNode }) => {
+  const { isTouch } = useResponsiveLayout();
   return (
-    <div className="bg-muted flex h-10 w-full items-center space-x-1 rounded-t px-1.5">
+    <div
+      className={cn(
+        'bg-muted flex w-full min-w-0 items-center gap-1 rounded-t px-1.5',
+        isTouch ? 'min-h-11' : 'h-10'
+      )}
+    >
       {children}
     </div>
   );
@@ -33,6 +41,8 @@ const SegmentationCollapsedHeader = ({ children }: { children: React.ReactNode }
 
 // Dropdown menu component - specifically for dropdown menu content
 const SegmentationCollapsedDropdownMenu = ({ children }: { children: React.ReactNode }) => {
+  const { t } = useTranslation('Common');
+  const { isTouch } = useResponsiveLayout();
   const { segmentationRepresentationTypes } = useSegmentationTableContext(
     'SegmentationCollapsedDropdownMenu'
   );
@@ -45,6 +55,8 @@ const SegmentationCollapsedDropdownMenu = ({ children }: { children: React.React
         <Button
           variant="ghost"
           size="icon"
+          className={cn(isTouch && 'h-11 w-11')}
+          aria-label={t('More')}
           data-cy={`segmentation-collapsed-more-btn${dataCyTypeSuffix}`}
         >
           <Icons.More className="h-6 w-6" />
@@ -88,7 +100,7 @@ const SegmentationCollapsedSelector = () => {
       value={segmentation?.segmentationId}
     >
       <SelectTrigger
-        className="w-full overflow-hidden"
+        className="min-w-0 flex-1 overflow-hidden"
         data-cy={`segmentation-select${dataCyTypeSuffix}`}
       >
         <SelectValue
@@ -114,6 +126,8 @@ const SegmentationCollapsedSelector = () => {
 
 // Info component - for displaying the info tooltip
 const SegmentationCollapsedInfo = () => {
+  const { t } = useTranslation('SegmentationPanel');
+  const { isTouch } = useResponsiveLayout();
   const { data, activeSegmentationId } = useSegmentationTableContext('SegmentationCollapsedInfo');
 
   const activeSegmentationObj = data.find(
@@ -128,6 +142,8 @@ const SegmentationCollapsedInfo = () => {
         <Button
           variant="ghost"
           size="icon"
+          className={cn(isTouch && 'h-11 w-11')}
+          aria-label={t('Info')}
         >
           <Icons.Info className="h-6 w-6" />
         </Button>
@@ -144,7 +160,7 @@ const SegmentationCollapsedInfo = () => {
 
 // Content component - for the main collapsed view content
 const SegmentationCollapsedContent = ({ children }: { children: React.ReactNode }) => {
-  return <div className="collapsed-content">{children}</div>;
+  return <div className="collapsed-content min-h-0">{children}</div>;
 };
 
 // Main compound component

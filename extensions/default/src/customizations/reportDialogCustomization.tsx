@@ -1,7 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { InputDialog } from '@ohif/ui-next';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ohif/ui-next';
+import {
+  Button,
+  InputDialog,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@ohif/ui-next';
 import { useSystem } from '@ohif/core';
 
 type DataSource = {
@@ -23,9 +31,10 @@ type SeriesOption = {
 };
 
 type ReportDialogProps = {
-  dataSources: DataSource[];
+  dataSources?: DataSource[];
   modality?: string;
   predecessorImageId?: string;
+  minSeriesNumber?: number;
   hide: () => void;
   onSave: (data: {
     reportName: string;
@@ -47,9 +56,10 @@ function ReportDialog({
   onCancel,
   enableDownload = false,
 }: ReportDialogProps) {
-  const { t } = useTranslation('Buttons');
+  const { t } = useTranslation(['Common', 'Buttons']);
   const { servicesManager } = useSystem();
   const actionTakenRef = useRef(false);
+  const reportNameInputRef = useRef<HTMLInputElement>(null);
   const [selectedDataSource, setSelectedDataSource] = useState<string | null>(
     dataSources?.[0]?.value ?? null
   );
@@ -57,6 +67,7 @@ function ReportDialog({
 
   const [selectedSeries, setSelectedSeries] = useState<string | null>(predecessorImageId || null);
   const [reportName, setReportName] = useState('');
+  const [reportNameError, setReportNameError] = useState('');
 
   const seriesOptions = useMemo((): SeriesOption[] => {
     const displaySetsMap = displaySetService.getDisplaySetCache();
@@ -75,10 +86,7 @@ function ReportDialog({
           label: `${ds.SeriesDescription} ${ds.SeriesDate}/${ds.SeriesTime} ${ds.SeriesNumber}`,
         };
       })
-      .filter(
-        option =>
-          option.selectValue && option.selectValue !== NEW_SERIES_SELECT_VALUE
-      );
+      .filter(option => option.selectValue && option.selectValue !== NEW_SERIES_SELECT_VALUE);
 
     return [
       {
@@ -87,11 +95,11 @@ function ReportDialog({
         value: null,
         description: null,
         seriesNumber: minSeriesNumber,
-        label: 'Create new series',
+        label: t('Create new series'),
       },
       ...options,
     ];
-  }, [displaySetService, modality, minSeriesNumber]);
+  }, [displaySetService, modality, minSeriesNumber, t]);
 
   const handleSeriesChange = useCallback(
     (selectValue: string) => {
@@ -108,18 +116,29 @@ function ReportDialog({
     const newReportName =
       selectedSeries && seriesOption?.description ? seriesOption.description : '';
     setReportName(newReportName);
+    setReportNameError('');
   }, [selectedSeries, seriesOptions]);
 
-  const handleSave = useCallback(() => {
-    actionTakenRef.current = true;
-    onSave({
-      reportName,
-      dataSource: selectedDataSource,
-      priorSeriesNumber: Math.max(...seriesOptions.map(it => it.seriesNumber)),
-      series: selectedSeries,
-    });
-    hide();
-  }, [selectedDataSource, selectedSeries, reportName, hide, onSave]);
+  const handleSave = useCallback(
+    (event?: React.FormEvent<HTMLFormElement>) => {
+      event?.preventDefault();
+      if (!reportName.trim()) {
+        setReportNameError(t('Report name is required'));
+        reportNameInputRef.current?.focus();
+        return;
+      }
+
+      actionTakenRef.current = true;
+      onSave({
+        reportName: reportName.trim(),
+        dataSource: selectedDataSource,
+        priorSeriesNumber: Math.max(...seriesOptions.map(it => it.seriesNumber)),
+        series: selectedSeries,
+      });
+      hide();
+    },
+    [selectedDataSource, selectedSeries, reportName, hide, onSave, seriesOptions, t]
+  );
 
   const handleCancel = useCallback(() => {
     actionTakenRef.current = true;
@@ -147,118 +166,157 @@ function ReportDialog({
     };
   }, [onCancel]);
 
-  const showDataSourceSelect = dataSources?.length > 1;
+  const showDataSourceSelect = (dataSources?.length ?? 0) > 1;
   const showDownloadButton = enableDownload;
   const selectedSeriesSelectValue =
     selectedSeries == null
       ? NEW_SERIES_SELECT_VALUE
-      : (seriesOptions.find(o => o.value === selectedSeries)?.selectValue ??
-        selectedSeries);
+      : (seriesOptions.find(o => o.value === selectedSeries)?.selectValue ?? selectedSeries);
 
   return (
-    <div className="text-foreground flex min-w-[400px] max-w-md flex-col">
-      <div className="flex flex-col gap-4">
-        <div className="flex gap-4">
+    <form
+      className="text-foreground flex max-h-[calc(100dvh-7rem)] w-full min-w-0 max-w-md flex-col"
+      data-cy="report-dialog-form"
+      noValidate
+      onSubmit={handleSave}
+    >
+      <div
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain [padding-inline-end:0.25rem]"
+        data-cy="report-dialog-body"
+      >
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {showDataSourceSelect && (
-            <>
-              <div className="mt-1 w-1/2">
-                <div className="mb-1 pl-1 text-base">Data source</div>
-                <Select
-                  value={selectedDataSource}
-                  onValueChange={setSelectedDataSource}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a data source" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {dataSources.map(source => (
-                      <SelectItem
-                        key={source.value}
-                        value={source.value}
-                      >
-                        {source.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className={showDataSourceSelect ? 'mt-1 w-1/2' : 'mt-1 w-full'}>
-                <div className="mb-1 pl-1 text-base">Series</div>
-                <Select
-                  value={selectedSeriesSelectValue}
-                  onValueChange={handleSeriesChange}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a series" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {seriesOptions.map(series => (
-                      <SelectItem
-                        key={series.optionKey}
-                        value={series.selectValue}
-                      >
-                        {series.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </>
-          )}
-        </div>
-        <div className="flex items-end gap-4">
-          {!showDataSourceSelect && (
-            <div className="w-1/3">
-              <div className="mb-1 pl-1 text-base">Series</div>
-              <Select
-                value={selectedSeriesSelectValue}
-                onValueChange={handleSeriesChange}
+            <div className="min-w-0">
+              <Label
+                className="mb-1 block text-base"
+                htmlFor="report-data-source"
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a series" />
+                {t('Data source')}
+              </Label>
+              <Select
+                value={selectedDataSource}
+                onValueChange={setSelectedDataSource}
+              >
+                <SelectTrigger
+                  id="report-data-source"
+                  data-cy="report-data-source"
+                  className="w-full"
+                >
+                  <SelectValue placeholder={t('Select a data source')} />
                 </SelectTrigger>
                 <SelectContent>
-                  {seriesOptions.map(series => (
+                  {dataSources?.map(source => (
                     <SelectItem
-                      key={series.optionKey}
-                      value={series.selectValue}
+                      key={source.value}
+                      value={source.value}
                     >
-                      {series.label}
+                      <bdi dir="auto">{source.label}</bdi>
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
           )}
+
+          <div className="min-w-0">
+            <Label
+              className="mb-1 block text-base"
+              htmlFor="report-series"
+            >
+              {t('Series')}
+            </Label>
+            <Select
+              value={selectedSeriesSelectValue}
+              onValueChange={handleSeriesChange}
+            >
+              <SelectTrigger
+                id="report-series"
+                data-cy="report-series"
+                className="w-full"
+              >
+                <SelectValue placeholder={t('Select a series')} />
+              </SelectTrigger>
+              <SelectContent>
+                {seriesOptions.map(series => (
+                  <SelectItem
+                    key={series.optionKey}
+                    value={series.selectValue}
+                  >
+                    <bdi dir="auto">{series.label}</bdi>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <InputDialog
             value={reportName}
-            onChange={setReportName}
-            submitOnEnter
-            className="flex-1"
+            onChange={value => {
+              setReportName(value);
+              if (reportNameError) {
+                setReportNameError('');
+              }
+            }}
+            className="min-w-0"
           >
-            <InputDialog.Field className="mb-0">
+            <InputDialog.Field className="mb-0 gap-1">
+              <InputDialog.Label htmlFor="report-name">{t('Report name')}</InputDialog.Label>
               <InputDialog.Input
-                placeholder="Report name"
+                ref={reportNameInputRef}
+                id="report-name"
+                placeholder={t('Report name')}
                 disabled={!!selectedSeries}
+                aria-invalid={!!reportNameError}
+                aria-describedby={reportNameError ? 'report-name-error' : undefined}
               />
+              {reportNameError && (
+                <div
+                  id="report-name-error"
+                  role="alert"
+                  data-cy="report-name-error"
+                  className="text-destructive text-sm"
+                >
+                  {reportNameError}
+                </div>
+              )}
             </InputDialog.Field>
           </InputDialog>
         </div>
-
-        <div className="flex justify-end gap-2">
-          <InputDialog>
-            <InputDialog.Actions>
-              {showDownloadButton && (
-                <InputDialog.ActionsSecondary onClick={handleDownload}>
-                  {t('Download')}
-                </InputDialog.ActionsSecondary>
-              )}
-              <InputDialog.ActionsPrimary onClick={handleSave}>Save</InputDialog.ActionsPrimary>
-            </InputDialog.Actions>
-          </InputDialog>
-        </div>
       </div>
-    </div>
+
+      <div
+        className="bg-card sticky bottom-0 z-10 mt-4 grid flex-shrink-0 grid-cols-2 gap-2 border-t pt-3 [padding-bottom:max(0.25rem,env(safe-area-inset-bottom))] sm:flex sm:justify-end"
+        data-cy="report-dialog-footer"
+      >
+        {showDownloadButton && (
+          <Button
+            type="button"
+            variant="outline"
+            className="min-h-11"
+            dataCY="report-download"
+            onClick={handleDownload}
+          >
+            {t('Download', { ns: 'Buttons' })}
+          </Button>
+        )}
+        <Button
+          type="button"
+          variant="secondary"
+          className="min-h-11"
+          dataCY="report-cancel"
+          onClick={handleCancel}
+        >
+          {t('Cancel')}
+        </Button>
+        <Button
+          type="submit"
+          className="min-h-11"
+          dataCY="report-save"
+        >
+          {t('Save')}
+        </Button>
+      </div>
+    </form>
   );
 }
 

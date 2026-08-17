@@ -91,14 +91,17 @@ export const SegmentationSegments = ({ children = null }: { children?: React.Rea
   return (
     <div ref={scrollableContainerRef}>
       <ScrollArea
-        className={`bg-background space-y-px`}
+        className="bg-background min-h-0 space-y-px"
+        style={{ height: maxHeight }}
+        viewportClassName="overscroll-contain"
+        viewportDataCY="segment-rows-scroll-viewport"
         showArrows={
           scrollableContainerRef?.current
             ? scrollableContainerRef?.current?.offsetHeight >= parseFloat(maxHeight)
             : false
         }
       >
-        <div style={{ maxHeight: maxHeight }}>
+        <div>
           {segments.map(segment => {
             if (!segment) {
               return null;
