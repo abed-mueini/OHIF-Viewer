@@ -20,15 +20,13 @@ export default function init({
   serviceProvidersManager,
   appConfig,
 }: withAppTypes): void {
-  const hasThemeModule =
-    Array.isArray(appConfig.customizationService) &&
-    appConfig.customizationService.some(
-      ref => typeof ref === 'string' && ref.includes('customizationModule.theme')
-    );
+  // Always register the active theme provider. Previously it was gated on the
+  // `customizationModule.theme` customization being enabled, which meant that
+  // without that module `?theme=` and the stored `ohif:theme` preference were
+  // silently ignored and every preset (including clinical-light) was
+  // unreachable at runtime.
+  serviceProvidersManager.registerProvider('activeTheme', ActiveThemeProvider);
 
-  if (hasThemeModule) {
-    serviceProvidersManager.registerProvider('activeTheme', ActiveThemeProvider);
-  }
   const { toolbarService, cineService, viewportGridService } = servicesManager.services;
 
   toolbarService.registerEventForToolbarUpdate(cineService, [

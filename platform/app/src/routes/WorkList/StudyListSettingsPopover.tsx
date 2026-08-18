@@ -50,8 +50,13 @@ export function defaultSettingsMenuItems({
         show({
           content: UserPreferencesModal,
           title: UserPreferencesModal?.title ?? t('UserPreferencesModal:User preferences'),
+          // `sm:max-w-none` clears the DialogContent `sm:max-w-md` default —
+          // cn() appends but doesn't dedupe width utilities, so the earlier
+          // max-w-md would otherwise cap the modal at 448px regardless of the
+          // sm:max-w-4xl declared below.
           containerClassName:
-            UserPreferencesModal?.containerClassName ?? 'flex max-w-4xl p-6 flex-col',
+            UserPreferencesModal?.containerClassName ??
+            'flex max-w-[calc(100vw-1.5rem)] flex-col p-6 sm:max-w-none sm:w-[min(56rem,calc(100vw-3rem))]',
         });
       },
     },

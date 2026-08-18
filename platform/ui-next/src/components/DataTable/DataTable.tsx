@@ -257,7 +257,7 @@ function Table<TData>({ children, className, tableClassName }: TableProps) {
     <div
       ref={wrapperRef}
       className={cn(
-        'border-input/50 bg-card/70 min-h-0 flex-1 rounded-md border shadow-sm',
+        'border-input/50 bg-card/70 worklist-table-card min-h-0 flex-1 rounded-md border shadow-sm',
         className
       )}
     >
@@ -312,7 +312,7 @@ function Header<TData>() {
             return (
               <BasicTableHead
                 key={header.id}
-                className={cn('bg-muted', headerClassName)}
+                className={cn('worklist-table-head bg-muted', headerClassName)}
                 aria-sort={
                   sortState === 'asc' ? 'ascending' : sortState === 'desc' ? 'descending' : 'none'
                 }

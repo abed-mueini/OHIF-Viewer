@@ -78,7 +78,7 @@ function DescriptionCell({ description }: { description: string }) {
   const { t } = useTranslation('StudyList');
 
   return (
-    <div className={!description ? 'text-muted-foreground/40' : ''}>
+    <div className={!description ? 'worklist-cell-placeholder' : ''}>
       {description || t('No Description')}
     </div>
   );

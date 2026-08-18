@@ -240,9 +240,11 @@ function TableContent({
             {toolbarRightActionsComponent}
             {toolbarRightActionsComponent && <div className="bg-input mx-2 h-4 w-px" />}
             {/* Pagination appears to the left of the "View" button */}
-            <DataTable.Pagination<StudyRow> />
-            {showColumnVisibility && <DataTable.ViewOptions<StudyRow> />}
-            {toolbarRightComponent}
+            <div className="worklist-toolbar-actions flex min-w-0 items-center">
+              <DataTable.Pagination<StudyRow> />
+              {showColumnVisibility && <DataTable.ViewOptions<StudyRow> />}
+              {toolbarRightComponent}
+            </div>
           </div>
         </DataTable.Toolbar>
       )}
@@ -250,7 +252,7 @@ function TableContent({
         <DataTable.Header<StudyRow> />
         {/* The in-table filter row is hidden below md; the mobile sheet
             renders its own filter controls instead. */}
-        <div className="max-md:hidden">
+        <div className="worklist-filter-row max-md:hidden">
           <DataTable.FilterRow<StudyRow>
             excludeColumnIds={[COLUMN_IDS.INSTANCES]}
             renderFilterCell={renderFilterCell}

@@ -33,7 +33,7 @@ function PreviewContainerRoot({ children }: PreviewContainerProps) {
   }
 
   return (
-    <div className="bg-background relative flex h-full w-full flex-col">
+    <div className="worklist-preview bg-background relative flex h-full w-full flex-col">
       {header}
       <div className="direction-y flex min-h-0 flex-1 pb-3 pt-[15px] [padding-inline-end:0.75rem]">
         {content}

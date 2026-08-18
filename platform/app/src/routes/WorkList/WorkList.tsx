@@ -179,10 +179,14 @@ export default function WorkList({
                   <div className="h-8 w-8" />
                 )
               }
-              title={<span className="hidden xl:inline">{t('Study List')}</span>}
+              title={
+                <span className="worklist-title hidden xl:inline">{t('Study List')}</span>
+              }
               onStudyDoubleClick={studyDoubleClickCommand ? onStudyDoubleClick : undefined}
               onSelectionChange={sel => setSelected((sel as StudyRow[])[0] ?? null)}
-              toolbarLeftComponent={<div className="hidden xl:block">{logoComponent}</div>}
+              toolbarLeftComponent={
+                <div className="worklist-logo hidden xl:block">{logoComponent}</div>
+              }
               toolbarRightActionsComponent={toolbarActions}
               toolbarRightComponent={
                 !isPreviewOpen ? (
