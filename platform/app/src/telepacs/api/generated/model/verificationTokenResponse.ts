@@ -7,7 +7,11 @@
  */
 import type { AccountStatusEnum } from './accountStatusEnum';
 
-export interface AccountStatus {
+export interface VerificationTokenResponse {
+  access: string;
+  refresh?: string;
   account_status: AccountStatusEnum;
+  access_expires_in: number;
+  refresh_expires_in: number;
   next_action: string;
 }

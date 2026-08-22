@@ -16,8 +16,6 @@ export interface Me {
   readonly last_name: string;
   readonly account_status: AccountStatusEnum;
   /** @nullable */
-  readonly email_verified_at: string | null;
-  /** @nullable */
   readonly mobile_verified_at: string | null;
   readonly has_doctor_profile: boolean;
   readonly permissions: readonly string[];

@@ -401,6 +401,7 @@ body.telepacs-product {
   margin-top: 17px;
   color: #aac0c7;
   font-size: 15px;
+  font-weight: 330;
   line-height: 2;
 }
 .tp-auth__signals {
@@ -577,9 +578,10 @@ body.telepacs-product {
   flex: 1;
 }
 .tp-stepper {
+  --tp-step-gap: clamp(14px, 2.4vw, 24px);
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 5px;
+  gap: var(--tp-step-gap);
   margin: -8px 0 27px;
   padding: 0;
   list-style: none;
@@ -591,14 +593,15 @@ body.telepacs-product {
   gap: 8px;
   color: #93a2a7;
 }
-.tp-stepper li:not(:last-child)::after {
+.tp-stepper li:not(:first-child)::before {
   content: '';
   position: absolute;
-  inset-inline-start: calc(100% - 2px);
-  top: 16px;
-  width: 28%;
+  left: calc(100% + 4px);
+  top: 50%;
+  width: calc(var(--tp-step-gap) - 8px);
   height: 1px;
   background: #dce5e6;
+  transform: translateY(-50%);
 }
 .tp-stepper__index {
   width: 32px;
@@ -2083,7 +2086,7 @@ body.telepacs-product {
   .tp-stepper small {
     display: none;
   }
-  .tp-stepper li:not(:last-child)::after {
+  .tp-stepper li:not(:first-child)::before {
     display: none;
   }
   .tp-form__actions {

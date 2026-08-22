@@ -24,8 +24,6 @@ export interface PatchedDoctorProfileRequest {
   specialty?: string;
   /** @maxLength 100 */
   subspecialty?: string;
-  /** @maxLength 50 */
-  professional_title?: string;
   /** @maxLength 2000 */
   biography?: string;
   /**
@@ -33,11 +31,6 @@ export interface PatchedDoctorProfileRequest {
      * @maxLength 12
      */
   preferred_language?: string;
-  /**
-     * @minLength 1
-     * @maxLength 64
-     */
-  timezone?: string;
   profile_image?: Blob;
   signature_image?: Blob;
 }

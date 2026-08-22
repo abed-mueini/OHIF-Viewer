@@ -55,17 +55,8 @@ const faDateTime = new Intl.DateTimeFormat('fa-IR', {
   year: 'numeric',
 });
 
-const missingLabels: Record<string, string> = {
-  email_verification: 'تأیید ایمیل',
-  mobile_verification: 'تأیید شماره موبایل',
-  signature_image: 'بارگذاری امضای پزشک',
-  'credential_document:MEDICAL_LICENSE': 'بارگذاری مجوز طبابت',
-  'credential_document:BOARD_CERTIFICATE': 'بارگذاری مدرک بورد',
-};
-
 const nextActionLabels: Record<string, string> = {
-  verify_email: 'تأیید ایمیل',
-  email_verification: 'تأیید ایمیل',
+  verify_mobile: 'تأیید شماره موبایل',
   mobile_verification: 'تأیید شماره موبایل',
   signature_image: 'بارگذاری امضای پزشک',
   submit_for_review: 'ارسال پرونده برای بررسی',
@@ -103,17 +94,11 @@ function PageHeader({
 
 export function DashboardPage() {
   const { user } = useAuth();
-  const { snapshot, profile, documents, loading, error } = useOnboardingData();
-  const completedCount = useMemo(() => {
-    if (!user || !snapshot) return 0;
-    return [
-      Boolean(user.email_verified_at && user.mobile_verified_at),
-      Boolean(profile?.signature_image_uploaded),
-      documents.some(item => item.scan_status === 'CLEAN'),
-      ['SUBMITTED', 'APPROVED'].includes(snapshot.review_state),
-    ].filter(Boolean).length;
-  }, [user, snapshot, profile, documents]);
-  const completion = completedCount * 25;
+  const { profile, documents, loading, error } = useOnboardingData();
+  const verifiedDocuments = useMemo(
+    () => documents.filter(item => item.scan_status === 'CLEAN').length,
+    [documents]
+  );
 
   if (loading) return <PageLoader />;
 
@@ -121,96 +106,64 @@ export function DashboardPage() {
     <div className="tp-page">
       <PageHeader
         eyebrow={faDate.format(new Date())}
-        title={`سلام ${user?.first_name || 'دکتر'}، آماده‌اید؟`}
-        action={
-          <Link
-            className="tp-header-action"
-            to="/app/profile"
-          >
-            <UserRoundCheck size={18} />
-            تکمیل پروفایل
-          </Link>
-        }
+        title={`سلام دکتر ${user?.last_name || ''}`}
+        action={<StatusBadge status={user?.account_status || 'ACTIVE'} />}
       />
       {error && <InlineAlert>{error}</InlineAlert>}
-      <section className="tp-dashboard-grid">
-        <article className="tp-progress-card">
-          <div className="tp-progress-card__top">
-            <div>
-              <span>آمادگی حساب حرفه‌ای</span>
-              <strong>{completion}٪</strong>
-            </div>
-            {snapshot && <StatusBadge status={snapshot.review_state} />}
+      <section className="tp-command-hero">
+        <div className="tp-command-hero__copy">
+          <span className="tp-kicker">
+            <Sparkles size={16} /> فضای کاری فعال
+          </span>
+          <h2>مرکز مطالعات تصویربرداری شما</h2>
+          <div className="tp-command-hero__actions">
+            <Link to="/app/studies">
+              ورود به مطالعات <ArrowLeft size={17} />
+            </Link>
+            <Link to="/app/profile">مشاهده پروفایل</Link>
           </div>
-          <div className="tp-progress-track">
-            <span style={{ width: `${completion}%` }} />
-          </div>
-          <div className="tp-progress-card__steps">
-            <span className={completedCount >= 1 ? 'is-done' : ''}>
-              <i>{completedCount >= 1 ? <Check size={13} /> : 1}</i>تأیید تماس
-            </span>
-            <span className={completedCount >= 2 ? 'is-done' : ''}>
-              <i>{completedCount >= 2 ? <Check size={13} /> : 2}</i>پروفایل
-            </span>
-            <span className={completedCount >= 3 ? 'is-done' : ''}>
-              <i>{completedCount >= 3 ? <Check size={13} /> : 3}</i>مدارک
-            </span>
-            <span className={completedCount >= 4 ? 'is-done' : ''}>
-              <i>{completedCount >= 4 ? <Check size={13} /> : 4}</i>بررسی
-            </span>
-          </div>
-        </article>
+        </div>
+        <div
+          className="tp-command-hero__signal"
+          aria-hidden="true"
+        >
+          <span />
+          <ScanLine size={42} />
+          <small>IMAGING WORKSPACE</small>
+        </div>
       </section>
 
-      <section className="tp-section-heading">
-        <div>
-          <span>اقدام‌های پیشنهادی</span>
-          <h2>مسیر راه‌اندازی حساب</h2>
-        </div>
-        <Link to="/app/review">
-          مشاهده جزئیات <ChevronLeft size={16} />
-        </Link>
-      </section>
-      <section className="tp-task-grid">
-        {(snapshot?.missing_fields.length ? snapshot.missing_fields : ['review'])
-          .slice(0, 3)
-          .map((item, index) => {
-            const isDocument = item.startsWith('credential_document');
-            const route = isDocument
-              ? '/app/credentials'
-              : item === 'signature_image'
-                ? '/app/profile'
-                : item === 'review'
-                  ? '/app/review'
-                  : '/verify?email=' + encodeURIComponent(user?.email || '');
-            const Icon = isDocument
-              ? FileBadge2
-              : item === 'signature_image'
-                ? ImagePlus
-                : item === 'review'
-                  ? Clock3
-                  : BadgeCheck;
-            return (
-              <Link
-                key={item}
-                className={`tp-task-card ${index === 0 ? 'tp-task-card--featured' : ''}`}
-                to={route}
-              >
-                <span className="tp-task-card__icon">
-                  <Icon size={22} />
-                </span>
-                <span className="tp-task-card__number">۰{index + 1}</span>
-                <div>
-                  <strong>
-                    {item === 'review' ? 'پیگیری نتیجه بررسی' : missingLabels[item] || item}
-                  </strong>
-                </div>
-                <span className="tp-task-card__link">
-                  انجام مرحله <ArrowLeft size={16} />
-                </span>
-              </Link>
-            );
-          })}
+      <section className="tp-overview-cards">
+        <article>
+          <span>
+            <BadgeCheck size={21} />
+          </span>
+          <div>
+            <small>وضعیت حساب</small>
+            <strong>پزشک تأییدشده</strong>
+          </div>
+          <Check size={18} />
+        </article>
+        <article>
+          <span>
+            <FileBadge2 size={21} />
+          </span>
+          <div>
+            <small>مدارک معتبر</small>
+            <strong>{verifiedDocuments} مدرک</strong>
+          </div>
+          <ChevronLeft size={18} />
+        </article>
+        <article>
+          <span>
+            <UserRoundCheck size={21} />
+          </span>
+          <div>
+            <small>پروفایل حرفه‌ای</small>
+            <strong>{profile?.specialty || 'پزشک'}</strong>
+          </div>
+          <ChevronLeft size={18} />
+        </article>
       </section>
 
       <section className="tp-clinical-preview">
@@ -275,10 +228,8 @@ export function ProfilePage() {
       license_jurisdiction: '',
       specialty: '',
       subspecialty: '',
-      professional_title: '',
       biography: '',
       preferred_language: 'fa',
-      timezone: '',
       profile_image: null,
       signature_image: null,
     },
@@ -291,10 +242,8 @@ export function ProfilePage() {
       license_jurisdiction: profile.license_jurisdiction,
       specialty: profile.specialty,
       subspecialty: profile.subspecialty || '',
-      professional_title: profile.professional_title || '',
       biography: profile.biography || '',
       preferred_language: profile.preferred_language || 'fa',
-      timezone: profile.timezone,
       profile_image: null,
       signature_image: null,
     });
@@ -313,10 +262,8 @@ export function ProfilePage() {
         license_jurisdiction: values.license_jurisdiction,
         specialty: values.specialty,
         subspecialty: values.subspecialty,
-        professional_title: values.professional_title,
         biography: values.biography,
         preferred_language: values.preferred_language,
-        timezone: values.timezone,
         ...(values.profile_image ? { profile_image: values.profile_image } : {}),
         ...(values.signature_image ? { signature_image: values.signature_image } : {}),
       });
@@ -331,7 +278,7 @@ export function ProfilePage() {
   return (
     <div className="tp-page tp-page--narrow">
       <PageHeader
-        eyebrow="حساب حرفه‌ای"
+        eyebrow="حساب پزشک"
         title="پروفایل پزشک"
         action={<StatusBadge status={profile.review.state} />}
       />
@@ -352,7 +299,7 @@ export function ProfilePage() {
             <UserRoundCheck size={21} />
           </span>
           <div>
-            <h2>هویت حرفه‌ای</h2>
+            <h2>اطلاعات پزشکی</h2>
           </div>
         </div>
         <div className="tp-form-grid">
@@ -386,25 +333,9 @@ export function ProfilePage() {
             {...form.register('subspecialty')}
           />
         </div>
-        <div className="tp-form-grid">
-          <Field
-            label="عنوان حرفه‌ای"
-            ltr
-            disabled={locked}
-            error={form.formState.errors.professional_title?.message}
-            {...form.register('professional_title')}
-          />
-          <Field
-            label="منطقه زمانی"
-            ltr
-            disabled={locked}
-            error={form.formState.errors.timezone?.message}
-            {...form.register('timezone')}
-          />
-        </div>
         <TextAreaField
-          label="درباره فعالیت حرفه‌ای"
-          placeholder="حوزه فعالیت، تجربه حرفه‌ای و علایق بالینی..."
+          label="درباره فعالیت پزشکی"
+          placeholder="حوزه فعالیت، سابقه پزشکی و علایق بالینی..."
           maxLength={2000}
           disabled={locked}
           error={form.formState.errors.biography?.message}
@@ -416,7 +347,7 @@ export function ProfilePage() {
             <ImagePlus size={21} />
           </span>
           <div>
-            <h2>تصویر و امضای حرفه‌ای</h2>
+            <h2>تصویر پروفایل و امضا</h2>
           </div>
         </div>
         <div className="tp-upload-pair">
@@ -551,7 +482,7 @@ export function CredentialsPage() {
     setNotice('');
     try {
       await submitProfile();
-      setNotice('پرونده حرفه‌ای شما برای بررسی ارسال شد.');
+      setNotice('پرونده پزشکی شما برای بررسی ارسال شد.');
     } catch (submitError) {
       setRequestError(getError(submitError));
     }
@@ -561,7 +492,7 @@ export function CredentialsPage() {
     <div className="tp-page tp-page--narrow">
       <PageHeader
         eyebrow="احراز صلاحیت"
-        title="مدارک حرفه‌ای"
+        title="مدارک پزشکی"
         action={<StatusBadge status={profile.review.state} />}
       />
       {(error || requestError) && <InlineAlert>{error || requestError}</InlineAlert>}
@@ -595,12 +526,14 @@ export function CredentialsPage() {
                 ref={fileInput}
                 type="file"
                 accept="application/pdf,image/png,image/jpeg"
-                onChange={event =>
-                  form.setValue('file', event.target.files?.[0], {
+                onChange={event => {
+                  const selectedFile = event.target.files?.[0];
+                  if (!selectedFile) return;
+                  form.setValue('file', selectedFile, {
                     shouldDirty: true,
                     shouldValidate: true,
-                  })
-                }
+                  });
+                }}
               />
               <UploadCloud size={24} />
               <span>
@@ -727,7 +660,7 @@ export function ReviewPage() {
             {profile.review.state === 'SUBMITTED'
               ? 'پرونده شما در صف بررسی است'
               : profile.review.state === 'APPROVED'
-                ? 'صلاحیت حرفه‌ای تأیید شد'
+                ? 'صلاحیت پزشکی تأیید شد'
                 : profile.review.state === 'CHANGES_REQUESTED'
                   ? 'اصلاح پرونده موردنیاز است'
                   : 'پرونده هنوز ارسال نشده است'}
@@ -755,7 +688,7 @@ export function ReviewPage() {
                   ? 'تکمیل پرونده'
                   : state === 'SUBMITTED'
                     ? 'بررسی توسط کارشناس'
-                    : 'فعال‌سازی حساب حرفه‌ای'}
+                    : 'فعال‌سازی حساب پزشک'}
               </strong>
               <small>
                 {state === 'DRAFT'

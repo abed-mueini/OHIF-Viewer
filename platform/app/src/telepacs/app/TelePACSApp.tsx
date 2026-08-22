@@ -1,21 +1,32 @@
 import React, { useEffect } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 
-import { AuthProvider, useAuth } from '../Modules/Auth';
+import { accountEntryPath, AuthProvider, useAuth } from '../Modules/Auth';
 import { ForgotPasswordPage, LoginPage, RegisterPage, VerificationPage } from '../Modules/Auth';
 import {
   CredentialsPage,
   DashboardPage,
+  OnboardingFlowPage,
+  PendingReviewPage,
   ProfilePage,
   ReviewPage,
   StudiesPlaceholderPage,
 } from '../Modules/Onboarding';
+import type { AccountStatusEnum } from '../api/generated/model';
 import { QueryProvider } from '../lib/query/QueryProvider';
-import { PageLoader, ProductLayout } from '../SharedComponents';
+import { PageLoader } from '../SharedComponents';
+import { ProductLayout } from './ProductLayout';
 import '../telepacs.css';
+import '../telepacs-v2.css';
 
-function ProtectedProduct() {
-  const { session, loading } = useAuth();
+function AccountGate({
+  statuses,
+  children,
+}: {
+  statuses: AccountStatusEnum[];
+  children: React.ReactNode;
+}) {
+  const { session, user, loading } = useAuth();
   const location = useLocation();
   if (loading)
     return (
@@ -34,18 +45,33 @@ function ProtectedProduct() {
         state={{ from: location.pathname }}
       />
     );
-  return <ProductLayout />;
+  const currentStatus = user?.account_status || session.account_status;
+  if (!statuses.includes(currentStatus)) {
+    return (
+      <Navigate
+        to={accountEntryPath(currentStatus, user?.mobile_number)}
+        replace
+      />
+    );
+  }
+  return <>{children}</>;
 }
 
 function ProductRoutes() {
-  const { session } = useAuth();
+  const { session, user, loading } = useAuth();
+  if (loading) {
+    return <PageLoader />;
+  }
+  const entryPath = session
+    ? accountEntryPath(user?.account_status || session.account_status, user?.mobile_number)
+    : '/login';
   return (
     <Routes>
       <Route
         path="/"
         element={
           <Navigate
-            to={session ? '/app' : '/login'}
+            to={entryPath}
             replace
           />
         }
@@ -67,8 +93,28 @@ function ProductRoutes() {
         element={<ForgotPasswordPage />}
       />
       <Route
+        path="/onboarding"
+        element={
+          <AccountGate statuses={['ONBOARDING', 'PENDING_REVIEW']}>
+            <OnboardingFlowPage />
+          </AccountGate>
+        }
+      />
+      <Route
+        path="/reviewing"
+        element={
+          <AccountGate statuses={['PENDING_REVIEW']}>
+            <PendingReviewPage />
+          </AccountGate>
+        }
+      />
+      <Route
         path="/app"
-        element={<ProtectedProduct />}
+        element={
+          <AccountGate statuses={['ACTIVE']}>
+            <ProductLayout />
+          </AccountGate>
+        }
       >
         <Route
           index
@@ -95,7 +141,7 @@ function ProductRoutes() {
         path="*"
         element={
           <Navigate
-            to={session ? '/app' : '/login'}
+            to={entryPath}
             replace
           />
         }

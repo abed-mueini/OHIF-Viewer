@@ -18,13 +18,22 @@ export const profileSchema = z.strictObject({
   license_jurisdiction: z.string().trim().min(1, 'کشور صادرکننده مجوز الزامی است.').max(32),
   specialty: z.string().trim().min(1, 'تخصص الزامی است.').max(64),
   subspecialty: z.string().trim().max(100, 'فوق تخصص بیش از حد طولانی است.'),
-  professional_title: z.string().trim().max(50, 'عنوان حرفه‌ای بیش از حد طولانی است.'),
   biography: z.string().trim().max(2000, 'حداکثر ۲۰۰۰ کاراکتر مجاز است.'),
   preferred_language: z.string().trim().min(1).max(12),
-  timezone: z.string().trim().min(1, 'منطقه زمانی الزامی است.').max(64),
   profile_image: optionalFile(IMAGE_TYPES, MAX_IMAGE_SIZE, 'فقط PNG یا JPEG مجاز است.'),
   signature_image: optionalFile(IMAGE_TYPES, MAX_IMAGE_SIZE, 'فقط PNG یا JPEG مجاز است.'),
 });
+
+export const onboardingProfileSchema = (signatureAlreadyUploaded: boolean) =>
+  profileSchema.superRefine((value, context) => {
+    if (!signatureAlreadyUploaded && !value.signature_image) {
+      context.addIssue({
+        code: 'custom',
+        path: ['signature_image'],
+        message: 'برای ادامه، تصویر امضای پزشک را بارگذاری کنید.',
+      });
+    }
+  });
 
 export const credentialSchema = z.strictObject({
   document_type: z.enum(['MEDICAL_LICENSE', 'BOARD_CERTIFICATE', 'OTHER']),

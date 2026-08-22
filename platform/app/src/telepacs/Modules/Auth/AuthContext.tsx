@@ -1,10 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
-import {
-  getCurrentAccountQueryKey,
-  useCurrentAccount,
-} from '../../api/generated/me/me';
+import { getCurrentAccountQueryKey, useCurrentAccount } from '../../api/generated/me/me';
 import type { Me, TokenResponse } from '../../api/generated/model';
 import { useAuthTokenCreate, useLogout } from '../../api/generated/auth/auth';
 import { ApiError } from '../../lib/http/errors';
@@ -19,7 +16,8 @@ interface AuthContextValue {
   session: AuthSession | null;
   user: Me | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<AuthSession>;
+  establishSession: (token: TokenResponse) => Promise<AuthSession>;
+  login: (username: string, password: string) => Promise<AuthSession>;
   logout: () => Promise<boolean>;
   refreshUser: () => Promise<Me | null>;
 }
@@ -60,16 +58,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [queryClient]
   );
 
-  const login = useCallback(
-    async (email: string, password: string) => {
-      const token = await loginMutation.mutateAsync({ data: { email, password } });
+  useEffect(() => {
+    if (
+      !session ||
+      !accountQuery.data ||
+      session.account_status === accountQuery.data.account_status
+    )
+      return;
+    saveSession({ ...session, account_status: accountQuery.data.account_status });
+  }, [accountQuery.data, session]);
+
+  const establishSession = useCallback(
+    async (token: TokenResponse) => {
       const next = toSession(token);
       saveSession(next);
       setSession(next);
       await queryClient.invalidateQueries({ queryKey: getCurrentAccountQueryKey() });
       return next;
     },
-    [loginMutation, queryClient]
+    [queryClient]
+  );
+
+  const login = useCallback(
+    async (username: string, password: string) => {
+      const token = await loginMutation.mutateAsync({ data: { username, password } });
+      return establishSession(token);
+    },
+    [establishSession, loginMutation]
   );
 
   const logout = useCallback(async () => {
@@ -100,11 +115,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       session,
       user: accountQuery.data || null,
       loading: Boolean(session) && accountQuery.isLoading,
+      establishSession,
       login,
       logout,
       refreshUser,
     }),
-    [accountQuery.data, accountQuery.isLoading, login, logout, refreshUser, session]
+    [
+      accountQuery.data,
+      accountQuery.isLoading,
+      establishSession,
+      login,
+      logout,
+      refreshUser,
+      session,
+    ]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

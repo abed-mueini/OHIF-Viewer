@@ -14,8 +14,8 @@ export interface DoctorRegistrationRequest {
   email: string;
   /**
      * @minLength 1
-     * @maxLength 16
-     * @pattern ^\+[1-9]\d{7,14}$
+     * @maxLength 11
+     * @pattern ^09[0-9]{9}$
      */
   mobile_number: string;
   /**
@@ -33,6 +33,11 @@ export interface DoctorRegistrationRequest {
      * @maxLength 128
      */
   password: string;
+  /**
+     * @minLength 8
+     * @maxLength 128
+     */
+  password_confirm: string;
   /**
      * @minLength 1
      * @maxLength 64
@@ -53,19 +58,12 @@ export interface DoctorRegistrationRequest {
   specialty: string;
   /** @maxLength 100 */
   subspecialty?: string;
-  /** @maxLength 50 */
-  professional_title?: string;
   /**
      * @minLength 1
      * @maxLength 12
      * @pattern ^[a-z]{2,3}(?:-[A-Z]{2})?$
      */
   preferred_language?: string;
-  /**
-     * @minLength 1
-     * @maxLength 64
-     */
-  timezone: string;
   /**
      * @minLength 1
      * @maxLength 32

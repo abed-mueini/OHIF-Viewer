@@ -5,13 +5,11 @@
  * Versioned API contract for the independent TelePACS backend.
  * OpenAPI spec version: 0.1.0
  */
-import type { PurposeEnum } from './purposeEnum';
 
 export interface VerificationRequestRequest {
   /**
      * @minLength 1
-     * @maxLength 254
+     * @maxLength 16
      */
-  email: string;
-  purpose: PurposeEnum;
+  mobile_number: string;
 }

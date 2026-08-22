@@ -16,7 +16,6 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
-  AccountStatus,
   DoctorRegistrationRequest,
   GenericAccepted,
   LogoutRequest,
@@ -27,7 +26,8 @@ import type {
   TelePACSTokenRefreshRequest,
   TokenResponse,
   VerificationConfirmRequest,
-  VerificationRequestRequest
+  VerificationRequestRequest,
+  VerificationTokenResponse
 } from '../model';
 
 import { apiClient } from '../../../lib/http/client';
@@ -164,7 +164,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 ) => {
 
 
-      return apiClient<AccountStatus>(
+      return apiClient<VerificationTokenResponse>(
       {url: `/api/v1/auth/verification/confirm/`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: verificationConfirmRequest, signal

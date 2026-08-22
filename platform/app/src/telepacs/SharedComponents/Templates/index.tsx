@@ -1,22 +1,7 @@
-import React, { useState } from 'react';
-import {
-  Bell,
-  ChevronDown,
-  ClipboardCheck,
-  FileCheck2,
-  FolderHeart,
-  LayoutDashboard,
-  LockKeyhole,
-  LogOut,
-  Menu,
-  ShieldCheck,
-  UserRound,
-  X,
-} from 'lucide-react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Check, ShieldCheck } from 'lucide-react';
 
-import { useAuth } from '../../Modules/Auth/AuthContext';
-import { Brand, StatusBadge } from '../Atoms';
+import { Brand, SecondaryButton } from '../Atoms';
 
 export function AuthLayout({
   children,
@@ -30,15 +15,32 @@ export function AuthLayout({
   description?: string;
 }) {
   return (
-    <main className="tp-auth" dir="rtl">
+    <main
+      className="tp-auth"
+      dir="rtl"
+    >
       <section className="tp-auth__story">
         <Brand />
+        <div
+          className="tp-auth__visual"
+          aria-hidden="true"
+        >
+          <span className="tp-auth__scan tp-auth__scan--one" />
+          <span className="tp-auth__scan tp-auth__scan--two" />
+          <span className="tp-auth__pulse" />
+          <div className="tp-auth__visual-card">
+            <i />
+            <span>TELEPACS / CLINICAL WORKSPACE</span>
+            <strong>تصویربرداری پزشکی، دقیق و یکپارچه</strong>
+          </div>
+        </div>
         <div className="tp-auth__story-copy">
           <span className="tp-kicker">
             <ShieldCheck size={17} /> فضای کاری پزشکی
           </span>
-          <h2>تصویر، پرونده و گزارش در یک فضای حرفه‌ای.</h2>
+          <h2>تمرکز روی تشخیص؛ همه‌چیز دیگر در جای درست.</h2>
         </div>
+        <span className="tp-auth__trust">سامانه تخصصی پزشکان و مراکز تصویربرداری</span>
       </section>
       <section className="tp-auth__main">
         <div className="tp-auth__mobile-brand">
@@ -58,118 +60,68 @@ export function AuthLayout({
   );
 }
 
-const navigation = [
-  { to: '/app', label: 'نمای کلی', icon: LayoutDashboard, end: true },
-  { to: '/app/profile', label: 'پروفایل حرفه‌ای', icon: UserRound },
-  { to: '/app/credentials', label: 'مدارک و صلاحیت', icon: FileCheck2 },
-  { to: '/app/review', label: 'وضعیت بررسی', icon: ClipboardCheck },
-];
+interface FocusedFlowLayoutProps {
+  children: React.ReactNode;
+  steps: Array<{ title: string; caption: string }>;
+  currentStep: number;
+  eyebrow: string;
+  title: string;
+  identity?: string;
+  onExit?: () => void;
+}
 
-export function ProductLayout() {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
-  const [mobileOpen, setMobileOpen] = useState(false);
-
-  const handleLogout = async () => {
-    const revoked = await logout();
-    navigate('/login', {
-      replace: true,
-      state: revoked ? { loggedOut: true } : { logoutWarning: true },
-    });
-  };
-
+export function FocusedFlowLayout({
+  children,
+  steps,
+  currentStep,
+  eyebrow,
+  title,
+  identity,
+  onExit,
+}: FocusedFlowLayoutProps) {
   return (
-    <div className="tp-shell" dir="rtl">
-      <aside className={`tp-sidebar ${mobileOpen ? 'is-open' : ''}`}>
-        <div className="tp-sidebar__header">
-          <Brand />
-          <button
-            type="button"
-            className="tp-icon-button tp-sidebar__close"
-            onClick={() => setMobileOpen(false)}
-            aria-label="بستن منو"
-          >
-            <X size={20} />
-          </button>
+    <main
+      className="tp-focused-flow"
+      dir="rtl"
+    >
+      <header className="tp-focused-flow__header">
+        <Brand />
+        <div className="tp-focused-flow__identity">
+          {identity && <span>{identity}</span>}
+          {onExit && (
+            <SecondaryButton
+              type="button"
+              className="tp-focused-flow__exit"
+              onClick={onExit}
+            >
+              خروج امن
+            </SecondaryButton>
+          )}
         </div>
-        <div className="tp-sidebar__workspace">
-          <span className="tp-sidebar__workspace-icon">
-            <FolderHeart size={18} />
-          </span>
-          <span>
-            <small>فضای کاری</small>
-            <strong>پنل پزشک</strong>
-          </span>
-          <ChevronDown size={16} />
-        </div>
-        <nav className="tp-sidebar__nav" aria-label="منوی اصلی">
-          <span className="tp-sidebar__section-label">حساب حرفه‌ای</span>
-          {navigation.map(item => {
-            const Icon = item.icon;
-            return (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.end}
-                onClick={() => setMobileOpen(false)}
+      </header>
+      <div className="tp-focused-flow__body">
+        <aside className="tp-focused-flow__rail">
+          <span className="tp-focused-flow__eyebrow">{eyebrow}</span>
+          <h1>{title}</h1>
+          <ol>
+            {steps.map((step, index) => (
+              <li
+                key={step.title}
+                className={
+                  index < currentStep ? 'is-complete' : index === currentStep ? 'is-active' : ''
+                }
               >
-                <Icon size={19} />
-                <span><strong>{item.label}</strong></span>
-              </NavLink>
-            );
-          })}
-          <span className="tp-sidebar__section-label">فضای بالینی</span>
-          <div className="tp-sidebar__disabled" title="در فاز بعدی فعال می‌شود">
-            <FolderHeart size={19} />
-            <span><strong>مطالعات تصویربرداری</strong></span>
-            <LockKeyhole size={14} />
-          </div>
-        </nav>
-        <button type="button" className="tp-sidebar__logout" onClick={handleLogout}>
-          <LogOut size={18} />
-          <span>خروج</span>
-        </button>
-      </aside>
-      {mobileOpen && (
-        <button
-          type="button"
-          className="tp-sidebar-overlay"
-          onClick={() => setMobileOpen(false)}
-          aria-label="بستن منو"
-        />
-      )}
-      <section className="tp-workspace">
-        <header className="tp-topbar">
-          <button
-            type="button"
-            className="tp-icon-button tp-mobile-menu"
-            onClick={() => setMobileOpen(true)}
-            aria-label="باز کردن منو"
-          >
-            <Menu size={21} />
-          </button>
-          <div className="tp-topbar__context">
-            <span className="tp-live-dot" />
-            <span>سامانه عملیاتی است</span>
-          </div>
-          <div className="tp-topbar__actions">
-            <button type="button" className="tp-icon-button" aria-label="اعلان‌ها">
-              <Bell size={19} />
-              <i />
-            </button>
-            <span className="tp-topbar__divider" />
-            <div className="tp-user-chip">
-              <span className="tp-user-chip__avatar">{user?.first_name?.[0] || 'د'}</span>
-              <span>
-                <strong>{user ? `دکتر ${user.first_name} ${user.last_name}` : 'پزشک'}</strong>
-                <small>{user?.email || 'حساب حرفه‌ای'}</small>
-              </span>
-            </div>
-            {user && <StatusBadge status={user.account_status} />}
-          </div>
-        </header>
-        <main className="tp-content"><Outlet /></main>
-      </section>
-    </div>
+                <span>{index < currentStep ? <Check size={17} /> : index + 1}</span>
+                <div>
+                  <strong>{step.title}</strong>
+                  <small>{step.caption}</small>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </aside>
+        <section className="tp-focused-flow__content">{children}</section>
+      </div>
+    </main>
   );
 }

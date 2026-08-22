@@ -17,14 +17,10 @@ export interface DoctorProfile {
   specialty: string;
   /** @maxLength 100 */
   subspecialty?: string;
-  /** @maxLength 50 */
-  professional_title?: string;
   /** @maxLength 2000 */
   biography?: string;
   /** @maxLength 12 */
   preferred_language?: string;
-  /** @maxLength 64 */
-  timezone?: string;
   readonly profile_image_uploaded: boolean;
   readonly signature_image_uploaded: boolean;
   /** @nullable */

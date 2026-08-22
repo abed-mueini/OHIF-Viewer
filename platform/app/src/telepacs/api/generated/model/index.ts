@@ -6,7 +6,6 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export * from './accountStatus';
 export * from './accountStatusEnum';
 export * from './doctorCredentialDocument';
 export * from './doctorCredentialDocumentUploadRequest';
@@ -25,7 +24,6 @@ export * from './passwordResetRequestRequest';
 export * from './patchedDoctorProfileRequest';
 export * from './problemDetails';
 export * from './problemFieldError';
-export * from './purposeEnum';
 export * from './registrationResponse';
 export * from './scanStatusEnum';
 export * from './statusEnum';
@@ -34,3 +32,4 @@ export * from './telePACSTokenRefreshRequest';
 export * from './tokenResponse';
 export * from './verificationConfirmRequest';
 export * from './verificationRequestRequest';
+export * from './verificationTokenResponse';

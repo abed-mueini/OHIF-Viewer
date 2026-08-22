@@ -336,17 +336,11 @@ if(patchedDoctorProfileRequest?.specialty !== undefined) {
 if(patchedDoctorProfileRequest?.subspecialty !== undefined) {
  formData.append(`subspecialty`, patchedDoctorProfileRequest.subspecialty);
  }
-if(patchedDoctorProfileRequest?.professional_title !== undefined) {
- formData.append(`professional_title`, patchedDoctorProfileRequest.professional_title);
- }
 if(patchedDoctorProfileRequest?.biography !== undefined) {
  formData.append(`biography`, patchedDoctorProfileRequest.biography);
  }
 if(patchedDoctorProfileRequest?.preferred_language !== undefined) {
  formData.append(`preferred_language`, patchedDoctorProfileRequest.preferred_language);
- }
-if(patchedDoctorProfileRequest?.timezone !== undefined) {
- formData.append(`timezone`, patchedDoctorProfileRequest.timezone);
  }
 if(patchedDoctorProfileRequest?.profile_image !== undefined) {
  formData.append(`profile_image`, patchedDoctorProfileRequest.profile_image);

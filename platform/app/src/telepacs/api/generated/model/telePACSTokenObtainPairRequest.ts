@@ -7,8 +7,12 @@
  */
 
 export interface TelePACSTokenObtainPairRequest {
-  /** @minLength 1 */
-  email: string;
+  /**
+     * @minLength 1
+     * @maxLength 11
+     * @pattern ^09[0-9]{9}$
+     */
+  username: string;
   /** @minLength 1 */
   password: string;
 }
