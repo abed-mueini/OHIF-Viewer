@@ -18,6 +18,9 @@
 // config/netlify.js (the public demo deploy).
 window.config = {
   name: 'config/default.js',
+  telepacsApiBaseUrl: '/api/v1',
+  telepacsTermsVersion: '2026-01',
+  telepacsPrivacyVersion: '2026-01',
   routerBasename: null,
   // whiteLabeling: {},
   extensions: [],

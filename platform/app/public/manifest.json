@@ -1,9 +1,9 @@
 {
-  "name": "OHIF Viewer",
-  "short_name": "Viewer",
-  "description": "OHIF Viewer",
-  "dir": "auto",
-  "lang": "en-US",
+  "name": "TelePACS Clinical Workspace",
+  "short_name": "TelePACS",
+  "description": "فضای کاری امن تصویربرداری پزشکی",
+  "dir": "rtl",
+  "lang": "fa",
   "orientation": "any",
   "icons": [
     {
@@ -53,7 +53,7 @@
     }
   ],
   "start_url": "./index.html",
-  "background_color": "#000000",
+  "background_color": "#091c24",
   "display": "standalone",
-  "theme_color": "#20a5d6"
+  "theme_color": "#078579"
 }

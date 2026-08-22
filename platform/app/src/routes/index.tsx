@@ -2,22 +2,15 @@ import React from 'react';
 import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { ErrorBoundary } from '@ohif/ui-next';
 
-// Route Components
-// Study list variants are selected by the `workList.variant` customization:
-// - `'legacy'`  → LegacyWorkList (the pre-3.13 study list)
-// - anything else (including `'default'`) → WorkList (ui-next study list)
-import WorkList from './WorkList/WorkList';
-import LegacyWorkList from './LegacyWorkList/LegacyWorkList';
-import DataSourceWrapper from './DataSourceWrapper';
 import Local from './Local';
 import Debug from './Debug';
 import NotFound from './NotFound';
 import buildModeRoutes from './buildModeRoutes';
 import PrivateRoute from './PrivateRoute';
 import PropTypes from 'prop-types';
-import { routerBasename } from '../utils/publicUrl';
 import { useAppConfig } from '@state';
 import { history } from '../utils/history';
+import TelePACSApp from '../telepacs/app/TelePACSApp';
 
 const NotFoundServer = ({
   message = 'Unable to query for studies at this time. Check your data source configuration or network connection',
@@ -103,7 +96,6 @@ const createRoutes = ({
   servicesManager,
   commandsManager,
   hotkeysManager,
-  showStudyList,
 }: withAppTypes) => {
   const routes =
     buildModeRoutes({
@@ -117,28 +109,13 @@ const createRoutes = ({
 
   const { customizationService } = servicesManager.services;
 
-  const path =
-    routerBasename.length > 1 && routerBasename.endsWith('/')
-      ? routerBasename.substring(0, routerBasename.length - 1)
-      : routerBasename;
-
-  console.log('Registering worklist route', routerBasename, path);
-
-  const workListVariant = customizationService.getCustomization('workList.variant');
-  const WorkListComponent = workListVariant === 'legacy' ? LegacyWorkList : WorkList;
-
-  const WorkListRoute = {
-    path: '/',
-    children: DataSourceWrapper,
-    private: true,
-    props: { children: WorkListComponent, servicesManager, extensionManager, commandsManager },
-  };
+  const ProductRoute = { path: '/*', children: TelePACSApp };
 
   const customRoutes = customizationService.getCustomization('routes.customRoutes');
 
   const allRoutes = [
+    ProductRoute,
     ...routes,
-    ...(showStudyList ? [WorkListRoute] : []),
     ...(customRoutes?.routes || []),
     ...bakedInRoutes,
     customRoutes?.notFoundRoute || notFoundRoute,

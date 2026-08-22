@@ -12,6 +12,9 @@
 // instead.
 window.config = {
   name: 'config/dev.js',
+  telepacsApiBaseUrl: 'http://localhost:8000/api/v1',
+  telepacsTermsVersion: '2026-01',
+  telepacsPrivacyVersion: '2026-01',
   routerBasename: null,
   // whiteLabeling: {},
   extensions: [],
