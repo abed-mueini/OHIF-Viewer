@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
-import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
 
 import { accountEntryPath, AuthProvider, useAuth } from '../Modules/Auth';
-import { AdminDashboardPage } from '../Modules/Admin';
+import { AdminDashboardPage, AdminProfilePage } from '../Modules/Admin';
 import { ForgotPasswordPage, LoginPage, RegisterPage, VerificationPage } from '../Modules/Auth';
 import {
   CredentialsPage,
@@ -16,7 +16,7 @@ import {
 import type { AccountStatusEnum } from '../api/generated/model';
 import { QueryProvider } from '../lib/query/QueryProvider';
 import { PageLoader } from '../SharedComponents';
-import { ProductLayout } from './ProductLayout';
+import { WorkspaceLayout } from './WorkspaceLayout';
 import '../telepacs.css';
 import '../telepacs-v2.css';
 
@@ -86,6 +86,16 @@ function AdminGate({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function LegacyAdminRequestRedirect() {
+  const { requestId } = useParams<{ requestId: string }>();
+  return (
+    <Navigate
+      to={requestId ? `/admin/requests/${requestId}` : '/admin'}
+      replace
+    />
+  );
+}
+
 function ProductRoutes() {
   const { session, user, loading } = useAuth();
   if (loading) {
@@ -129,18 +139,27 @@ function ProductRoutes() {
         path="/admin"
         element={
           <AdminGate>
-            <AdminDashboardPage />
+            <WorkspaceLayout />
           </AdminGate>
         }
-      />
-      <Route
-        path="/admin/applications/:applicationId"
-        element={
-          <AdminGate>
-            <AdminDashboardPage />
-          </AdminGate>
-        }
-      />
+      >
+        <Route
+          index
+          element={<AdminDashboardPage />}
+        />
+        <Route
+          path="requests/:requestId"
+          element={<AdminDashboardPage />}
+        />
+        <Route
+          path="profile"
+          element={<AdminProfilePage />}
+        />
+        <Route
+          path="applications/:requestId"
+          element={<LegacyAdminRequestRedirect />}
+        />
+      </Route>
       <Route
         path="/onboarding"
         element={
@@ -161,7 +180,7 @@ function ProductRoutes() {
         path="/app"
         element={
           <AccountGate statuses={['ACTIVE']}>
-            <ProductLayout />
+            <WorkspaceLayout />
           </AccountGate>
         }
       >

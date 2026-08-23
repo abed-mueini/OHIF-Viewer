@@ -4,17 +4,17 @@ import { useForm } from 'react-hook-form';
 import {
   ArrowLeft,
   BadgeCheck,
-  CalendarDays,
   Check,
   ChevronLeft,
   Circle,
   Clock3,
+  ClipboardCheck,
   FileBadge2,
   FileCheck2,
   FileText,
   FolderHeart,
+  Eye,
   ImagePlus,
-  Info,
   LockKeyhole,
   ScanLine,
   ShieldCheck,
@@ -23,7 +23,7 @@ import {
   UploadCloud,
   UserRoundCheck,
 } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../../Auth/AuthContext';
 import { applyApiFormErrors } from '../../../lib/forms/serverErrors';
@@ -35,13 +35,19 @@ import {
   SelectField,
   StatusBadge,
   TextAreaField,
+  PrivateFileModal,
 } from '../../../SharedComponents';
+import {
+  doctorCredentialDocumentFile,
+  doctorProfileImage,
+} from '../../../api/generated/doctor-profile/doctor-profile';
 import type {
   DoctorCredentialDocument as CredentialDocument,
   DoctorCredentialReviewState as ReviewState,
 } from '../../../api/generated/model';
 import { useOnboardingData } from '../api/useOnboardingData';
 import { LocalImageUploadField } from '../components/LocalImageUploadField';
+import { usePrivateFilePreview } from '../components/usePrivateFilePreview';
 import {
   credentialSchema,
   profileSchema,
@@ -55,16 +61,6 @@ const faDateTime = new Intl.DateTimeFormat('fa-IR', {
   month: 'short',
   year: 'numeric',
 });
-
-const nextActionLabels: Record<string, string> = {
-  verify_mobile: 'تأیید شماره موبایل',
-  mobile_verification: 'تأیید شماره موبایل',
-  signature_image: 'بارگذاری امضای پزشک',
-  submit_for_review: 'ارسال پرونده برای بررسی',
-  await_credential_review: 'انتظار برای نتیجه بررسی',
-  await_clinic_invitation: 'عضویت در کلینیک',
-  contact_support: 'ارتباط با پشتیبانی',
-};
 
 function getError(error: unknown): string {
   return error instanceof Error ? error.message : 'انجام عملیات با خطا روبه‌رو شد.';
@@ -90,6 +86,58 @@ function PageHeader({
       </div>
       {action}
     </header>
+  );
+}
+
+const accountTabs = [
+  {
+    to: '/app/profile',
+    label: 'پروفایل پزشک',
+    caption: 'اطلاعات حرفه‌ای و تصاویر',
+    icon: UserRoundCheck,
+  },
+  {
+    to: '/app/credentials',
+    label: 'مدارک و صلاحیت',
+    caption: 'مدیریت مدارک پزشکی',
+    icon: FileCheck2,
+  },
+  {
+    to: '/app/review',
+    label: 'وضعیت حساب',
+    caption: 'پیگیری نتیجه بررسی',
+    icon: ClipboardCheck,
+  },
+] as const;
+
+function AccountProfileTabs() {
+  return (
+    <nav
+      className="tp-account-tabs"
+      aria-label="بخش‌های پروفایل پزشک"
+    >
+      {accountTabs.map(tab => {
+        const Icon = tab.icon;
+        return (
+          <NavLink
+            key={tab.to}
+            to={tab.to}
+          >
+            <span className="tp-account-tabs__icon">
+              <Icon size={20} />
+            </span>
+            <span className="tp-account-tabs__copy">
+              <strong>{tab.label}</strong>
+              <small>{tab.caption}</small>
+            </span>
+            <ChevronLeft
+              className="tp-account-tabs__arrow"
+              size={17}
+            />
+          </NavLink>
+        );
+      })}
+    </nav>
   );
 }
 
@@ -216,17 +264,18 @@ export function DashboardPage() {
   );
 }
 
-const editableStates: ReviewState[] = ['DRAFT', 'CHANGES_REQUESTED'];
+const credentialEditableStates: ReviewState[] = ['DRAFT', 'CHANGES_REQUESTED'];
+const profileEditableStates: ReviewState[] = ['DRAFT', 'CHANGES_REQUESTED', 'APPROVED'];
 
 export function ProfilePage() {
   const { profile, loading, error, updateProfile, mutationBusy } = useOnboardingData();
   const [notice, setNotice] = useState('');
   const [requestError, setRequestError] = useState('');
+  const { preview, openPreview, closePreview } = usePrivateFilePreview();
   const form = useForm<ProfileForm>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
       medical_council_code: '',
-      license_jurisdiction: '',
       specialty: '',
       subspecialty: '',
       biography: '',
@@ -240,7 +289,6 @@ export function ProfilePage() {
     if (!profile) return;
     form.reset({
       medical_council_code: profile.medical_council_code,
-      license_jurisdiction: profile.license_jurisdiction,
       specialty: profile.specialty,
       subspecialty: profile.subspecialty || '',
       biography: profile.biography || '',
@@ -250,7 +298,9 @@ export function ProfilePage() {
     });
   }, [form, profile]);
   if (loading || !profile) return <PageLoader />;
-  const locked = !editableStates.includes(profile.review.state);
+  const locked = !profileEditableStates.includes(profile.review.state);
+  const verifiedCredentialsLocked = profile.review.state === 'APPROVED';
+  const medicalFieldsLocked = locked || verifiedCredentialsLocked;
   const avatar = form.watch('profile_image');
   const signature = form.watch('signature_image');
 
@@ -259,14 +309,17 @@ export function ProfilePage() {
     setRequestError('');
     try {
       await updateProfile({
-        medical_council_code: values.medical_council_code,
-        license_jurisdiction: values.license_jurisdiction,
-        specialty: values.specialty,
-        subspecialty: values.subspecialty,
         biography: values.biography,
         preferred_language: values.preferred_language,
         ...(values.profile_image ? { profile_image: values.profile_image } : {}),
-        ...(values.signature_image ? { signature_image: values.signature_image } : {}),
+        ...(!verifiedCredentialsLocked
+          ? {
+              medical_council_code: values.medical_council_code,
+              specialty: values.specialty,
+              subspecialty: values.subspecialty,
+              ...(values.signature_image ? { signature_image: values.signature_image } : {}),
+            }
+          : {}),
       });
       form.setValue('profile_image', null);
       form.setValue('signature_image', null);
@@ -283,12 +336,26 @@ export function ProfilePage() {
         title="پروفایل پزشک"
         action={<StatusBadge status={profile.review.state} />}
       />
+      <AccountProfileTabs />
       {(error || requestError) && <InlineAlert>{error || requestError}</InlineAlert>}
       {notice && <InlineAlert tone="success">{notice}</InlineAlert>}
-      {locked && (
-        <InlineAlert tone="info">
-          پروفایل در وضعیت بررسی قفل است. پس از درخواست اصلاح دوباره قابل ویرایش می‌شود.
-        </InlineAlert>
+      {(verifiedCredentialsLocked || locked) && (
+        <section className={`tp-profile-edit-banner ${locked ? 'is-locked' : ''}`}>
+          <span>{locked ? <LockKeyhole size={23} /> : <ShieldCheck size={23} />}</span>
+          <div>
+            <small>{locked ? 'پرونده در حال بررسی' : 'ویرایش اطلاعات عمومی فعال است'}</small>
+            <strong>
+              {locked
+                ? 'اطلاعات تا اعلام نتیجه بررسی قابل تغییر نیستند'
+                : 'معرفی حرفه‌ای و تصویر پروفایل را هر زمان نیاز بود به‌روز کنید'}
+            </strong>
+            <p>
+              {locked
+                ? 'در صورت نیاز به اصلاح، پس از بازگشت پرونده امکان ویرایش دوباره فعال می‌شود.'
+                : 'برای حفظ اعتبار تأیید، شماره نظام پزشکی، تخصص و تصویر امضا فقط پس از بازبینی مجدد تغییر می‌کنند.'}
+            </p>
+          </div>
+        </section>
       )}
       <form
         className="tp-settings-card"
@@ -303,33 +370,22 @@ export function ProfilePage() {
             <h2>اطلاعات پزشکی</h2>
           </div>
         </div>
-        <div className="tp-form-grid">
+        <div className="tp-form-grid tp-form-grid--three">
           <Field
             label="شماره نظام پزشکی"
-            ltr
-            disabled={locked}
+            disabled={medicalFieldsLocked}
             error={form.formState.errors.medical_council_code?.message}
             {...form.register('medical_council_code')}
           />
           <Field
-            label="کشور صادرکننده مجوز"
-            ltr
-            disabled={locked}
-            error={form.formState.errors.license_jurisdiction?.message}
-            {...form.register('license_jurisdiction')}
-          />
-        </div>
-        <div className="tp-form-grid">
-          <Field
             label="تخصص"
-            ltr
-            disabled={locked}
+            disabled={medicalFieldsLocked}
             error={form.formState.errors.specialty?.message}
             {...form.register('specialty')}
           />
           <Field
             label="فوق تخصص / فلوشیپ"
-            disabled={locked}
+            disabled={medicalFieldsLocked}
             error={form.formState.errors.subspecialty?.message}
             {...form.register('subspecialty')}
           />
@@ -352,35 +408,73 @@ export function ProfilePage() {
           </div>
         </div>
         <div className="tp-upload-pair">
-          <LocalImageUploadField
-            file={avatar}
-            label="تصویر پروفایل"
-            emptyHint={profile.profile_image_uploaded ? 'قبلاً بارگذاری شده' : 'PNG یا JPEG'}
-            icon={<UserRoundCheck size={23} />}
-            disabled={locked}
-            onChange={file =>
-              form.setValue('profile_image', file, {
-                shouldValidate: true,
-                shouldDirty: true,
-              })
-            }
-          />
-          <LocalImageUploadField
-            file={signature}
-            label="تصویر امضا"
-            emptyHint={
-              profile.signature_image_uploaded ? 'قبلاً بارگذاری شده' : 'برای ارسال پرونده الزامی'
-            }
-            icon={<FileText size={23} />}
-            previewVariant="signature"
-            disabled={locked}
-            onChange={file =>
-              form.setValue('signature_image', file, {
-                shouldValidate: true,
-                shouldDirty: true,
-              })
-            }
-          />
+          <div className="tp-profile-asset-control">
+            <LocalImageUploadField
+              file={avatar}
+              label="تصویر پروفایل"
+              emptyHint={profile.profile_image_uploaded ? 'قبلاً بارگذاری شده' : 'PNG یا JPEG'}
+              icon={<UserRoundCheck size={23} />}
+              disabled={locked}
+              onChange={file =>
+                form.setValue('profile_image', file, {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                })
+              }
+            />
+            {profile.profile_image_url && (
+              <button
+                type="button"
+                className="tp-private-preview-button"
+                onClick={() =>
+                  void openPreview({
+                    title: 'تصویر پروفایل',
+                    downloadName: 'تصویر-پروفایل',
+                    load: () => doctorProfileImage('profile-image'),
+                  })
+                }
+                aria-label="نمایش تصویر فعلی پروفایل"
+                title="نمایش تصویر فعلی پروفایل"
+              >
+                <Eye size={19} />
+              </button>
+            )}
+          </div>
+          <div className="tp-profile-asset-control">
+            <LocalImageUploadField
+              file={signature}
+              label="تصویر امضا"
+              emptyHint={
+                profile.signature_image_uploaded ? 'قبلاً بارگذاری شده' : 'برای ارسال پرونده الزامی'
+              }
+              icon={<FileText size={23} />}
+              previewVariant="signature"
+              disabled={medicalFieldsLocked}
+              onChange={file =>
+                form.setValue('signature_image', file, {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                })
+              }
+            />
+            {profile.signature_image_url && (
+              <button
+                type="button"
+                className="tp-private-preview-button"
+                onClick={() =>
+                  void openPreview({
+                    title: 'تصویر امضای پزشک',
+                    downloadName: 'تصویر-امضای-پزشک',
+                    load: () => doctorProfileImage('signature-image'),
+                  })
+                }
+                aria-label="نمایش تصویر فعلی امضا"
+                title="نمایش تصویر فعلی امضا"
+              >
+                <Eye size={19} />
+              </button>
+            )}
+          </div>
         </div>
         {(form.formState.errors.profile_image || form.formState.errors.signature_image) && (
           <InlineAlert>
@@ -399,6 +493,10 @@ export function ProfilePage() {
           </PrimaryButton>
         </div>
       </form>
+      <PrivateFileModal
+        {...preview}
+        onClose={closePreview}
+      />
     </div>
   );
 }
@@ -428,6 +526,7 @@ export function CredentialsPage() {
   } = useOnboardingData();
   const [notice, setNotice] = useState('');
   const [requestError, setRequestError] = useState('');
+  const { preview, openPreview, closePreview } = usePrivateFilePreview();
   const fileInput = useRef<HTMLInputElement>(null);
   const form = useForm<CredentialForm>({
     resolver: zodResolver(credentialSchema),
@@ -437,7 +536,7 @@ export function CredentialsPage() {
     },
   });
   if (loading || !profile || !snapshot) return <PageLoader />;
-  const locked = !editableStates.includes(profile.review.state);
+  const locked = !credentialEditableStates.includes(profile.review.state);
   const file = form.watch('file');
 
   const upload = form.handleSubmit(async values => {
@@ -479,6 +578,7 @@ export function CredentialsPage() {
         title="مدارک پزشکی"
         action={<StatusBadge status={profile.review.state} />}
       />
+      <AccountProfileTabs />
       {(error || requestError) && <InlineAlert>{error || requestError}</InlineAlert>}
       {notice && <InlineAlert tone="success">{notice}</InlineAlert>}
       {!locked && (
@@ -577,21 +677,37 @@ export function CredentialsPage() {
                 <ShieldCheck size={15} />
                 {document.scan_status === 'CLEAN' ? 'بررسی‌شده' : document.scan_status}
               </span>
-              {!locked && (
+              <div className="tp-document-row__actions">
                 <button
                   type="button"
-                  className="tp-delete-button"
-                  onClick={() => remove(document.id)}
-                  aria-label="حذف مدرک"
+                  className="tp-document-preview-button"
+                  onClick={() =>
+                    void openPreview({
+                      title: documentLabels[document.document_type],
+                      mimeType: document.detected_mime_type,
+                      downloadName: document.original_filename,
+                      load: () => doctorCredentialDocumentFile(document.id),
+                    })
+                  }
                 >
-                  <Trash2 size={17} />
+                  <Eye size={16} /> نمایش
                 </button>
-              )}
+                {!locked && (
+                  <button
+                    type="button"
+                    className="tp-delete-button"
+                    onClick={() => remove(document.id)}
+                    aria-label="حذف مدرک"
+                  >
+                    <Trash2 size={17} />
+                  </button>
+                )}
+              </div>
             </article>
           ))
         )}
       </section>
-      <section className="tp-submit-card">
+      <section className={`tp-submit-card ${locked ? 'is-readonly' : ''}`}>
         <div className="tp-submit-card__icon">
           <BadgeCheck size={27} />
         </div>
@@ -603,9 +719,7 @@ export function CredentialsPage() {
               : 'همه موارد ضروری تکمیل شده‌اند. پس از ارسال، اطلاعات تا پایان بررسی قفل می‌شوند.'}
           </p>
         </div>
-        {locked ? (
-          <StatusBadge status={profile.review.state} />
-        ) : (
+        {!locked && (
           <PrimaryButton
             type="button"
             busy={mutationBusy}
@@ -616,14 +730,18 @@ export function CredentialsPage() {
           </PrimaryButton>
         )}
       </section>
+      <PrivateFileModal
+        {...preview}
+        onClose={closePreview}
+      />
     </div>
   );
 }
 
 const timelineStates: ReviewState[] = ['DRAFT', 'SUBMITTED', 'APPROVED'];
 export function ReviewPage() {
-  const { snapshot, profile, loading, error } = useOnboardingData();
-  if (loading || !snapshot || !profile) return <PageLoader />;
+  const { profile, loading, error } = useOnboardingData();
+  if (loading || !profile) return <PageLoader />;
   const currentIndex =
     profile.review.state === 'APPROVED' ? 2 : profile.review.state === 'SUBMITTED' ? 1 : 0;
   return (
@@ -633,6 +751,7 @@ export function ReviewPage() {
         title="وضعیت بررسی صلاحیت"
         action={<StatusBadge status={profile.review.state} />}
       />
+      <AccountProfileTabs />
       {error && <InlineAlert>{error}</InlineAlert>}
       <section className="tp-review-summary">
         <span className="tp-review-summary__icon">
@@ -651,9 +770,13 @@ export function ReviewPage() {
           </h2>
           <p>
             {profile.review.public_notes ||
-              (profile.review.state === 'SUBMITTED'
-                ? 'پس از تصمیم کارشناس، نتیجه در همین صفحه نمایش داده می‌شود.'
-                : 'مدارک و پروفایل را تکمیل و برای بررسی ارسال کنید.')}
+              (profile.review.state === 'APPROVED'
+                ? 'حساب پزشک فعال است و می‌توانید از امکانات فضای کاری استفاده کنید.'
+                : profile.review.state === 'SUBMITTED'
+                  ? 'پس از تصمیم کارشناس، نتیجه در همین صفحه نمایش داده می‌شود.'
+                  : profile.review.state === 'CHANGES_REQUESTED'
+                    ? 'موارد اعلام‌شده را اصلاح و پرونده را دوباره برای بررسی ارسال کنید.'
+                    : 'مدارک و پروفایل را تکمیل و برای بررسی ارسال کنید.')}
           </p>
         </div>
       </section>
@@ -684,26 +807,6 @@ export function ReviewPage() {
             </div>
           </div>
         ))}
-      </section>
-      <section className="tp-info-grid">
-        <article>
-          <span>
-            <CalendarDays size={20} />
-          </span>
-          <div>
-            <strong>آخرین به‌روزرسانی</strong>
-            <small>{faDateTime.format(new Date(profile.review.updated_at))}</small>
-          </div>
-        </article>
-        <article>
-          <span>
-            <Info size={20} />
-          </span>
-          <div>
-            <strong>اقدام بعدی</strong>
-            <small>{nextActionLabels[snapshot.next_action] || 'تکمیل مرحله بعدی'}</small>
-          </div>
-        </article>
       </section>
       {profile.review.state === 'DRAFT' || profile.review.state === 'CHANGES_REQUESTED' ? (
         <Link

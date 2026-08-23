@@ -110,7 +110,6 @@ export function LoginPage() {
           type="text"
           autoComplete="username"
           placeholder="شماره موبایل یا admin"
-          ltr
           error={form.formState.errors.username?.message}
           {...form.register('username')}
         />
@@ -119,7 +118,6 @@ export function LoginPage() {
           type="password"
           autoComplete="current-password"
           placeholder="رمز عبور شما"
-          ltr
           error={form.formState.errors.password?.message}
           {...form.register('password')}
         />
@@ -241,7 +239,6 @@ export function RegisterPage() {
                 type="email"
                 placeholder="doctor@example.com"
                 autoComplete="email"
-                ltr
                 error={form.formState.errors.email?.message}
                 {...form.register('email')}
               />
@@ -251,7 +248,6 @@ export function RegisterPage() {
                 inputMode="numeric"
                 placeholder="09121234567"
                 autoComplete="tel-national"
-                ltr
                 error={form.formState.errors.mobile_number?.message}
                 {...form.register('mobile_number')}
               />
@@ -260,7 +256,6 @@ export function RegisterPage() {
                 type="password"
                 placeholder="حداقل ۸ کاراکتر"
                 autoComplete="new-password"
-                ltr
                 error={form.formState.errors.password?.message}
                 {...form.register('password')}
               />
@@ -269,7 +264,6 @@ export function RegisterPage() {
                 type="password"
                 placeholder="رمز عبور را دوباره وارد کنید"
                 autoComplete="new-password"
-                ltr
                 error={form.formState.errors.password_confirm?.message}
                 {...form.register('password_confirm')}
               />
@@ -280,7 +274,6 @@ export function RegisterPage() {
               <Field
                 label="شماره نظام پزشکی"
                 placeholder="123456"
-                ltr
                 error={form.formState.errors.medical_council_code?.message}
                 {...form.register('medical_council_code')}
               />
@@ -478,7 +471,6 @@ export function VerificationPage() {
           inputMode="numeric"
           autoComplete="one-time-code"
           placeholder="— — — — — —"
-          ltr
           error={form.formState.errors.code?.message}
           {...form.register('code', {
             onChange: event =>
@@ -564,7 +556,6 @@ export function ForgotPasswordPage() {
           type="email"
           readOnly={stage === 'confirm'}
           placeholder="doctor@example.com"
-          ltr
           error={form.formState.errors.email?.message}
           {...form.register('email')}
         />
@@ -575,7 +566,6 @@ export function ForgotPasswordPage() {
               inputMode="numeric"
               autoComplete="one-time-code"
               placeholder="کد ۶ رقمی"
-              ltr
               error={form.formState.errors.code?.message}
               {...form.register('code')}
             />
@@ -583,7 +573,6 @@ export function ForgotPasswordPage() {
               label="رمز عبور جدید"
               type="password"
               autoComplete="new-password"
-              ltr
               error={form.formState.errors.new_password?.message}
               {...form.register('new_password')}
             />

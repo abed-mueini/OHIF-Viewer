@@ -11,8 +11,6 @@ export interface DoctorProfile {
   readonly id: string;
   /** @maxLength 64 */
   medical_council_code: string;
-  /** @maxLength 32 */
-  license_jurisdiction: string;
   /** @maxLength 64 */
   specialty: string;
   /** @maxLength 100 */
@@ -23,6 +21,10 @@ export interface DoctorProfile {
   preferred_language?: string;
   readonly profile_image_uploaded: boolean;
   readonly signature_image_uploaded: boolean;
+  /** @nullable */
+  readonly profile_image_url: string | null;
+  /** @nullable */
+  readonly signature_image_url: string | null;
   /** @nullable */
   readonly profile_completed_at: string | null;
   /** @nullable */

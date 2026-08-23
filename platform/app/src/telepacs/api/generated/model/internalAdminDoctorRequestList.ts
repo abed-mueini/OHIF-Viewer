@@ -6,7 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface InternalAdminDoctorApplicationList {
+export interface InternalAdminDoctorRequestList {
   readonly id: string;
   readonly user_id: string;
   readonly full_name: string;
@@ -14,7 +14,6 @@ export interface InternalAdminDoctorApplicationList {
   readonly mobile_number: string;
   readonly account_status: string;
   readonly medical_council_code: string;
-  readonly license_jurisdiction: string;
   readonly specialty: string;
   readonly subspecialty: string;
   readonly review_state: string;

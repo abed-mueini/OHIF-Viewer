@@ -15,7 +15,6 @@ const optionalFile = (types: string[], maxSize: number, typeMessage: string) =>
 
 export const profileSchema = z.strictObject({
   medical_council_code: z.string().trim().min(1, 'شماره نظام پزشکی الزامی است.').max(64),
-  license_jurisdiction: z.string().trim().min(1, 'کشور صادرکننده مجوز الزامی است.').max(32),
   specialty: z.string().trim().min(1, 'تخصص الزامی است.').max(64),
   subspecialty: z.string().trim().max(100, 'فوق تخصص بیش از حد طولانی است.'),
   biography: z.string().trim().max(2000, 'حداکثر ۲۰۰۰ کاراکتر مجاز است.'),

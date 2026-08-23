@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   BadgeCheck,
   CheckCircle2,
@@ -9,38 +9,33 @@ import {
   ExternalLink,
   Eye,
   FileText,
-  LayoutDashboard,
   LoaderCircle,
-  LogOut,
-  Menu,
   Search,
   ShieldCheck,
   Stethoscope,
   UserCheck,
   UserRoundX,
-  UsersRound,
   X,
 } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import {
-  getInternalDoctorApplicationDetailQueryKey,
-  getInternalDoctorApplicationsListQueryKey,
-  internalDoctorApplicationDocumentFile,
-  useInternalDoctorApplicationDetail,
-  useInternalDoctorApplicationImage,
-  useInternalDoctorApplicationReview,
-  useInternalDoctorApplicationsList,
+  getInternalDoctorRequestDetailQueryKey,
+  getInternalDoctorRequestsListQueryKey,
+  internalDoctorRequestDocumentFile,
+  useInternalDoctorRequestDetail,
+  useInternalDoctorRequestImage,
+  useInternalDoctorRequestReview,
+  useInternalDoctorRequestsList,
 } from '../../../api/generated/internal-admin/internal-admin';
 import type {
   DecisionEnum,
   DoctorCredentialReviewState,
-  InternalAdminDoctorApplicationList,
+  InternalAdminDoctorRequestList,
 } from '../../../api/generated/model';
 import { errorMessage } from '../../../lib/http/errors';
 import { InlineAlert, PageLoader } from '../../../SharedComponents';
-import { useAuth } from '../../Auth';
 import '../admin.css';
 
 const stateLabels: Record<DoctorCredentialReviewState, string> = {
@@ -111,7 +106,7 @@ function PrivateImage({
   alt: string;
   className?: string;
 }) {
-  const query = useInternalDoctorApplicationImage(profileId, assetKind);
+  const query = useInternalDoctorRequestImage(profileId, assetKind);
   const [url, setUrl] = useState('');
 
   useEffect(() => {
@@ -141,104 +136,6 @@ function PrivateImage({
   );
 }
 
-function AdminSidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
-
-  const exit = async () => {
-    await logout();
-    navigate('/login', { replace: true, state: { loggedOut: true } });
-  };
-
-  return (
-    <>
-      <button
-        type="button"
-        className={`tp-admin-backdrop ${open ? 'is-open' : ''}`}
-        onClick={onClose}
-        aria-label="بستن منو"
-      />
-      <aside className={`tp-admin-sidebar ${open ? 'is-open' : ''}`}>
-        <div className="tp-admin-brand">
-          <span>
-            <ShieldCheck size={25} />
-          </span>
-          <div>
-            <strong>TelePACS</strong>
-            <small>مرکز مدیریت داخلی</small>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="بستن منو"
-          >
-            <X size={20} />
-          </button>
-        </div>
-
-        <nav className="tp-admin-nav">
-          <span>فضای مدیریت</span>
-          <Link
-            to="/admin"
-            className="is-active"
-            onClick={onClose}
-          >
-            <LayoutDashboard size={19} />
-            درخواست‌های پزشکان
-          </Link>
-          <div className="tp-admin-nav__disabled">
-            <UsersRound size={19} />
-            کاربران سامانه
-            <small>به‌زودی</small>
-          </div>
-        </nav>
-
-        <div className="tp-admin-sidebar__footer">
-          <div className="tp-admin-identity">
-            <span>
-              <CircleUserRound size={20} />
-            </span>
-            <div>
-              <strong>{user ? `${user.first_name} ${user.last_name}` : 'مدیر سیستم'}</strong>
-              <small>دسترسی مدیریت داخلی</small>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => void exit()}
-          >
-            <LogOut size={18} />
-            خروج از حساب
-          </button>
-        </div>
-      </aside>
-    </>
-  );
-}
-
-function AdminHeader({ onMenu }: { onMenu: () => void }) {
-  return (
-    <header className="tp-admin-topbar">
-      <button
-        type="button"
-        className="tp-admin-menu-button"
-        onClick={onMenu}
-        aria-label="باز کردن منو"
-      >
-        <Menu size={21} />
-      </button>
-      <div>
-        <span>مدیریت احراز صلاحیت پزشکان</span>
-        <h1>بررسی درخواست‌ها</h1>
-      </div>
-      <div className="tp-admin-secure-chip">
-        <ShieldCheck size={17} />
-        فضای امن مدیریت
-      </div>
-    </header>
-  );
-}
-
 const filters: Array<{ value: '' | DoctorCredentialReviewState; label: string }> = [
   { value: '', label: 'همه درخواست‌ها' },
   { value: 'SUBMITTED', label: 'در انتظار بررسی' },
@@ -247,11 +144,11 @@ const filters: Array<{ value: '' | DoctorCredentialReviewState; label: string }>
   { value: 'REJECTED', label: 'رد شده' },
 ];
 
-function ApplicationsTable({
+function DoctorRequestsTable({
   rows,
   loading,
 }: {
-  rows: InternalAdminDoctorApplicationList[];
+  rows: InternalAdminDoctorRequestList[];
   loading: boolean;
 }) {
   if (loading) {
@@ -315,11 +212,11 @@ function ApplicationsTable({
               </td>
               <td>
                 <div className="tp-admin-row-actions">
-                  <Link to={`/admin/applications/${row.id}`}>
+                  <Link to={`/admin/requests/${row.id}`}>
                     بررسی <ChevronLeft size={16} />
                   </Link>
                   <Link
-                    to={`/admin/applications/${row.id}`}
+                    to={`/admin/requests/${row.id}`}
                     target="_blank"
                     aria-label={`باز کردن درخواست ${row.full_name} در تب جدید`}
                   >
@@ -335,7 +232,7 @@ function ApplicationsTable({
   );
 }
 
-function ApplicationsDashboard() {
+function DoctorRequestsDashboard() {
   const [page, setPage] = useState(1);
   const [state, setState] = useState<'' | DoctorCredentialReviewState>('SUBMITTED');
   const [search, setSearch] = useState('');
@@ -348,15 +245,15 @@ function ApplicationsDashboard() {
 
   useEffect(() => setPage(1), [state, debouncedSearch]);
 
-  const list = useInternalDoctorApplicationsList({
+  const list = useInternalDoctorRequestsList({
     page,
     page_size: 10,
     ...(state ? { state } : {}),
     ...(debouncedSearch ? { search: debouncedSearch } : {}),
   });
-  const submitted = useInternalDoctorApplicationsList({ state: 'SUBMITTED', page_size: 1 });
-  const approved = useInternalDoctorApplicationsList({ state: 'APPROVED', page_size: 1 });
-  const changes = useInternalDoctorApplicationsList({ state: 'CHANGES_REQUESTED', page_size: 1 });
+  const submitted = useInternalDoctorRequestsList({ state: 'SUBMITTED', page_size: 1 });
+  const approved = useInternalDoctorRequestsList({ state: 'APPROVED', page_size: 1 });
+  const changes = useInternalDoctorRequestsList({ state: 'CHANGES_REQUESTED', page_size: 1 });
 
   const totalPages = Math.max(1, Math.ceil((list.data?.count || 0) / 10));
 
@@ -442,8 +339,8 @@ function ApplicationsDashboard() {
         </div>
 
         {list.error && <InlineAlert>{errorMessage(list.error)}</InlineAlert>}
-        <ApplicationsTable
-          rows={list.data?.results || []}
+        <DoctorRequestsTable
+          rows={list.data?.data || []}
           loading={list.isLoading}
         />
 
@@ -473,11 +370,11 @@ function ApplicationsDashboard() {
   );
 }
 
-function ApplicationDetail({ profileId }: { profileId: string }) {
+function DoctorRequestDetail({ profileId }: { profileId: string }) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const detail = useInternalDoctorApplicationDetail(profileId);
-  const review = useInternalDoctorApplicationReview();
+  const detail = useInternalDoctorRequestDetail(profileId);
+  const review = useInternalDoctorRequestReview();
   const [decision, setDecision] = useState<DecisionEnum>('APPROVE');
   const [publicNotes, setPublicNotes] = useState('');
   const [internalNotes, setInternalNotes] = useState('');
@@ -485,8 +382,8 @@ function ApplicationDetail({ profileId }: { profileId: string }) {
   const [requestError, setRequestError] = useState('');
   const [openingDocument, setOpeningDocument] = useState('');
 
-  const application = detail.data;
-  const canReview = application?.review.state === 'SUBMITTED';
+  const doctorRequest = detail.data;
+  const canReview = doctorRequest?.review.state === 'SUBMITTED';
 
   const submitDecision = async () => {
     if (!canReview) return;
@@ -503,10 +400,10 @@ function ApplicationDetail({ profileId }: { profileId: string }) {
       });
       await Promise.all([
         queryClient.invalidateQueries({
-          queryKey: getInternalDoctorApplicationDetailQueryKey(profileId),
+          queryKey: getInternalDoctorRequestDetailQueryKey(profileId),
         }),
         queryClient.invalidateQueries({
-          queryKey: getInternalDoctorApplicationsListQueryKey(),
+          queryKey: getInternalDoctorRequestsListQueryKey(),
         }),
       ]);
       setNotice(`تصمیم «${decisionLabels[decision]}» با موفقیت ثبت شد.`);
@@ -521,7 +418,7 @@ function ApplicationDetail({ profileId }: { profileId: string }) {
     setOpeningDocument(documentId);
     setRequestError('');
     try {
-      const blob = await internalDoctorApplicationDocumentFile(profileId, documentId);
+      const blob = await internalDoctorRequestDocumentFile(profileId, documentId);
       const objectUrl = URL.createObjectURL(blob);
       if (targetWindow) targetWindow.location.href = objectUrl;
       else window.open(objectUrl, '_blank', 'noopener,noreferrer');
@@ -535,7 +432,7 @@ function ApplicationDetail({ profileId }: { profileId: string }) {
   };
 
   if (detail.isLoading) return <PageLoader />;
-  if (detail.error || !application) {
+  if (detail.error || !doctorRequest) {
     return (
       <div className="tp-admin-page">
         <InlineAlert>{errorMessage(detail.error)}</InlineAlert>
@@ -553,8 +450,8 @@ function ApplicationDetail({ profileId }: { profileId: string }) {
           <ChevronRight size={18} /> بازگشت به درخواست‌ها
         </button>
         <div>
-          <ReviewStateBadge state={application.review.state} />
-          <span>کد پرونده: {application.id.slice(0, 8).toUpperCase()}</span>
+          <ReviewStateBadge state={doctorRequest.review.state} />
+          <span>کد پرونده: {doctorRequest.id.slice(0, 8).toUpperCase()}</span>
         </div>
       </div>
 
@@ -565,11 +462,11 @@ function ApplicationDetail({ profileId }: { profileId: string }) {
 
       <section className="tp-admin-profile-hero">
         <div className="tp-admin-avatar">
-          {application.profile_image_url ? (
+          {doctorRequest.profile_image_url ? (
             <PrivateImage
               profileId={profileId}
               assetKind="profile-image"
-              alt={`تصویر پروفایل ${application.user.first_name} ${application.user.last_name}`}
+              alt={`تصویر پروفایل ${doctorRequest.user.first_name} ${doctorRequest.user.last_name}`}
             />
           ) : (
             <CircleUserRound size={42} />
@@ -578,13 +475,13 @@ function ApplicationDetail({ profileId }: { profileId: string }) {
         <div className="tp-admin-profile-hero__copy">
           <span>درخواست احراز صلاحیت پزشک</span>
           <h2>
-            دکتر {application.user.first_name} {application.user.last_name}
+            دکتر {doctorRequest.user.first_name} {doctorRequest.user.last_name}
           </h2>
-          <p>{specialtyLabels[application.specialty] || application.specialty}</p>
+          <p>{specialtyLabels[doctorRequest.specialty] || doctorRequest.specialty}</p>
         </div>
         <div className="tp-admin-profile-hero__meta">
           <small>ارسال شده در</small>
-          <strong>{formatDate(application.submitted_for_review_at)}</strong>
+          <strong>{formatDate(doctorRequest.submitted_for_review_at)}</strong>
         </div>
       </section>
 
@@ -603,22 +500,22 @@ function ApplicationDetail({ profileId }: { profileId: string }) {
             <div>
               <dt>نام و نام خانوادگی</dt>
               <dd>
-                {application.user.first_name} {application.user.last_name}
+                {doctorRequest.user.first_name} {doctorRequest.user.last_name}
               </dd>
             </div>
             <div>
               <dt>شماره موبایل</dt>
-              <dd dir="ltr">{application.user.mobile_number}</dd>
+              <dd dir="ltr">{doctorRequest.user.mobile_number}</dd>
             </div>
             <div>
               <dt>ایمیل</dt>
-              <dd dir="ltr">{application.user.email}</dd>
+              <dd dir="ltr">{doctorRequest.user.email}</dd>
             </div>
             <div>
               <dt>تأیید شماره موبایل</dt>
               <dd className="is-verified">
                 <CheckCircle2 size={16} />
-                {application.user.mobile_verified_at ? 'تأیید شده' : 'تأیید نشده'}
+                {doctorRequest.user.mobile_verified_at ? 'تأیید شده' : 'تأیید نشده'}
               </dd>
             </div>
           </dl>
@@ -637,19 +534,15 @@ function ApplicationDetail({ profileId }: { profileId: string }) {
           <dl className="tp-admin-info-list">
             <div>
               <dt>شماره نظام پزشکی</dt>
-              <dd>{application.medical_council_code}</dd>
-            </div>
-            <div>
-              <dt>کشور صادرکننده</dt>
-              <dd>{application.license_jurisdiction}</dd>
+              <dd>{doctorRequest.medical_council_code}</dd>
             </div>
             <div>
               <dt>تخصص اصلی</dt>
-              <dd>{specialtyLabels[application.specialty] || application.specialty}</dd>
+              <dd>{specialtyLabels[doctorRequest.specialty] || doctorRequest.specialty}</dd>
             </div>
             <div>
               <dt>فوق تخصص / فلوشیپ</dt>
-              <dd>{application.subspecialty || 'ثبت نشده'}</dd>
+              <dd>{doctorRequest.subspecialty || 'ثبت نشده'}</dd>
             </div>
           </dl>
         </section>
@@ -665,7 +558,7 @@ function ApplicationDetail({ profileId }: { profileId: string }) {
             </div>
           </header>
           <div className="tp-admin-signature">
-            {application.signature_image_url ? (
+            {doctorRequest.signature_image_url ? (
               <PrivateImage
                 profileId={profileId}
                 assetKind="signature-image"
@@ -685,11 +578,11 @@ function ApplicationDetail({ profileId }: { profileId: string }) {
             </span>
             <div>
               <h3>مدارک پزشکی</h3>
-              <p>{application.documents.length.toLocaleString('fa-IR')} فایل برای بررسی</p>
+              <p>{doctorRequest.documents.length.toLocaleString('fa-IR')} فایل برای بررسی</p>
             </div>
           </header>
           <div className="tp-admin-documents">
-            {application.documents.map(document => (
+            {doctorRequest.documents.map(document => (
               <article key={document.id}>
                 <span>
                   <FileText size={23} />
@@ -716,7 +609,7 @@ function ApplicationDetail({ profileId }: { profileId: string }) {
                 </button>
               </article>
             ))}
-            {!application.documents.length && (
+            {!doctorRequest.documents.length && (
               <div className="tp-admin-documents__empty">مدرکی برای این درخواست ثبت نشده است.</div>
             )}
           </div>
@@ -732,7 +625,7 @@ function ApplicationDetail({ profileId }: { profileId: string }) {
               <p>توضیحات واردشده توسط پزشک</p>
             </div>
           </header>
-          <p className="tp-admin-biography">{application.biography || 'توضیحی ثبت نشده است.'}</p>
+          <p className="tp-admin-biography">{doctorRequest.biography || 'توضیحی ثبت نشده است.'}</p>
         </section>
       </div>
 
@@ -747,7 +640,7 @@ function ApplicationDetail({ profileId }: { profileId: string }) {
               <p>نتیجه بررسی مدارک و اطلاعات حرفه‌ای را ثبت کنید.</p>
             </div>
           </div>
-          {!canReview && <ReviewStateBadge state={application.review.state} />}
+          {!canReview && <ReviewStateBadge state={doctorRequest.review.state} />}
         </header>
 
         {canReview ? (
@@ -817,9 +710,11 @@ function ApplicationDetail({ profileId }: { profileId: string }) {
             <CheckCircle2 size={28} />
             <div>
               <strong>این درخواست قبلاً بررسی شده است</strong>
-              <p>{application.review.public_notes || 'توضیح عمومی برای این تصمیم ثبت نشده است.'}</p>
-              {application.review.internal_notes && (
-                <small>یادداشت داخلی: {application.review.internal_notes}</small>
+              <p>
+                {doctorRequest.review.public_notes || 'توضیح عمومی برای این تصمیم ثبت نشده است.'}
+              </p>
+              {doctorRequest.review.internal_notes && (
+                <small>یادداشت داخلی: {doctorRequest.review.internal_notes}</small>
               )}
             </div>
           </div>
@@ -830,25 +725,6 @@ function ApplicationDetail({ profileId }: { profileId: string }) {
 }
 
 export function AdminDashboardPage() {
-  const { applicationId } = useParams<{ applicationId: string }>();
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  const content = useMemo(
-    () =>
-      applicationId ? <ApplicationDetail profileId={applicationId} /> : <ApplicationsDashboard />,
-    [applicationId]
-  );
-
-  return (
-    <div className="tp-admin-shell">
-      <AdminSidebar
-        open={menuOpen}
-        onClose={() => setMenuOpen(false)}
-      />
-      <main className="tp-admin-main">
-        <AdminHeader onMenu={() => setMenuOpen(true)} />
-        {content}
-      </main>
-    </div>
-  );
+  const { requestId } = useParams<{ requestId: string }>();
+  return requestId ? <DoctorRequestDetail profileId={requestId} /> : <DoctorRequestsDashboard />;
 }

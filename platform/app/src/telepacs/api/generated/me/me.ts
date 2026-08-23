@@ -327,9 +327,6 @@ export const doctorProfileUpdate = (
 if(patchedDoctorProfileRequest?.medical_council_code !== undefined) {
  formData.append(`medical_council_code`, patchedDoctorProfileRequest.medical_council_code);
  }
-if(patchedDoctorProfileRequest?.license_jurisdiction !== undefined) {
- formData.append(`license_jurisdiction`, patchedDoctorProfileRequest.license_jurisdiction);
- }
 if(patchedDoctorProfileRequest?.specialty !== undefined) {
  formData.append(`specialty`, patchedDoctorProfileRequest.specialty);
  }

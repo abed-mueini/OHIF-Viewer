@@ -17,4 +17,5 @@ export interface DoctorCredentialDocument {
   readonly sha256_checksum: string;
   readonly scan_status: ScanStatusEnum;
   readonly uploaded_at: string;
+  readonly file_url: string;
 }

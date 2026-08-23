@@ -65,6 +65,10 @@
   outline: 3px solid rgba(7, 133, 121, 0.28);
   outline-offset: 2px;
 }
+.tp-root input {
+  direction: rtl;
+  text-align: right;
+}
 body.telepacs-product {
   margin: 0;
   overflow: auto;
@@ -137,6 +141,9 @@ body.telepacs-product {
   position: relative;
   display: flex;
 }
+.tp-field__control--rtl {
+  direction: rtl;
+}
 .tp-field__control input,
 .tp-field__control textarea,
 .tp-field__control select {
@@ -155,6 +162,9 @@ body.telepacs-product {
 .tp-field__control input {
   height: 46px;
   padding: 0 14px;
+}
+.tp-field__control--password input {
+  padding-inline-end: 48px;
 }
 .tp-field__control textarea {
   min-height: 122px;
@@ -206,10 +216,15 @@ body.telepacs-product {
   place-items: center;
   color: #71868d;
   border-radius: 7px;
+  cursor: pointer;
 }
 .tp-field__reveal:hover {
   background: #eef4f4;
   color: var(--tp-teal);
+}
+.tp-field__reveal:focus-visible {
+  outline: 2px solid var(--tp-teal);
+  outline-offset: 1px;
 }
 
 .tp-button {
@@ -950,20 +965,6 @@ body.telepacs-product {
 }
 .tp-sidebar__support small {
   font-size: 8px;
-}
-.tp-sidebar__logout {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 10px;
-  border: 0;
-  background: transparent;
-  color: #8199a1;
-  padding: 10px 8px;
-  font-size: 10.5px;
-}
-.tp-sidebar__logout:hover {
-  color: #e5eeee;
 }
 .tp-sidebar__close,
 .tp-mobile-menu {

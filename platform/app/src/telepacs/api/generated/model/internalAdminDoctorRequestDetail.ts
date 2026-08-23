@@ -9,11 +9,10 @@ import type { InternalAdminApplicant } from './internalAdminApplicant';
 import type { InternalAdminDocument } from './internalAdminDocument';
 import type { InternalAdminReview } from './internalAdminReview';
 
-export interface InternalAdminDoctorApplicationDetail {
+export interface InternalAdminDoctorRequestDetail {
   readonly id: string;
   readonly user: InternalAdminApplicant;
   readonly medical_council_code: string;
-  readonly license_jurisdiction: string;
   readonly specialty: string;
   readonly subspecialty: string;
   readonly biography: string;

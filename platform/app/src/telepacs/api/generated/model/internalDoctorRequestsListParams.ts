@@ -6,7 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type InternalDoctorApplicationsListParams = {
+export type InternalDoctorRequestsListParams = {
 page?: number;
 page_size?: number;
 search?: string;

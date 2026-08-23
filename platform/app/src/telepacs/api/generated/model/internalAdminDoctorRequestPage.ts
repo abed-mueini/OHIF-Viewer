@@ -5,13 +5,13 @@
  * Versioned API contract for the independent TelePACS backend.
  * OpenAPI spec version: 0.1.0
  */
-import type { InternalAdminDoctorApplicationList } from './internalAdminDoctorApplicationList';
+import type { InternalAdminDoctorRequestList } from './internalAdminDoctorRequestList';
 
-export interface InternalAdminDoctorApplicationPage {
+export interface InternalAdminDoctorRequestPage {
   count: number;
   /** @nullable */
   next: string | null;
   /** @nullable */
   previous: string | null;
-  results: InternalAdminDoctorApplicationList[];
+  data: InternalAdminDoctorRequestList[];
 }

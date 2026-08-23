@@ -14,11 +14,6 @@ export interface PatchedDoctorProfileRequest {
   medical_council_code?: string;
   /**
      * @minLength 1
-     * @maxLength 32
-     */
-  license_jurisdiction?: string;
-  /**
-     * @minLength 1
      * @maxLength 64
      */
   specialty?: string;

@@ -25,10 +25,10 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
-  InternalAdminDoctorApplicationDetail,
-  InternalAdminDoctorApplicationPage,
+  InternalAdminDoctorRequestDetail,
+  InternalAdminDoctorRequestPage,
   InternalAdminReviewDecisionRequest,
-  InternalDoctorApplicationsListParams
+  InternalDoctorRequestsListParams
 } from '../model';
 
 import { apiClient } from '../../../lib/http/client';
@@ -58,14 +58,14 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   return result;
 };
 
-export const internalDoctorApplicationsList = (
-    params?: InternalDoctorApplicationsListParams,
+export const internalDoctorRequestsList = (
+    params?: InternalDoctorRequestsListParams,
  options?: SecondParameter<typeof apiClient>,signal?: AbortSignal
 ) => {
 
 
-      return apiClient<InternalAdminDoctorApplicationPage>(
-      {url: `/api/v1/internal/doctor-applications/`, method: 'GET',
+      return apiClient<InternalAdminDoctorRequestPage>(
+      {url: `/api/v1/internal/doctor-requests/`, method: 'GET',
         params, signal
     },
       options);
@@ -74,66 +74,66 @@ export const internalDoctorApplicationsList = (
 
 
 
-export const getInternalDoctorApplicationsListQueryKey = (params?: InternalDoctorApplicationsListParams,) => {
+export const getInternalDoctorRequestsListQueryKey = (params?: InternalDoctorRequestsListParams,) => {
     return [
-    `/api/v1/internal/doctor-applications/`, ...(params ? [params] : [])
+    `/api/v1/internal/doctor-requests/`, ...(params ? [params] : [])
     ] as const;
     }
 
 
-export const getInternalDoctorApplicationsListQueryOptions = <TData = Awaited<ReturnType<typeof internalDoctorApplicationsList>>, TError = ErrorType<unknown>>(params?: InternalDoctorApplicationsListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorApplicationsList>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
+export const getInternalDoctorRequestsListQueryOptions = <TData = Awaited<ReturnType<typeof internalDoctorRequestsList>>, TError = ErrorType<unknown>>(params?: InternalDoctorRequestsListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorRequestsList>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getInternalDoctorApplicationsListQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getInternalDoctorRequestsListQueryKey(params);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof internalDoctorApplicationsList>>> = ({ signal }) => internalDoctorApplicationsList(params, requestOptions, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof internalDoctorRequestsList>>> = ({ signal }) => internalDoctorRequestsList(params, requestOptions, signal);
 
 
 
 
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof internalDoctorApplicationsList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof internalDoctorRequestsList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type InternalDoctorApplicationsListQueryResult = NonNullable<Awaited<ReturnType<typeof internalDoctorApplicationsList>>>
-export type InternalDoctorApplicationsListQueryError = ErrorType<unknown>
+export type InternalDoctorRequestsListQueryResult = NonNullable<Awaited<ReturnType<typeof internalDoctorRequestsList>>>
+export type InternalDoctorRequestsListQueryError = ErrorType<unknown>
 
 
-export function useInternalDoctorApplicationsList<TData = Awaited<ReturnType<typeof internalDoctorApplicationsList>>, TError = ErrorType<unknown>>(
- params: undefined |  InternalDoctorApplicationsListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorApplicationsList>>, TError, TData>> & Pick<
+export function useInternalDoctorRequestsList<TData = Awaited<ReturnType<typeof internalDoctorRequestsList>>, TError = ErrorType<unknown>>(
+ params: undefined |  InternalDoctorRequestsListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorRequestsList>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof internalDoctorApplicationsList>>,
+          Awaited<ReturnType<typeof internalDoctorRequestsList>>,
           TError,
-          Awaited<ReturnType<typeof internalDoctorApplicationsList>>
+          Awaited<ReturnType<typeof internalDoctorRequestsList>>
         > , 'initialData'
       >, request?: SecondParameter<typeof apiClient>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useInternalDoctorApplicationsList<TData = Awaited<ReturnType<typeof internalDoctorApplicationsList>>, TError = ErrorType<unknown>>(
- params?: InternalDoctorApplicationsListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorApplicationsList>>, TError, TData>> & Pick<
+export function useInternalDoctorRequestsList<TData = Awaited<ReturnType<typeof internalDoctorRequestsList>>, TError = ErrorType<unknown>>(
+ params?: InternalDoctorRequestsListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorRequestsList>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof internalDoctorApplicationsList>>,
+          Awaited<ReturnType<typeof internalDoctorRequestsList>>,
           TError,
-          Awaited<ReturnType<typeof internalDoctorApplicationsList>>
+          Awaited<ReturnType<typeof internalDoctorRequestsList>>
         > , 'initialData'
       >, request?: SecondParameter<typeof apiClient>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useInternalDoctorApplicationsList<TData = Awaited<ReturnType<typeof internalDoctorApplicationsList>>, TError = ErrorType<unknown>>(
- params?: InternalDoctorApplicationsListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorApplicationsList>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
+export function useInternalDoctorRequestsList<TData = Awaited<ReturnType<typeof internalDoctorRequestsList>>, TError = ErrorType<unknown>>(
+ params?: InternalDoctorRequestsListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorRequestsList>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
-export function useInternalDoctorApplicationsList<TData = Awaited<ReturnType<typeof internalDoctorApplicationsList>>, TError = ErrorType<unknown>>(
- params?: InternalDoctorApplicationsListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorApplicationsList>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
+export function useInternalDoctorRequestsList<TData = Awaited<ReturnType<typeof internalDoctorRequestsList>>, TError = ErrorType<unknown>>(
+ params?: InternalDoctorRequestsListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorRequestsList>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getInternalDoctorApplicationsListQueryOptions(params,options)
+  const queryOptions = getInternalDoctorRequestsListQueryOptions(params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -145,14 +145,14 @@ export function useInternalDoctorApplicationsList<TData = Awaited<ReturnType<typ
 
 
 
-export const internalDoctorApplicationDetail = (
+export const internalDoctorRequestDetail = (
     profileId: string,
  options?: SecondParameter<typeof apiClient>,signal?: AbortSignal
 ) => {
 
 
-      return apiClient<InternalAdminDoctorApplicationDetail>(
-      {url: `/api/v1/internal/doctor-applications/${profileId}/`, method: 'GET', signal
+      return apiClient<InternalAdminDoctorRequestDetail>(
+      {url: `/api/v1/internal/doctor-requests/${profileId}/`, method: 'GET', signal
     },
       options);
     }
@@ -160,66 +160,66 @@ export const internalDoctorApplicationDetail = (
 
 
 
-export const getInternalDoctorApplicationDetailQueryKey = (profileId: string,) => {
+export const getInternalDoctorRequestDetailQueryKey = (profileId: string,) => {
     return [
-    `/api/v1/internal/doctor-applications/${profileId}/`
+    `/api/v1/internal/doctor-requests/${profileId}/`
     ] as const;
     }
 
 
-export const getInternalDoctorApplicationDetailQueryOptions = <TData = Awaited<ReturnType<typeof internalDoctorApplicationDetail>>, TError = ErrorType<unknown>>(profileId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorApplicationDetail>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
+export const getInternalDoctorRequestDetailQueryOptions = <TData = Awaited<ReturnType<typeof internalDoctorRequestDetail>>, TError = ErrorType<unknown>>(profileId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorRequestDetail>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getInternalDoctorApplicationDetailQueryKey(profileId);
+  const queryKey =  queryOptions?.queryKey ?? getInternalDoctorRequestDetailQueryKey(profileId);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof internalDoctorApplicationDetail>>> = ({ signal }) => internalDoctorApplicationDetail(profileId, requestOptions, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof internalDoctorRequestDetail>>> = ({ signal }) => internalDoctorRequestDetail(profileId, requestOptions, signal);
 
 
 
 
 
-   return  { queryKey, queryFn, enabled: profileId !== null && profileId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof internalDoctorApplicationDetail>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, enabled: profileId !== null && profileId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof internalDoctorRequestDetail>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type InternalDoctorApplicationDetailQueryResult = NonNullable<Awaited<ReturnType<typeof internalDoctorApplicationDetail>>>
-export type InternalDoctorApplicationDetailQueryError = ErrorType<unknown>
+export type InternalDoctorRequestDetailQueryResult = NonNullable<Awaited<ReturnType<typeof internalDoctorRequestDetail>>>
+export type InternalDoctorRequestDetailQueryError = ErrorType<unknown>
 
 
-export function useInternalDoctorApplicationDetail<TData = Awaited<ReturnType<typeof internalDoctorApplicationDetail>>, TError = ErrorType<unknown>>(
- profileId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorApplicationDetail>>, TError, TData>> & Pick<
+export function useInternalDoctorRequestDetail<TData = Awaited<ReturnType<typeof internalDoctorRequestDetail>>, TError = ErrorType<unknown>>(
+ profileId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorRequestDetail>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof internalDoctorApplicationDetail>>,
+          Awaited<ReturnType<typeof internalDoctorRequestDetail>>,
           TError,
-          Awaited<ReturnType<typeof internalDoctorApplicationDetail>>
+          Awaited<ReturnType<typeof internalDoctorRequestDetail>>
         > , 'initialData'
       >, request?: SecondParameter<typeof apiClient>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useInternalDoctorApplicationDetail<TData = Awaited<ReturnType<typeof internalDoctorApplicationDetail>>, TError = ErrorType<unknown>>(
- profileId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorApplicationDetail>>, TError, TData>> & Pick<
+export function useInternalDoctorRequestDetail<TData = Awaited<ReturnType<typeof internalDoctorRequestDetail>>, TError = ErrorType<unknown>>(
+ profileId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorRequestDetail>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof internalDoctorApplicationDetail>>,
+          Awaited<ReturnType<typeof internalDoctorRequestDetail>>,
           TError,
-          Awaited<ReturnType<typeof internalDoctorApplicationDetail>>
+          Awaited<ReturnType<typeof internalDoctorRequestDetail>>
         > , 'initialData'
       >, request?: SecondParameter<typeof apiClient>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useInternalDoctorApplicationDetail<TData = Awaited<ReturnType<typeof internalDoctorApplicationDetail>>, TError = ErrorType<unknown>>(
- profileId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorApplicationDetail>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
+export function useInternalDoctorRequestDetail<TData = Awaited<ReturnType<typeof internalDoctorRequestDetail>>, TError = ErrorType<unknown>>(
+ profileId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorRequestDetail>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
-export function useInternalDoctorApplicationDetail<TData = Awaited<ReturnType<typeof internalDoctorApplicationDetail>>, TError = ErrorType<unknown>>(
- profileId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorApplicationDetail>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
+export function useInternalDoctorRequestDetail<TData = Awaited<ReturnType<typeof internalDoctorRequestDetail>>, TError = ErrorType<unknown>>(
+ profileId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorRequestDetail>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getInternalDoctorApplicationDetailQueryOptions(profileId,options)
+  const queryOptions = getInternalDoctorRequestDetailQueryOptions(profileId,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -231,15 +231,15 @@ export function useInternalDoctorApplicationDetail<TData = Awaited<ReturnType<ty
 
 
 
-export const internalDoctorApplicationReview = (
+export const internalDoctorRequestReview = (
     profileId: string,
     internalAdminReviewDecisionRequest: BodyType<InternalAdminReviewDecisionRequest>,
  options?: SecondParameter<typeof apiClient>,signal?: AbortSignal
 ) => {
 
 
-      return apiClient<InternalAdminDoctorApplicationDetail>(
-      {url: `/api/v1/internal/doctor-applications/${profileId}/review/`, method: 'POST',
+      return apiClient<InternalAdminDoctorRequestDetail>(
+      {url: `/api/v1/internal/doctor-requests/${profileId}/review/`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: internalAdminReviewDecisionRequest, signal
     },
@@ -249,11 +249,11 @@ export const internalDoctorApplicationReview = (
 
 
 
-export const getInternalDoctorApplicationReviewMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof internalDoctorApplicationReview>>, TError,{profileId: string;data: BodyType<InternalAdminReviewDecisionRequest>}, TContext>, request?: SecondParameter<typeof apiClient>}
-): UseMutationOptions<Awaited<ReturnType<typeof internalDoctorApplicationReview>>, TError,{profileId: string;data: BodyType<InternalAdminReviewDecisionRequest>}, TContext> => {
+export const getInternalDoctorRequestReviewMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof internalDoctorRequestReview>>, TError,{profileId: string;data: BodyType<InternalAdminReviewDecisionRequest>}, TContext>, request?: SecondParameter<typeof apiClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof internalDoctorRequestReview>>, TError,{profileId: string;data: BodyType<InternalAdminReviewDecisionRequest>}, TContext> => {
 
-const mutationKey = ['internalDoctorApplicationReview'];
+const mutationKey = ['internalDoctorRequestReview'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -263,10 +263,10 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof internalDoctorApplicationReview>>, {profileId: string;data: BodyType<InternalAdminReviewDecisionRequest>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof internalDoctorRequestReview>>, {profileId: string;data: BodyType<InternalAdminReviewDecisionRequest>}> = (props) => {
           const {profileId,data} = props ?? {};
 
-          return  internalDoctorApplicationReview(profileId,data,requestOptions)
+          return  internalDoctorRequestReview(profileId,data,requestOptions)
         }
 
 
@@ -276,21 +276,21 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type InternalDoctorApplicationReviewMutationResult = NonNullable<Awaited<ReturnType<typeof internalDoctorApplicationReview>>>
-    export type InternalDoctorApplicationReviewMutationBody = BodyType<InternalAdminReviewDecisionRequest>
-    export type InternalDoctorApplicationReviewMutationError = ErrorType<unknown>
+    export type InternalDoctorRequestReviewMutationResult = NonNullable<Awaited<ReturnType<typeof internalDoctorRequestReview>>>
+    export type InternalDoctorRequestReviewMutationBody = BodyType<InternalAdminReviewDecisionRequest>
+    export type InternalDoctorRequestReviewMutationError = ErrorType<unknown>
 
-    export const useInternalDoctorApplicationReview = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof internalDoctorApplicationReview>>, TError,{profileId: string;data: BodyType<InternalAdminReviewDecisionRequest>}, TContext>, request?: SecondParameter<typeof apiClient>}
+    export const useInternalDoctorRequestReview = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof internalDoctorRequestReview>>, TError,{profileId: string;data: BodyType<InternalAdminReviewDecisionRequest>}, TContext>, request?: SecondParameter<typeof apiClient>}
  , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof internalDoctorApplicationReview>>,
+        Awaited<ReturnType<typeof internalDoctorRequestReview>>,
         TError,
         {profileId: string;data: BodyType<InternalAdminReviewDecisionRequest>},
         TContext
       > => {
-      return useMutation(getInternalDoctorApplicationReviewMutationOptions(options), queryClient);
+      return useMutation(getInternalDoctorRequestReviewMutationOptions(options), queryClient);
     }
-    export const internalDoctorApplicationImage = (
+    export const internalDoctorRequestImage = (
     profileId: string,
     assetKind: string,
  options?: SecondParameter<typeof apiClient>,signal?: AbortSignal
@@ -298,7 +298,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
       return apiClient<Blob>(
-      {url: `/api/v1/internal/doctor-applications/${profileId}/${assetKind}/`, method: 'GET',
+      {url: `/api/v1/internal/doctor-requests/${profileId}/${assetKind}/`, method: 'GET',
         responseType: 'blob', signal
     },
       options);
@@ -307,72 +307,72 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-export const getInternalDoctorApplicationImageQueryKey = (profileId: string,
+export const getInternalDoctorRequestImageQueryKey = (profileId: string,
     assetKind: string,) => {
     return [
-    `/api/v1/internal/doctor-applications/${profileId}/${assetKind}/`
+    `/api/v1/internal/doctor-requests/${profileId}/${assetKind}/`
     ] as const;
     }
 
 
-export const getInternalDoctorApplicationImageQueryOptions = <TData = Awaited<ReturnType<typeof internalDoctorApplicationImage>>, TError = ErrorType<unknown>>(profileId: string,
-    assetKind: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorApplicationImage>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
+export const getInternalDoctorRequestImageQueryOptions = <TData = Awaited<ReturnType<typeof internalDoctorRequestImage>>, TError = ErrorType<unknown>>(profileId: string,
+    assetKind: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorRequestImage>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getInternalDoctorApplicationImageQueryKey(profileId,assetKind);
+  const queryKey =  queryOptions?.queryKey ?? getInternalDoctorRequestImageQueryKey(profileId,assetKind);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof internalDoctorApplicationImage>>> = ({ signal }) => internalDoctorApplicationImage(profileId,assetKind, requestOptions, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof internalDoctorRequestImage>>> = ({ signal }) => internalDoctorRequestImage(profileId,assetKind, requestOptions, signal);
 
 
 
 
 
-   return  { queryKey, queryFn, enabled: profileId !== null && profileId !== undefined && assetKind !== null && assetKind !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof internalDoctorApplicationImage>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, enabled: profileId !== null && profileId !== undefined && assetKind !== null && assetKind !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof internalDoctorRequestImage>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type InternalDoctorApplicationImageQueryResult = NonNullable<Awaited<ReturnType<typeof internalDoctorApplicationImage>>>
-export type InternalDoctorApplicationImageQueryError = ErrorType<unknown>
+export type InternalDoctorRequestImageQueryResult = NonNullable<Awaited<ReturnType<typeof internalDoctorRequestImage>>>
+export type InternalDoctorRequestImageQueryError = ErrorType<unknown>
 
 
-export function useInternalDoctorApplicationImage<TData = Awaited<ReturnType<typeof internalDoctorApplicationImage>>, TError = ErrorType<unknown>>(
+export function useInternalDoctorRequestImage<TData = Awaited<ReturnType<typeof internalDoctorRequestImage>>, TError = ErrorType<unknown>>(
  profileId: string,
-    assetKind: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorApplicationImage>>, TError, TData>> & Pick<
+    assetKind: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorRequestImage>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof internalDoctorApplicationImage>>,
+          Awaited<ReturnType<typeof internalDoctorRequestImage>>,
           TError,
-          Awaited<ReturnType<typeof internalDoctorApplicationImage>>
+          Awaited<ReturnType<typeof internalDoctorRequestImage>>
         > , 'initialData'
       >, request?: SecondParameter<typeof apiClient>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useInternalDoctorApplicationImage<TData = Awaited<ReturnType<typeof internalDoctorApplicationImage>>, TError = ErrorType<unknown>>(
+export function useInternalDoctorRequestImage<TData = Awaited<ReturnType<typeof internalDoctorRequestImage>>, TError = ErrorType<unknown>>(
  profileId: string,
-    assetKind: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorApplicationImage>>, TError, TData>> & Pick<
+    assetKind: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorRequestImage>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof internalDoctorApplicationImage>>,
+          Awaited<ReturnType<typeof internalDoctorRequestImage>>,
           TError,
-          Awaited<ReturnType<typeof internalDoctorApplicationImage>>
+          Awaited<ReturnType<typeof internalDoctorRequestImage>>
         > , 'initialData'
       >, request?: SecondParameter<typeof apiClient>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useInternalDoctorApplicationImage<TData = Awaited<ReturnType<typeof internalDoctorApplicationImage>>, TError = ErrorType<unknown>>(
+export function useInternalDoctorRequestImage<TData = Awaited<ReturnType<typeof internalDoctorRequestImage>>, TError = ErrorType<unknown>>(
  profileId: string,
-    assetKind: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorApplicationImage>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
+    assetKind: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorRequestImage>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
-export function useInternalDoctorApplicationImage<TData = Awaited<ReturnType<typeof internalDoctorApplicationImage>>, TError = ErrorType<unknown>>(
+export function useInternalDoctorRequestImage<TData = Awaited<ReturnType<typeof internalDoctorRequestImage>>, TError = ErrorType<unknown>>(
  profileId: string,
-    assetKind: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorApplicationImage>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
+    assetKind: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorRequestImage>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getInternalDoctorApplicationImageQueryOptions(profileId,assetKind,options)
+  const queryOptions = getInternalDoctorRequestImageQueryOptions(profileId,assetKind,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -384,7 +384,7 @@ export function useInternalDoctorApplicationImage<TData = Awaited<ReturnType<typ
 
 
 
-export const internalDoctorApplicationDocumentFile = (
+export const internalDoctorRequestDocumentFile = (
     profileId: string,
     documentId: string,
  options?: SecondParameter<typeof apiClient>,signal?: AbortSignal
@@ -392,7 +392,7 @@ export const internalDoctorApplicationDocumentFile = (
 
 
       return apiClient<Blob>(
-      {url: `/api/v1/internal/doctor-applications/${profileId}/documents/${documentId}/file/`, method: 'GET',
+      {url: `/api/v1/internal/doctor-requests/${profileId}/documents/${documentId}/file/`, method: 'GET',
         responseType: 'blob', signal
     },
       options);
@@ -401,72 +401,72 @@ export const internalDoctorApplicationDocumentFile = (
 
 
 
-export const getInternalDoctorApplicationDocumentFileQueryKey = (profileId: string,
+export const getInternalDoctorRequestDocumentFileQueryKey = (profileId: string,
     documentId: string,) => {
     return [
-    `/api/v1/internal/doctor-applications/${profileId}/documents/${documentId}/file/`
+    `/api/v1/internal/doctor-requests/${profileId}/documents/${documentId}/file/`
     ] as const;
     }
 
 
-export const getInternalDoctorApplicationDocumentFileQueryOptions = <TData = Awaited<ReturnType<typeof internalDoctorApplicationDocumentFile>>, TError = ErrorType<unknown>>(profileId: string,
-    documentId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorApplicationDocumentFile>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
+export const getInternalDoctorRequestDocumentFileQueryOptions = <TData = Awaited<ReturnType<typeof internalDoctorRequestDocumentFile>>, TError = ErrorType<unknown>>(profileId: string,
+    documentId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorRequestDocumentFile>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getInternalDoctorApplicationDocumentFileQueryKey(profileId,documentId);
+  const queryKey =  queryOptions?.queryKey ?? getInternalDoctorRequestDocumentFileQueryKey(profileId,documentId);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof internalDoctorApplicationDocumentFile>>> = ({ signal }) => internalDoctorApplicationDocumentFile(profileId,documentId, requestOptions, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof internalDoctorRequestDocumentFile>>> = ({ signal }) => internalDoctorRequestDocumentFile(profileId,documentId, requestOptions, signal);
 
 
 
 
 
-   return  { queryKey, queryFn, enabled: profileId !== null && profileId !== undefined && documentId !== null && documentId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof internalDoctorApplicationDocumentFile>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, enabled: profileId !== null && profileId !== undefined && documentId !== null && documentId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof internalDoctorRequestDocumentFile>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type InternalDoctorApplicationDocumentFileQueryResult = NonNullable<Awaited<ReturnType<typeof internalDoctorApplicationDocumentFile>>>
-export type InternalDoctorApplicationDocumentFileQueryError = ErrorType<unknown>
+export type InternalDoctorRequestDocumentFileQueryResult = NonNullable<Awaited<ReturnType<typeof internalDoctorRequestDocumentFile>>>
+export type InternalDoctorRequestDocumentFileQueryError = ErrorType<unknown>
 
 
-export function useInternalDoctorApplicationDocumentFile<TData = Awaited<ReturnType<typeof internalDoctorApplicationDocumentFile>>, TError = ErrorType<unknown>>(
+export function useInternalDoctorRequestDocumentFile<TData = Awaited<ReturnType<typeof internalDoctorRequestDocumentFile>>, TError = ErrorType<unknown>>(
  profileId: string,
-    documentId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorApplicationDocumentFile>>, TError, TData>> & Pick<
+    documentId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorRequestDocumentFile>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof internalDoctorApplicationDocumentFile>>,
+          Awaited<ReturnType<typeof internalDoctorRequestDocumentFile>>,
           TError,
-          Awaited<ReturnType<typeof internalDoctorApplicationDocumentFile>>
+          Awaited<ReturnType<typeof internalDoctorRequestDocumentFile>>
         > , 'initialData'
       >, request?: SecondParameter<typeof apiClient>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useInternalDoctorApplicationDocumentFile<TData = Awaited<ReturnType<typeof internalDoctorApplicationDocumentFile>>, TError = ErrorType<unknown>>(
+export function useInternalDoctorRequestDocumentFile<TData = Awaited<ReturnType<typeof internalDoctorRequestDocumentFile>>, TError = ErrorType<unknown>>(
  profileId: string,
-    documentId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorApplicationDocumentFile>>, TError, TData>> & Pick<
+    documentId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorRequestDocumentFile>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof internalDoctorApplicationDocumentFile>>,
+          Awaited<ReturnType<typeof internalDoctorRequestDocumentFile>>,
           TError,
-          Awaited<ReturnType<typeof internalDoctorApplicationDocumentFile>>
+          Awaited<ReturnType<typeof internalDoctorRequestDocumentFile>>
         > , 'initialData'
       >, request?: SecondParameter<typeof apiClient>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useInternalDoctorApplicationDocumentFile<TData = Awaited<ReturnType<typeof internalDoctorApplicationDocumentFile>>, TError = ErrorType<unknown>>(
+export function useInternalDoctorRequestDocumentFile<TData = Awaited<ReturnType<typeof internalDoctorRequestDocumentFile>>, TError = ErrorType<unknown>>(
  profileId: string,
-    documentId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorApplicationDocumentFile>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
+    documentId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorRequestDocumentFile>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
-export function useInternalDoctorApplicationDocumentFile<TData = Awaited<ReturnType<typeof internalDoctorApplicationDocumentFile>>, TError = ErrorType<unknown>>(
+export function useInternalDoctorRequestDocumentFile<TData = Awaited<ReturnType<typeof internalDoctorRequestDocumentFile>>, TError = ErrorType<unknown>>(
  profileId: string,
-    documentId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorApplicationDocumentFile>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
+    documentId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof internalDoctorRequestDocumentFile>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getInternalDoctorApplicationDocumentFileQueryOptions(profileId,documentId,options)
+  const queryOptions = getInternalDoctorRequestDocumentFileQueryOptions(profileId,documentId,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

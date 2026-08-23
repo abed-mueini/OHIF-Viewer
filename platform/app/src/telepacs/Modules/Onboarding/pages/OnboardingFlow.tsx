@@ -96,7 +96,6 @@ export function OnboardingFlowPage() {
     resolver: zodResolver(onboardingProfileSchema(Boolean(profile?.signature_image_uploaded))),
     defaultValues: {
       medical_council_code: '',
-      license_jurisdiction: 'IR',
       specialty: 'RADIOLOGY',
       subspecialty: '',
       biography: '',
@@ -118,7 +117,6 @@ export function OnboardingFlowPage() {
     initialized.current = true;
     profileForm.reset({
       medical_council_code: profile.medical_council_code,
-      license_jurisdiction: profile.license_jurisdiction,
       specialty: profile.specialty,
       subspecialty: profile.subspecialty || '',
       biography: profile.biography || '',
@@ -152,7 +150,6 @@ export function OnboardingFlowPage() {
     try {
       await updateProfile({
         medical_council_code: values.medical_council_code,
-        license_jurisdiction: values.license_jurisdiction,
         specialty: values.specialty,
         subspecialty: values.subspecialty,
         biography: values.biography,
@@ -250,18 +247,9 @@ export function OnboardingFlowPage() {
               <div className="tp-form-grid">
                 <Field
                   label="شماره نظام پزشکی"
-                  ltr
                   error={profileForm.formState.errors.medical_council_code?.message}
                   {...profileForm.register('medical_council_code')}
                 />
-                <Field
-                  label="کشور صادرکننده مجوز"
-                  ltr
-                  error={profileForm.formState.errors.license_jurisdiction?.message}
-                  {...profileForm.register('license_jurisdiction')}
-                />
-              </div>
-              <div className="tp-form-grid">
                 <SelectField
                   label="تخصص اصلی"
                   error={profileForm.formState.errors.specialty?.message}
@@ -276,6 +264,8 @@ export function OnboardingFlowPage() {
                     </option>
                   ))}
                 </SelectField>
+              </div>
+              <div className="tp-form-grid">
                 <Field
                   label="فوق تخصص یا فلوشیپ"
                   error={profileForm.formState.errors.subspecialty?.message}
