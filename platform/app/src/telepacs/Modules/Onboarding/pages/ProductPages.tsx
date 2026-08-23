@@ -13,13 +13,13 @@ import {
   FileBadge2,
   FileCheck2,
   FileText,
-  FolderHeart,
+  Files,
   Eye,
   ImagePlus,
   LockKeyhole,
+  PenLine,
   ScanLine,
   ShieldCheck,
-  Sparkles,
   Trash2,
   UploadCloud,
   UserRoundCheck,
@@ -57,7 +57,6 @@ import {
   type ProfileForm,
 } from '../interfaces/schemas';
 
-const faDate = new Intl.DateTimeFormat('fa-IR', { weekday: 'long', day: 'numeric', month: 'long' });
 const faDateTime = new Intl.DateTimeFormat('fa-IR', {
   day: 'numeric',
   month: 'short',
@@ -143,124 +142,192 @@ function AccountProfileTabs() {
   );
 }
 
+const specialtyLabels: Record<string, string> = {
+  RADIOLOGY: 'رادیولوژی',
+  NEURORADIOLOGY: 'نورورادیولوژی',
+  CARDIOTHORACIC_RADIOLOGY: 'تصویربرداری قلب و قفسه سینه',
+  MUSCULOSKELETAL_RADIOLOGY: 'تصویربرداری اسکلتی‌عضلانی',
+  NUCLEAR_MEDICINE: 'پزشکی هسته‌ای',
+  OTHER: 'سایر تخصص‌ها',
+};
+
+const documentLabels: Record<CredentialDocument['document_type'], string> = {
+  MEDICAL_LICENSE: 'مجوز طبابت',
+  BOARD_CERTIFICATE: 'مدرک بورد تخصصی',
+  OTHER: 'مدرک تکمیلی',
+};
+
 export function DashboardPage() {
   const { user } = useAuth();
   const { profile, documents, loading, error } = useOnboardingData();
   const verifiedDocuments = useMemo(
-    () => documents.filter(item => item.scan_status === 'CLEAN').length,
+    () => documents.filter(item => item.scan_status === 'CLEAN'),
     [documents]
   );
+  const specialty = profile ? specialtyLabels[profile.specialty] || profile.specialty : '—';
+  const profileSignals = [
+    {
+      label: 'تصویر پروفایل',
+      complete: Boolean(profile?.profile_image_uploaded),
+      icon: UserRoundCheck,
+    },
+    {
+      label: 'تصویر امضا',
+      complete: Boolean(profile?.signature_image_uploaded),
+      icon: PenLine,
+    },
+    {
+      label: 'مدارک پزشکی',
+      complete: verifiedDocuments.length > 0,
+      icon: Files,
+    },
+  ];
 
   if (loading) return <PageLoader />;
 
   return (
-    <div className="tp-page">
+    <div className="tp-page tp-overview-page">
       <PageHeader
-        eyebrow={faDate.format(new Date())}
-        title={`سلام دکتر ${user?.last_name || ''}`}
-        action={<StatusBadge status={user?.account_status || 'ACTIVE'} />}
+        eyebrow="نمای کلی"
+        title={`سلام، دکتر ${user?.last_name || ''}`}
+        description="خلاصه حساب حرفه‌ای و مدارک شما"
       />
       {error && <InlineAlert>{error}</InlineAlert>}
-      <section className="tp-command-hero">
-        <div className="tp-command-hero__copy">
-          <span className="tp-kicker">
-            <Sparkles size={16} /> فضای کاری فعال
-          </span>
-          <h2>مرکز مطالعات تصویربرداری شما</h2>
-          <div className="tp-command-hero__actions">
-            <Link to="/app/studies">
-              ورود به مطالعات <ArrowLeft size={17} />
+      <section className="tp-overview-lead-grid">
+        <article className="tp-overview-account-card">
+          <header>
+            <span className="tp-overview-card-icon">
+              <BadgeCheck size={24} />
+            </span>
+            <div>
+              <small>حساب پزشکی</small>
+              <h2>حساب شما فعال است</h2>
+            </div>
+            <StatusBadge status={profile?.review.state || user?.account_status || 'ACTIVE'} />
+          </header>
+          <dl className="tp-overview-professional-facts">
+            <div>
+              <dt>تخصص اصلی</dt>
+              <dd>{specialty}</dd>
+            </div>
+            <div>
+              <dt>فوق تخصص / فلوشیپ</dt>
+              <dd>{profile?.subspecialty || 'ثبت نشده'}</dd>
+            </div>
+            <div>
+              <dt>شماره نظام پزشکی</dt>
+              <dd dir="ltr">{profile?.medical_council_code || '—'}</dd>
+            </div>
+          </dl>
+          <footer>
+            <Link to="/app/review">
+              مشاهده وضعیت حساب <ArrowLeft size={17} />
             </Link>
-            <Link to="/app/profile">مشاهده پروفایل</Link>
-          </div>
-        </div>
-        <div
-          className="tp-command-hero__signal"
-          aria-hidden="true"
-        >
-          <span />
-          <ScanLine size={42} />
-          <small>IMAGING WORKSPACE</small>
-        </div>
-      </section>
+          </footer>
+        </article>
 
-      <section className="tp-overview-cards">
-        <article>
-          <span>
-            <BadgeCheck size={21} />
-          </span>
-          <div>
-            <small>وضعیت حساب</small>
-            <strong>پزشک تأییدشده</strong>
+        <article className="tp-overview-profile-card">
+          <header>
+            <div>
+              <small>پروفایل حرفه‌ای</small>
+              <h2>اطلاعات ثبت‌شده</h2>
+            </div>
+            <UserRoundCheck size={22} />
+          </header>
+          <div className="tp-overview-profile-signals">
+            {profileSignals.map(item => {
+              const Icon = item.icon;
+              return (
+                <div key={item.label}>
+                  <span className={item.complete ? 'is-complete' : ''}>
+                    {item.complete ? <Check size={16} /> : <Icon size={17} />}
+                  </span>
+                  <strong>{item.label}</strong>
+                  <small>{item.complete ? 'ثبت شده' : 'ثبت نشده'}</small>
+                </div>
+              );
+            })}
           </div>
-          <Check size={18} />
-        </article>
-        <article>
-          <span>
-            <FileBadge2 size={21} />
-          </span>
-          <div>
-            <small>مدارک معتبر</small>
-            <strong>{verifiedDocuments} مدرک</strong>
-          </div>
-          <ChevronLeft size={18} />
-        </article>
-        <article>
-          <span>
-            <UserRoundCheck size={21} />
-          </span>
-          <div>
-            <small>پروفایل حرفه‌ای</small>
-            <strong>{profile?.specialty || 'پزشک'}</strong>
-          </div>
-          <ChevronLeft size={18} />
+          <Link to="/app/profile">
+            مدیریت پروفایل <ChevronLeft size={17} />
+          </Link>
         </article>
       </section>
 
-      <section className="tp-clinical-preview">
-        <div className="tp-clinical-preview__copy">
-          <span className="tp-kicker">
-            <Sparkles size={16} /> گام بعدی محصول
-          </span>
-          <h2>فضای مطالعات تصویربرداری</h2>
-          <div className="tp-clinical-preview__chips">
-            <span>
-              <ScanLine size={16} /> نمایش DICOM
-            </span>
-            <span>
-              <FileText size={16} /> گزارش‌نویسی
-            </span>
-            <span>
-              <FolderHeart size={16} /> پرونده بیمار
-            </span>
+      <section className="tp-overview-content-grid">
+        <article className="tp-overview-documents-card">
+          <header>
+            <div>
+              <span className="tp-overview-card-icon">
+                <FileBadge2 size={21} />
+              </span>
+              <div>
+                <h2>مدارک پزشکی</h2>
+                <p>{verifiedDocuments.length.toLocaleString('fa-IR')} مدرک ثبت‌شده</p>
+              </div>
+            </div>
+            <Link to="/app/credentials">مشاهده همه</Link>
+          </header>
+          <div className="tp-overview-document-list">
+            {verifiedDocuments.slice(0, 3).map(document => (
+              <div key={document.id}>
+                <span>
+                  <FileText size={19} />
+                </span>
+                <div>
+                  <strong>{documentLabels[document.document_type]}</strong>
+                  <small title={document.original_filename}>{document.original_filename}</small>
+                </div>
+                <time dateTime={document.uploaded_at}>
+                  {faDateTime.format(new Date(document.uploaded_at))}
+                </time>
+              </div>
+            ))}
+            {!verifiedDocuments.length && (
+              <div className="tp-overview-document-list__empty">مدرکی ثبت نشده است.</div>
+            )}
           </div>
-        </div>
-        <div
-          className="tp-clinical-preview__mock"
-          aria-hidden="true"
+        </article>
+
+        <nav
+          className="tp-overview-shortcuts"
+          aria-label="دسترسی سریع"
         >
-          <div className="tp-mock-toolbar">
-            <i />
-            <i />
-            <i />
-            <span />
-          </div>
-          <div className="tp-mock-body">
-            <aside>
-              <i />
-              <i />
-              <i />
-            </aside>
-            <main>
-              <span>STUDY VIEWER</span>
-              <div className="tp-mock-crosshair" />
-            </main>
-          </div>
-          <div className="tp-clinical-lock">
-            <LockKeyhole size={18} />
-            در فاز بعدی
-          </div>
-        </div>
+          <header>
+            <small>دسترسی سریع</small>
+            <h2>مدیریت حساب</h2>
+          </header>
+          <Link to="/app/profile">
+            <span>
+              <UserRoundCheck size={20} />
+            </span>
+            <div>
+              <strong>پروفایل پزشک</strong>
+              <small>اطلاعات حرفه‌ای و تصاویر</small>
+            </div>
+            <ChevronLeft size={18} />
+          </Link>
+          <Link to="/app/credentials">
+            <span>
+              <FileBadge2 size={20} />
+            </span>
+            <div>
+              <strong>مدارک پزشکی</strong>
+              <small>فایل‌های ثبت‌شده</small>
+            </div>
+            <ChevronLeft size={18} />
+          </Link>
+          <Link to="/app/review">
+            <span>
+              <ClipboardCheck size={20} />
+            </span>
+            <div>
+              <strong>وضعیت حساب</strong>
+              <small>نتیجه بررسی صلاحیت</small>
+            </div>
+            <ChevronLeft size={18} />
+          </Link>
+        </nav>
       </section>
     </div>
   );
@@ -516,11 +583,6 @@ export function ProfilePage() {
   );
 }
 
-const documentLabels: Record<CredentialDocument['document_type'], string> = {
-  MEDICAL_LICENSE: 'مجوز طبابت',
-  BOARD_CERTIFICATE: 'مدرک بورد تخصصی',
-  OTHER: 'مدرک تکمیلی',
-};
 function formatBytes(bytes: number) {
   return bytes < 1024 * 1024
     ? `${Math.ceil(bytes / 1024)} KB`

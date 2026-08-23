@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Bell,
+  CalendarDays,
   ChevronDown,
   ClipboardCheck,
+  Clock3,
   FolderHeart,
   LayoutDashboard,
   LockKeyhole,
@@ -72,6 +74,60 @@ const adminNavigation: WorkspaceNavigationSection[] = [
     ],
   },
 ];
+
+const liveWeekdayFormatter = new Intl.DateTimeFormat('fa-IR', {
+  weekday: 'long',
+});
+
+const liveDateFormatter = new Intl.DateTimeFormat('fa-IR', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+
+const liveTimeFormatter = new Intl.DateTimeFormat('fa-IR', {
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false,
+});
+
+function LiveDateTime() {
+  const [now, setNow] = useState(() => new Date());
+
+  useEffect(() => {
+    const update = () => setNow(new Date());
+    const interval = window.setInterval(update, 30_000);
+    window.addEventListener('focus', update);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener('focus', update);
+    };
+  }, []);
+
+  return (
+    <div
+      className="tp-live-datetime"
+      aria-label="تاریخ و ساعت فعلی"
+    >
+      <span className="tp-live-datetime__date">
+        <CalendarDays size={17} />
+        <time dateTime={now.toISOString()}>
+          {liveWeekdayFormatter.format(now)}، {liveDateFormatter.format(now)}
+        </time>
+      </span>
+      <span className="tp-live-datetime__divider" />
+      <span className="tp-live-datetime__time">
+        <Clock3 size={17} />
+        <time
+          dateTime={now.toISOString()}
+          dir="ltr"
+        >
+          {liveTimeFormatter.format(now)}
+        </time>
+      </span>
+    </div>
+  );
+}
 
 export function WorkspaceLayout() {
   const { user, logout } = useAuth();
@@ -195,6 +251,15 @@ export function WorkspaceLayout() {
             </React.Fragment>
           ))}
         </nav>
+        {user && (
+          <div className="tp-sidebar__account-status">
+            <span>
+              <small>وضعیت حساب</small>
+              <strong>{isAdmin ? 'دسترسی مدیریت' : 'حساب پزشک'}</strong>
+            </span>
+            <StatusBadge status={user.account_status} />
+          </div>
+        )}
       </aside>
       {mobileOpen && (
         <button
@@ -215,8 +280,7 @@ export function WorkspaceLayout() {
             <Menu size={21} />
           </button>
           <div className="tp-topbar__context">
-            <span className="tp-live-dot" />
-            <span>{isAdmin ? 'مرکز مدیریت احراز صلاحیت' : 'مرکز فرمان پزشکی'}</span>
+            <LiveDateTime />
           </div>
           <div className="tp-topbar__actions">
             <button
@@ -300,7 +364,6 @@ export function WorkspaceLayout() {
                 </button>
               </div>
             </div>
-            {user && <StatusBadge status={user.account_status} />}
           </div>
         </header>
         <main className="tp-content">
