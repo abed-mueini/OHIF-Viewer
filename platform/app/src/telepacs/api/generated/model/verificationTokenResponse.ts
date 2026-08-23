@@ -11,6 +11,7 @@ export interface VerificationTokenResponse {
   access: string;
   refresh?: string;
   account_status: AccountStatusEnum;
+  is_staff: boolean;
   access_expires_in: number;
   refresh_expires_in: number;
   next_action: string;

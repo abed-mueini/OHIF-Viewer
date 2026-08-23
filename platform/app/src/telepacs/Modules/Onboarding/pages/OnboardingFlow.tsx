@@ -35,6 +35,7 @@ import {
 } from '../../../SharedComponents';
 import { useAuth } from '../../Auth';
 import { useOnboardingData } from '../api/useOnboardingData';
+import { LocalImageUploadField } from '../components/LocalImageUploadField';
 import {
   credentialSchema,
   onboardingProfileSchema,
@@ -289,48 +290,31 @@ export function OnboardingFlowPage() {
                 {...profileForm.register('biography')}
               />
               <div className="tp-upload-pair">
-                <label className="tp-compact-upload">
-                  <span>
-                    <ImagePlus size={23} />
-                  </span>
-                  <div>
-                    <strong>تصویر پروفایل</strong>
-                    <small>
-                      {profileImage?.name ||
-                        (profile.profile_image_uploaded ? 'ثبت شده' : 'PNG یا JPEG')}
-                    </small>
-                  </div>
-                  <input
-                    type="file"
-                    accept="image/png,image/jpeg"
-                    onChange={event =>
-                      profileForm.setValue('profile_image', event.target.files?.[0] || null, {
-                        shouldValidate: true,
-                      })
-                    }
-                  />
-                </label>
-                <label className="tp-compact-upload">
-                  <span>
-                    <FileText size={23} />
-                  </span>
-                  <div>
-                    <strong>تصویر امضا</strong>
-                    <small>
-                      {signatureImage?.name ||
-                        (profile.signature_image_uploaded ? 'ثبت شده' : 'PNG یا JPEG')}
-                    </small>
-                  </div>
-                  <input
-                    type="file"
-                    accept="image/png,image/jpeg"
-                    onChange={event =>
-                      profileForm.setValue('signature_image', event.target.files?.[0] || null, {
-                        shouldValidate: true,
-                      })
-                    }
-                  />
-                </label>
+                <LocalImageUploadField
+                  file={profileImage}
+                  label="تصویر پروفایل"
+                  emptyHint={profile.profile_image_uploaded ? 'ثبت شده' : 'PNG یا JPEG'}
+                  icon={<ImagePlus size={23} />}
+                  onChange={file =>
+                    profileForm.setValue('profile_image', file, {
+                      shouldValidate: true,
+                      shouldDirty: true,
+                    })
+                  }
+                />
+                <LocalImageUploadField
+                  file={signatureImage}
+                  label="تصویر امضا"
+                  emptyHint={profile.signature_image_uploaded ? 'ثبت شده' : 'PNG یا JPEG'}
+                  icon={<FileText size={23} />}
+                  previewVariant="signature"
+                  onChange={file =>
+                    profileForm.setValue('signature_image', file, {
+                      shouldValidate: true,
+                      shouldDirty: true,
+                    })
+                  }
+                />
               </div>
               {(profileForm.formState.errors.profile_image ||
                 profileForm.formState.errors.signature_image) && (

@@ -41,6 +41,7 @@ import type {
   DoctorCredentialReviewState as ReviewState,
 } from '../../../api/generated/model';
 import { useOnboardingData } from '../api/useOnboardingData';
+import { LocalImageUploadField } from '../components/LocalImageUploadField';
 import {
   credentialSchema,
   profileSchema,
@@ -351,52 +352,35 @@ export function ProfilePage() {
           </div>
         </div>
         <div className="tp-upload-pair">
-          <label className="tp-compact-upload">
-            <span>
-              <UserRoundCheck size={23} />
-            </span>
-            <div>
-              <strong>تصویر پروفایل</strong>
-              <small>
-                {avatar?.name ||
-                  (profile.profile_image_uploaded ? 'قبلاً بارگذاری شده' : 'PNG یا JPEG')}
-              </small>
-            </div>
-            <input
-              type="file"
-              accept="image/png,image/jpeg"
-              onChange={event =>
-                form.setValue('profile_image', event.target.files?.[0] || null, {
-                  shouldValidate: true,
-                })
-              }
-              disabled={locked}
-            />
-          </label>
-          <label className="tp-compact-upload">
-            <span>
-              <FileText size={23} />
-            </span>
-            <div>
-              <strong>تصویر امضا</strong>
-              <small>
-                {signature?.name ||
-                  (profile.signature_image_uploaded
-                    ? 'قبلاً بارگذاری شده'
-                    : 'برای ارسال پرونده الزامی')}
-              </small>
-            </div>
-            <input
-              type="file"
-              accept="image/png,image/jpeg"
-              onChange={event =>
-                form.setValue('signature_image', event.target.files?.[0] || null, {
-                  shouldValidate: true,
-                })
-              }
-              disabled={locked}
-            />
-          </label>
+          <LocalImageUploadField
+            file={avatar}
+            label="تصویر پروفایل"
+            emptyHint={profile.profile_image_uploaded ? 'قبلاً بارگذاری شده' : 'PNG یا JPEG'}
+            icon={<UserRoundCheck size={23} />}
+            disabled={locked}
+            onChange={file =>
+              form.setValue('profile_image', file, {
+                shouldValidate: true,
+                shouldDirty: true,
+              })
+            }
+          />
+          <LocalImageUploadField
+            file={signature}
+            label="تصویر امضا"
+            emptyHint={
+              profile.signature_image_uploaded ? 'قبلاً بارگذاری شده' : 'برای ارسال پرونده الزامی'
+            }
+            icon={<FileText size={23} />}
+            previewVariant="signature"
+            disabled={locked}
+            onChange={file =>
+              form.setValue('signature_image', file, {
+                shouldValidate: true,
+                shouldDirty: true,
+              })
+            }
+          />
         </div>
         {(form.formState.errors.profile_image || form.formState.errors.signature_image) && (
           <InlineAlert>

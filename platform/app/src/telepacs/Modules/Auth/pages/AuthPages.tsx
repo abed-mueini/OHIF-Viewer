@@ -53,7 +53,7 @@ const registrationSteps = [
 
 const registrationStepFields: Array<Array<keyof RegistrationForm>> = [
   ['first_name', 'last_name', 'email', 'mobile_number', 'password', 'password_confirm'],
-  ['medical_council_code', 'license_jurisdiction', 'specialty', 'subspecialty'],
+  ['medical_council_code', 'specialty', 'subspecialty'],
 ];
 
 export function LoginPage() {
@@ -69,7 +69,7 @@ export function LoginPage() {
   if (session)
     return (
       <Navigate
-        to={accountEntryPath(session.account_status, user?.mobile_number)}
+        to={accountEntryPath(session.account_status, user?.mobile_number, session.is_staff)}
         replace
       />
     );
@@ -78,7 +78,9 @@ export function LoginPage() {
     setRequestError('');
     try {
       const next = await login(values.username, values.password);
-      navigate(accountEntryPath(next.account_status, values.username), { replace: true });
+      navigate(accountEntryPath(next.account_status, values.username, next.is_staff), {
+        replace: true,
+      });
     } catch (error) {
       setRequestError(applyApiFormErrors(error, form.setError));
     }
@@ -86,7 +88,7 @@ export function LoginPage() {
 
   return (
     <AuthLayout
-      eyebrow="ورود پزشک"
+      eyebrow="ورود به سامانه"
       title="خوش آمدید"
     >
       <form
@@ -105,10 +107,9 @@ export function LoginPage() {
         {location.state?.logoutWarning && <InlineAlert>خروج سمت سرور کامل نشد.</InlineAlert>}
         <Field
           label="نام کاربری"
-          type="tel"
-          inputMode="numeric"
+          type="text"
           autoComplete="username"
-          placeholder="09121234567"
+          placeholder="شماره موبایل یا admin"
           ltr
           error={form.formState.errors.username?.message}
           {...form.register('username')}
@@ -148,7 +149,6 @@ const registrationDefaults: RegistrationForm = {
   password: '',
   password_confirm: '',
   medical_council_code: '',
-  license_jurisdiction: 'IR',
   specialty: 'RADIOLOGY',
   subspecialty: '',
   preferred_language: 'fa',
@@ -176,7 +176,7 @@ export function RegisterPage() {
   if (session)
     return (
       <Navigate
-        to={accountEntryPath(session.account_status, user?.mobile_number)}
+        to={accountEntryPath(session.account_status, user?.mobile_number, session.is_staff)}
         replace
       />
     );
@@ -277,22 +277,13 @@ export function RegisterPage() {
           )}
           {step === 1 && (
             <>
-              <div className="tp-form-grid">
-                <Field
-                  label="شماره نظام پزشکی"
-                  placeholder="123456"
-                  ltr
-                  error={form.formState.errors.medical_council_code?.message}
-                  {...form.register('medical_council_code')}
-                />
-                <Field
-                  label="کشور صادرکننده مجوز"
-                  placeholder="IR"
-                  ltr
-                  error={form.formState.errors.license_jurisdiction?.message}
-                  {...form.register('license_jurisdiction')}
-                />
-              </div>
+              <Field
+                label="شماره نظام پزشکی"
+                placeholder="123456"
+                ltr
+                error={form.formState.errors.medical_council_code?.message}
+                {...form.register('medical_council_code')}
+              />
               <SelectField
                 label="تخصص اصلی"
                 error={form.formState.errors.specialty?.message}
@@ -420,7 +411,7 @@ export function VerificationPage() {
   if (session && session.account_status !== 'PENDING_VERIFICATION') {
     return (
       <Navigate
-        to={accountEntryPath(session.account_status, mobileNumber)}
+        to={accountEntryPath(session.account_status, mobileNumber, session.is_staff)}
         replace
       />
     );
@@ -454,7 +445,9 @@ export function VerificationPage() {
       });
       form.reset({ code: '' });
       const session = await establishSession(result);
-      navigate(accountEntryPath(session.account_status, mobileNumber), { replace: true });
+      navigate(accountEntryPath(session.account_status, mobileNumber, session.is_staff), {
+        replace: true,
+      });
     } catch (error) {
       setRequestError(applyApiFormErrors(error, form.setError));
     }

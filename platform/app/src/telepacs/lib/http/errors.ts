@@ -16,6 +16,12 @@ export interface ProblemDetails {
   errors?: ProblemFieldError[];
 }
 
+interface ErrorEnvelope {
+  isSuccess?: false;
+  statusCode?: number;
+  error?: ProblemDetails;
+}
+
 const messages: Record<string, string> = {
   registration_conflict: 'اطلاعات واردشده با یک حساب موجود تداخل دارد.',
   idempotency_conflict: 'این درخواست قبلاً با اطلاعات متفاوت ثبت شده است.',
@@ -85,7 +91,7 @@ export class ApiError extends Error {
 export function toApiError(error: unknown): ApiError {
   if (error instanceof ApiError) return error;
   if (axios.isAxiosError(error)) {
-    const responseError = error as AxiosError<ProblemDetails | string>;
+    const responseError = error as AxiosError<ErrorEnvelope | ProblemDetails | string>;
     const rawProblem = responseError.response?.data;
     let problem: ProblemDetails = {};
     if (typeof rawProblem === 'string') {
@@ -95,7 +101,10 @@ export function toApiError(error: unknown): ApiError {
         problem = { detail: rawProblem };
       }
     } else if (rawProblem) {
-      problem = rawProblem;
+      problem =
+        'error' in rawProblem && rawProblem.error
+          ? rawProblem.error
+          : (rawProblem as ProblemDetails);
     }
     return new ApiError(responseError.response?.status || 0, problem);
   }

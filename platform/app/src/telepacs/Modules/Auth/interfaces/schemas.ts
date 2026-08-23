@@ -24,7 +24,10 @@ const iranianMobile = z
   .regex(/^09\d{9}$/, 'شماره موبایل را بدون کد کشور و با ۰۹ وارد کنید.');
 
 export const loginSchema = z.strictObject({
-  username: iranianMobile,
+  username: z
+    .string()
+    .trim()
+    .regex(/^(?:09\d{9}|admin)$/, 'شماره موبایل یا نام کاربری ادمین معتبر وارد کنید.'),
   password: z.string().min(1, 'رمز عبور الزامی است.'),
 });
 
@@ -45,10 +48,6 @@ export const registrationSchema = z
     medical_council_code: requiredText('شماره نظام پزشکی', 64).regex(
       /^[A-Za-z0-9][A-Za-z0-9._/-]{1,63}$/,
       'شماره نظام پزشکی معتبر نیست.'
-    ),
-    license_jurisdiction: requiredText('کشور صادرکننده مجوز', 32).regex(
-      /^[A-Za-z0-9][A-Za-z0-9._-]{1,31}$/,
-      'کد کشور معتبر نیست.'
     ),
     specialty: requiredText('تخصص', 64),
     subspecialty: z.string().trim().max(100, 'فوق تخصص بیش از حد طولانی است.'),

@@ -6,12 +6,9 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface TelePACSTokenObtainPairRequest {
-  /**
-     * @minLength 1
-     * @maxLength 150
-     */
-  username: string;
-  /** @minLength 1 */
-  password: string;
-}
+export type InternalDoctorApplicationsListParams = {
+page?: number;
+page_size?: number;
+search?: string;
+state?: string;
+};

@@ -18,6 +18,31 @@ export default {
               requestBody.content = { 'multipart/form-data': multipart };
             }
           }
+
+          // The public OpenAPI documents the standard response envelope. The
+          // custom Axios client unwraps it at runtime, so generated hooks keep
+          // their ergonomic domain return types here as well.
+          Object.values(schema.paths || {}).forEach(pathItem => {
+            if (!pathItem) return;
+            Object.values(pathItem).forEach(operation => {
+              if (!operation || typeof operation !== 'object' || !('responses' in operation)) {
+                return;
+              }
+              Object.values(operation.responses || {}).forEach(response => {
+                if (!response || !('content' in response)) return;
+                Object.values(response.content || {}).forEach(media => {
+                  const responseSchema = media?.schema;
+                  if (
+                    responseSchema &&
+                    'properties' in responseSchema &&
+                    responseSchema.properties?.data
+                  ) {
+                    media.schema = responseSchema.properties.data;
+                  }
+                });
+              });
+            });
+          });
           return schema;
         },
       },

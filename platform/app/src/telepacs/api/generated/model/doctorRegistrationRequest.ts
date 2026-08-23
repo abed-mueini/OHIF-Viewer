@@ -46,12 +46,6 @@ export interface DoctorRegistrationRequest {
   medical_council_code: string;
   /**
      * @minLength 1
-     * @maxLength 32
-     * @pattern ^[A-Za-z0-9][A-Za-z0-9._-]{1,31}$
-     */
-  license_jurisdiction: string;
-  /**
-     * @minLength 1
      * @maxLength 64
      * @pattern ^[A-Za-z0-9][A-Za-z0-9._/-]{1,63}$
      */

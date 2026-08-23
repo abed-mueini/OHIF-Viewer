@@ -7,7 +7,7 @@
  */
 import type { AccountStatusEnum } from './accountStatusEnum';
 
-export interface Me {
+export interface InternalAdminApplicant {
   readonly id: string;
   readonly email: string;
   /** E.164 format, including the leading plus sign. */
@@ -15,12 +15,7 @@ export interface Me {
   readonly first_name: string;
   readonly last_name: string;
   readonly account_status: AccountStatusEnum;
-  /** Allows access to the internal Django administration site. */
-  readonly is_staff: boolean;
   /** @nullable */
   readonly mobile_verified_at: string | null;
-  readonly has_doctor_profile: boolean;
-  readonly permissions: readonly string[];
   readonly created_at: string;
-  readonly updated_at: string;
 }

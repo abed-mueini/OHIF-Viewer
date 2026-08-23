@@ -18,7 +18,7 @@ import type {
   UseQueryResult,
 } from '@tanstack/react-query';
 
-import type { HealthStatus } from '../model';
+import type { HealthReadiness503, HealthStatus } from '../model';
 
 import { apiClient } from '../../../lib/http/client';
 import type { ErrorType } from '../../../lib/http/client';
@@ -158,7 +158,7 @@ export const getHealthReadinessQueryKey = () => {
 
 export const getHealthReadinessQueryOptions = <
   TData = Awaited<ReturnType<typeof healthReadiness>>,
-  TError = ErrorType<HealthStatus>,
+  TError = ErrorType<HealthReadiness503>,
 >(options?: {
   query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof healthReadiness>>, TError, TData>>;
   request?: SecondParameter<typeof apiClient>;
@@ -178,11 +178,11 @@ export const getHealthReadinessQueryOptions = <
 };
 
 export type HealthReadinessQueryResult = NonNullable<Awaited<ReturnType<typeof healthReadiness>>>;
-export type HealthReadinessQueryError = ErrorType<HealthStatus>;
+export type HealthReadinessQueryError = ErrorType<HealthReadiness503>;
 
 export function useHealthReadiness<
   TData = Awaited<ReturnType<typeof healthReadiness>>,
-  TError = ErrorType<HealthStatus>,
+  TError = ErrorType<HealthReadiness503>,
 >(
   options: {
     query: Partial<UseQueryOptions<Awaited<ReturnType<typeof healthReadiness>>, TError, TData>> &
@@ -200,7 +200,7 @@ export function useHealthReadiness<
 ): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useHealthReadiness<
   TData = Awaited<ReturnType<typeof healthReadiness>>,
-  TError = ErrorType<HealthStatus>,
+  TError = ErrorType<HealthReadiness503>,
 >(
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof healthReadiness>>, TError, TData>> &
@@ -218,7 +218,7 @@ export function useHealthReadiness<
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useHealthReadiness<
   TData = Awaited<ReturnType<typeof healthReadiness>>,
-  TError = ErrorType<HealthStatus>,
+  TError = ErrorType<HealthReadiness503>,
 >(
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof healthReadiness>>, TError, TData>>;
@@ -229,7 +229,7 @@ export function useHealthReadiness<
 
 export function useHealthReadiness<
   TData = Awaited<ReturnType<typeof healthReadiness>>,
-  TError = ErrorType<HealthStatus>,
+  TError = ErrorType<HealthReadiness503>,
 >(
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof healthReadiness>>, TError, TData>>;

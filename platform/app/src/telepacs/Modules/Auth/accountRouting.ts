@@ -6,7 +6,12 @@ function toLocalIranMobile(value?: string): string | undefined {
   return value;
 }
 
-export function accountEntryPath(status: AccountStatusEnum, mobileNumber?: string): string {
+export function accountEntryPath(
+  status: AccountStatusEnum,
+  mobileNumber?: string,
+  isStaff = false
+): string {
+  if (isStaff) return '/admin';
   if (status === 'PENDING_VERIFICATION') {
     const localMobile = toLocalIranMobile(mobileNumber);
     const query = localMobile ? `?mobile_number=${encodeURIComponent(localMobile)}` : '';

@@ -12,6 +12,25 @@ interface RetryableRequest extends InternalAxiosRequestConfig {
   _telepacsRetried?: boolean;
 }
 
+interface SuccessEnvelope<T> {
+  isSuccess: true;
+  statusCode: number;
+  data: T;
+}
+
+function unwrapSuccessEnvelope<T>(payload: T | SuccessEnvelope<T>): T {
+  if (
+    payload &&
+    typeof payload === 'object' &&
+    'isSuccess' in payload &&
+    payload.isSuccess === true &&
+    'data' in payload
+  ) {
+    return payload.data;
+  }
+  return payload as T;
+}
+
 const httpClient = axios.create({
   baseURL: runtimeConfig.apiOrigin,
   timeout: 30_000,
@@ -32,12 +51,15 @@ function refreshSession(): Promise<AuthSession> {
   }
 
   refreshPromise = refreshClient
-    .post<Partial<AuthSession>>('/api/v1/auth/token/refresh/', { refresh: session.refresh })
+    .post<SuccessEnvelope<Partial<AuthSession>>>('/api/v1/auth/token/refresh/', {
+      refresh: session.refresh,
+    })
     .then(response => {
+      const refreshed = unwrapSuccessEnvelope(response.data);
       const next = {
         ...session,
-        ...response.data,
-        refresh: response.data.refresh || session.refresh,
+        ...refreshed,
+        refresh: refreshed.refresh || session.refresh,
       } as AuthSession;
       saveSession(next);
       return next;
@@ -63,7 +85,10 @@ httpClient.interceptors.request.use(config => {
 });
 
 httpClient.interceptors.response.use(
-  response => response,
+  response => {
+    response.data = unwrapSuccessEnvelope(response.data);
+    return response;
+  },
   async (error: AxiosError) => {
     const request = error.config as RetryableRequest | undefined;
     const isAuthEndpoint = request?.url?.includes('/auth/token/');

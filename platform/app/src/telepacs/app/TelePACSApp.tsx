@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 
 import { accountEntryPath, AuthProvider, useAuth } from '../Modules/Auth';
+import { AdminDashboardPage } from '../Modules/Admin';
 import { ForgotPasswordPage, LoginPage, RegisterPage, VerificationPage } from '../Modules/Auth';
 import {
   CredentialsPage,
@@ -49,7 +50,35 @@ function AccountGate({
   if (!statuses.includes(currentStatus)) {
     return (
       <Navigate
-        to={accountEntryPath(currentStatus, user?.mobile_number)}
+        to={accountEntryPath(currentStatus, user?.mobile_number, user?.is_staff)}
+        replace
+      />
+    );
+  }
+  return <>{children}</>;
+}
+
+function AdminGate({ children }: { children: React.ReactNode }) {
+  const { session, user, loading } = useAuth();
+  const location = useLocation();
+  if (loading) return <PageLoader />;
+  if (!session) {
+    return (
+      <Navigate
+        to="/login"
+        replace
+        state={{ from: location.pathname }}
+      />
+    );
+  }
+  if (!user?.is_staff) {
+    return (
+      <Navigate
+        to={accountEntryPath(
+          user?.account_status || session.account_status,
+          user?.mobile_number,
+          session.is_staff
+        )}
         replace
       />
     );
@@ -63,7 +92,11 @@ function ProductRoutes() {
     return <PageLoader />;
   }
   const entryPath = session
-    ? accountEntryPath(user?.account_status || session.account_status, user?.mobile_number)
+    ? accountEntryPath(
+        user?.account_status || session.account_status,
+        user?.mobile_number,
+        user?.is_staff || session.is_staff
+      )
     : '/login';
   return (
     <Routes>
@@ -91,6 +124,22 @@ function ProductRoutes() {
       <Route
         path="/forgot-password"
         element={<ForgotPasswordPage />}
+      />
+      <Route
+        path="/admin"
+        element={
+          <AdminGate>
+            <AdminDashboardPage />
+          </AdminGate>
+        }
+      />
+      <Route
+        path="/admin/applications/:applicationId"
+        element={
+          <AdminGate>
+            <AdminDashboardPage />
+          </AdminGate>
+        }
       />
       <Route
         path="/onboarding"
