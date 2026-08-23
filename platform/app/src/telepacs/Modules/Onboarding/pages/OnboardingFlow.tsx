@@ -114,6 +114,10 @@ export function OnboardingFlowPage() {
 
   useEffect(() => {
     if (!profile || !snapshot || initialized.current) return;
+    if (profile.review.state === 'CHANGES_REQUESTED') {
+      navigate('/app/review', { replace: true });
+      return;
+    }
     initialized.current = true;
     profileForm.reset({
       medical_council_code: profile.medical_council_code,

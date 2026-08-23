@@ -20,5 +20,6 @@ export function accountEntryPath(
   if (status === 'ONBOARDING') return '/onboarding';
   if (status === 'PENDING_REVIEW') return '/reviewing';
   if (status === 'ACTIVE') return '/app';
+  if (status === 'REJECTED') return '/app/review';
   return '/account-unavailable';
 }

@@ -11,6 +11,7 @@ import {
   useDoctorCredentialDocumentUpload,
   useDoctorOnboardingStatus,
   useDoctorProfileGet,
+  useDoctorProfileReapply,
   useDoctorProfileSubmit,
   useDoctorProfileUpdate,
 } from '../../../api/generated/me/me';
@@ -30,13 +31,11 @@ export function useOnboardingData() {
   const documentUpload = useDoctorCredentialDocumentUpload();
   const documentDelete = useDoctorCredentialDocumentDelete();
   const profileSubmit = useDoctorProfileSubmit();
+  const profileReapply = useDoctorProfileReapply();
 
-  const reload = useCallback(
-    async () => {
-      await Promise.all([onboarding.refetch(), profile.refetch(), documents.refetch()]);
-    },
-    [documents, onboarding, profile]
-  );
+  const reload = useCallback(async () => {
+    await Promise.all([onboarding.refetch(), profile.refetch(), documents.refetch()]);
+  }, [documents, onboarding, profile]);
 
   const invalidateOnboarding = useCallback(async () => {
     await Promise.all([
@@ -80,6 +79,12 @@ export function useOnboardingData() {
     return result;
   }, [invalidateOnboarding, profileSubmit]);
 
+  const startReapplication = useCallback(async () => {
+    const result = await profileReapply.mutateAsync();
+    await invalidateOnboarding();
+    return result;
+  }, [invalidateOnboarding, profileReapply]);
+
   const setProfile = useCallback(
     (value: DoctorProfile) => queryClient.setQueryData(getDoctorProfileGetQueryKey(), value),
     [queryClient]
@@ -98,10 +103,12 @@ export function useOnboardingData() {
     uploadDocument,
     deleteDocument,
     submitProfile,
+    startReapplication,
     mutationBusy:
       profileUpdate.isPending ||
       documentUpload.isPending ||
       documentDelete.isPending ||
-      profileSubmit.isPending,
+      profileSubmit.isPending ||
+      profileReapply.isPending,
   };
 }

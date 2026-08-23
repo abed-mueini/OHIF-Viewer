@@ -20,6 +20,7 @@ export * from './healthReadiness503';
 export * from './healthReadiness503StatusCode';
 export * from './healthStatus';
 export * from './internalAdminApplicant';
+export * from './internalAdminCredentialSubmission';
 export * from './internalAdminDoctorRequestDetail';
 export * from './internalAdminDoctorRequestList';
 export * from './internalAdminDoctorRequestPage';

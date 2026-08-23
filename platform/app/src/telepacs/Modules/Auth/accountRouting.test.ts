@@ -10,4 +10,5 @@ it('preserves the physician account flow for non-staff users', () => {
   expect(accountEntryPath('ONBOARDING', '09121234567')).toBe('/onboarding');
   expect(accountEntryPath('PENDING_REVIEW', '09121234567')).toBe('/reviewing');
   expect(accountEntryPath('ACTIVE', '09121234567')).toBe('/app');
+  expect(accountEntryPath('REJECTED', '09121234567')).toBe('/app/review');
 });

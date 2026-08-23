@@ -9,6 +9,7 @@ import {
   ExternalLink,
   Eye,
   FileText,
+  History,
   LoaderCircle,
   Search,
   ShieldCheck,
@@ -626,6 +627,52 @@ function DoctorRequestDetail({ profileId }: { profileId: string }) {
             </div>
           </header>
           <p className="tp-admin-biography">{doctorRequest.biography || 'توضیحی ثبت نشده است.'}</p>
+        </section>
+
+        <section className="tp-admin-detail-card tp-admin-detail-card--wide">
+          <header>
+            <span>
+              <History size={20} />
+            </span>
+            <div>
+              <h3>تاریخچه درخواست‌ها</h3>
+              <p>{doctorRequest.submissions.length.toLocaleString('fa-IR')} نوبت ارسال و بررسی</p>
+            </div>
+          </header>
+          <div className="tp-admin-attempts">
+            {doctorRequest.submissions.map(submission => (
+              <article key={submission.id}>
+                <span className="tp-admin-attempts__number">
+                  درخواست {submission.attempt_number.toLocaleString('fa-IR')}
+                </span>
+                <div className="tp-admin-attempts__summary">
+                  <ReviewStateBadge state={submission.state} />
+                  <small>ارسال: {formatDate(submission.submitted_at)}</small>
+                  {submission.reviewed_at && (
+                    <small>بررسی: {formatDate(submission.reviewed_at)}</small>
+                  )}
+                  {submission.reviewer_name && <small>کارشناس: {submission.reviewer_name}</small>}
+                </div>
+                {(submission.public_notes || submission.internal_notes) && (
+                  <div className="tp-admin-attempts__notes">
+                    {submission.public_notes && (
+                      <p>
+                        <strong>توضیح برای پزشک:</strong> {submission.public_notes}
+                      </p>
+                    )}
+                    {submission.internal_notes && (
+                      <p>
+                        <strong>یادداشت داخلی:</strong> {submission.internal_notes}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </article>
+            ))}
+            {!doctorRequest.submissions.length && (
+              <div className="tp-admin-documents__empty">هنوز درخواستی ارسال نشده است.</div>
+            )}
+          </div>
         </section>
       </div>
 

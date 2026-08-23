@@ -179,30 +179,50 @@ function ProductRoutes() {
       <Route
         path="/app"
         element={
-          <AccountGate statuses={['ACTIVE']}>
+          <AccountGate statuses={['ACTIVE', 'ONBOARDING', 'REJECTED']}>
             <WorkspaceLayout />
           </AccountGate>
         }
       >
         <Route
           index
-          element={<DashboardPage />}
+          element={
+            <AccountGate statuses={['ACTIVE']}>
+              <DashboardPage />
+            </AccountGate>
+          }
         />
         <Route
           path="profile"
-          element={<ProfilePage />}
+          element={
+            <AccountGate statuses={['ACTIVE', 'ONBOARDING', 'REJECTED']}>
+              <ProfilePage />
+            </AccountGate>
+          }
         />
         <Route
           path="credentials"
-          element={<CredentialsPage />}
+          element={
+            <AccountGate statuses={['ACTIVE', 'ONBOARDING', 'REJECTED']}>
+              <CredentialsPage />
+            </AccountGate>
+          }
         />
         <Route
           path="review"
-          element={<ReviewPage />}
+          element={
+            <AccountGate statuses={['ACTIVE', 'ONBOARDING', 'REJECTED']}>
+              <ReviewPage />
+            </AccountGate>
+          }
         />
         <Route
           path="studies"
-          element={<StudiesPlaceholderPage />}
+          element={
+            <AccountGate statuses={['ACTIVE']}>
+              <StudiesPlaceholderPage />
+            </AccountGate>
+          }
         />
       </Route>
       <Route

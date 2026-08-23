@@ -5,10 +5,7 @@
  * Versioned API contract for the independent TelePACS backend.
  * OpenAPI spec version: 0.1.0
  */
-import {
-  useMutation,
-  useQuery
-} from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import type {
   DataTag,
   DefinedInitialDataOptions,
@@ -21,7 +18,7 @@ import type {
   UseMutationOptions,
   UseMutationResult,
   UseQueryOptions,
-  UseQueryResult
+  UseQueryResult,
 } from '@tanstack/react-query';
 
 import type {
@@ -30,20 +27,17 @@ import type {
   DoctorProfile,
   Me,
   Onboarding,
-  PatchedDoctorProfileRequest
+  PatchedDoctorProfileRequest,
 } from '../model';
 
 import { apiClient } from '../../../lib/http/client';
-import type { ErrorType , BodyType } from '../../../lib/http/client';
+import type { ErrorType, BodyType } from '../../../lib/http/client';
 
 type AwaitedInput<T> = PromiseLike<T> | T;
 
-      type Awaited<O> = O extends AwaitedInput<infer T> ? T : never;
-
+type Awaited<O> = O extends AwaitedInput<infer T> ? T : never;
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
-
-
 
 const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKey: K } => {
   const result = { queryKey } as T & { queryKey: K };
@@ -61,599 +55,816 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
 };
 
 export const currentAccount = (
-
- options?: SecondParameter<typeof apiClient>,signal?: AbortSignal
+  options?: SecondParameter<typeof apiClient>,
+  signal?: AbortSignal
 ) => {
-
-
-      return apiClient<Me>(
-      {url: `/api/v1/me/`, method: 'GET', signal
-    },
-      options);
-    }
-
-
-
+  return apiClient<Me>({ url: `/api/v1/me/`, method: 'GET', signal }, options);
+};
 
 export const getCurrentAccountQueryKey = () => {
-    return [
-    `/api/v1/me/`
-    ] as const;
-    }
+  return [`/api/v1/me/`] as const;
+};
 
+export const getCurrentAccountQueryOptions = <
+  TData = Awaited<ReturnType<typeof currentAccount>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof currentAccount>>, TError, TData>>;
+  request?: SecondParameter<typeof apiClient>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
 
-export const getCurrentAccountQueryOptions = <TData = Awaited<ReturnType<typeof currentAccount>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof currentAccount>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
-) => {
+  const queryKey = queryOptions?.queryKey ?? getCurrentAccountQueryKey();
 
-const {query: queryOptions, request: requestOptions} = options ?? {};
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof currentAccount>>> = ({ signal }) =>
+    currentAccount(requestOptions, signal);
 
-  const queryKey =  queryOptions?.queryKey ?? getCurrentAccountQueryKey();
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof currentAccount>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
 
+export type CurrentAccountQueryResult = NonNullable<Awaited<ReturnType<typeof currentAccount>>>;
+export type CurrentAccountQueryError = ErrorType<unknown>;
 
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof currentAccount>>> = ({ signal }) => currentAccount(requestOptions, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof currentAccount>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type CurrentAccountQueryResult = NonNullable<Awaited<ReturnType<typeof currentAccount>>>
-export type CurrentAccountQueryError = ErrorType<unknown>
-
-
-export function useCurrentAccount<TData = Awaited<ReturnType<typeof currentAccount>>, TError = ErrorType<unknown>>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof currentAccount>>, TError, TData>> & Pick<
+export function useCurrentAccount<
+  TData = Awaited<ReturnType<typeof currentAccount>>,
+  TError = ErrorType<unknown>,
+>(
+  options: {
+    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof currentAccount>>, TError, TData>> &
+      Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof currentAccount>>,
           TError,
           Awaited<ReturnType<typeof currentAccount>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof apiClient>}
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useCurrentAccount<TData = Awaited<ReturnType<typeof currentAccount>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof currentAccount>>, TError, TData>> & Pick<
+        >,
+        'initialData'
+      >;
+    request?: SecondParameter<typeof apiClient>;
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useCurrentAccount<
+  TData = Awaited<ReturnType<typeof currentAccount>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof currentAccount>>, TError, TData>> &
+      Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof currentAccount>>,
           TError,
           Awaited<ReturnType<typeof currentAccount>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof apiClient>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useCurrentAccount<TData = Awaited<ReturnType<typeof currentAccount>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof currentAccount>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+        >,
+        'initialData'
+      >;
+    request?: SecondParameter<typeof apiClient>;
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useCurrentAccount<
+  TData = Awaited<ReturnType<typeof currentAccount>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof currentAccount>>, TError, TData>>;
+    request?: SecondParameter<typeof apiClient>;
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
-export function useCurrentAccount<TData = Awaited<ReturnType<typeof currentAccount>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof currentAccount>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+export function useCurrentAccount<
+  TData = Awaited<ReturnType<typeof currentAccount>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof currentAccount>>, TError, TData>>;
+    request?: SecondParameter<typeof apiClient>;
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getCurrentAccountQueryOptions(options);
 
-  const queryOptions = getCurrentAccountQueryOptions(options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
 
   return withQueryKey(query, queryOptions.queryKey);
 }
-
-
-
-
-
 
 export const doctorOnboardingStatus = (
-
- options?: SecondParameter<typeof apiClient>,signal?: AbortSignal
+  options?: SecondParameter<typeof apiClient>,
+  signal?: AbortSignal
 ) => {
-
-
-      return apiClient<Onboarding>(
-      {url: `/api/v1/me/onboarding/`, method: 'GET', signal
-    },
-      options);
-    }
-
-
-
+  return apiClient<Onboarding>({ url: `/api/v1/me/onboarding/`, method: 'GET', signal }, options);
+};
 
 export const getDoctorOnboardingStatusQueryKey = () => {
-    return [
-    `/api/v1/me/onboarding/`
-    ] as const;
-    }
+  return [`/api/v1/me/onboarding/`] as const;
+};
 
+export const getDoctorOnboardingStatusQueryOptions = <
+  TData = Awaited<ReturnType<typeof doctorOnboardingStatus>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof doctorOnboardingStatus>>, TError, TData>
+  >;
+  request?: SecondParameter<typeof apiClient>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
 
-export const getDoctorOnboardingStatusQueryOptions = <TData = Awaited<ReturnType<typeof doctorOnboardingStatus>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof doctorOnboardingStatus>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
-) => {
+  const queryKey = queryOptions?.queryKey ?? getDoctorOnboardingStatusQueryKey();
 
-const {query: queryOptions, request: requestOptions} = options ?? {};
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof doctorOnboardingStatus>>> = ({ signal }) =>
+    doctorOnboardingStatus(requestOptions, signal);
 
-  const queryKey =  queryOptions?.queryKey ?? getDoctorOnboardingStatusQueryKey();
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof doctorOnboardingStatus>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
 
+export type DoctorOnboardingStatusQueryResult = NonNullable<
+  Awaited<ReturnType<typeof doctorOnboardingStatus>>
+>;
+export type DoctorOnboardingStatusQueryError = ErrorType<unknown>;
 
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof doctorOnboardingStatus>>> = ({ signal }) => doctorOnboardingStatus(requestOptions, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof doctorOnboardingStatus>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type DoctorOnboardingStatusQueryResult = NonNullable<Awaited<ReturnType<typeof doctorOnboardingStatus>>>
-export type DoctorOnboardingStatusQueryError = ErrorType<unknown>
-
-
-export function useDoctorOnboardingStatus<TData = Awaited<ReturnType<typeof doctorOnboardingStatus>>, TError = ErrorType<unknown>>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof doctorOnboardingStatus>>, TError, TData>> & Pick<
+export function useDoctorOnboardingStatus<
+  TData = Awaited<ReturnType<typeof doctorOnboardingStatus>>,
+  TError = ErrorType<unknown>,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof doctorOnboardingStatus>>, TError, TData>
+    > &
+      Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof doctorOnboardingStatus>>,
           TError,
           Awaited<ReturnType<typeof doctorOnboardingStatus>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof apiClient>}
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useDoctorOnboardingStatus<TData = Awaited<ReturnType<typeof doctorOnboardingStatus>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof doctorOnboardingStatus>>, TError, TData>> & Pick<
+        >,
+        'initialData'
+      >;
+    request?: SecondParameter<typeof apiClient>;
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useDoctorOnboardingStatus<
+  TData = Awaited<ReturnType<typeof doctorOnboardingStatus>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof doctorOnboardingStatus>>, TError, TData>
+    > &
+      Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof doctorOnboardingStatus>>,
           TError,
           Awaited<ReturnType<typeof doctorOnboardingStatus>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof apiClient>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useDoctorOnboardingStatus<TData = Awaited<ReturnType<typeof doctorOnboardingStatus>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof doctorOnboardingStatus>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+        >,
+        'initialData'
+      >;
+    request?: SecondParameter<typeof apiClient>;
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useDoctorOnboardingStatus<
+  TData = Awaited<ReturnType<typeof doctorOnboardingStatus>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof doctorOnboardingStatus>>, TError, TData>
+    >;
+    request?: SecondParameter<typeof apiClient>;
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
-export function useDoctorOnboardingStatus<TData = Awaited<ReturnType<typeof doctorOnboardingStatus>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof doctorOnboardingStatus>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+export function useDoctorOnboardingStatus<
+  TData = Awaited<ReturnType<typeof doctorOnboardingStatus>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof doctorOnboardingStatus>>, TError, TData>
+    >;
+    request?: SecondParameter<typeof apiClient>;
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getDoctorOnboardingStatusQueryOptions(options);
 
-  const queryOptions = getDoctorOnboardingStatusQueryOptions(options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
 
   return withQueryKey(query, queryOptions.queryKey);
 }
-
-
-
-
-
 
 export const doctorProfileGet = (
-
- options?: SecondParameter<typeof apiClient>,signal?: AbortSignal
+  options?: SecondParameter<typeof apiClient>,
+  signal?: AbortSignal
 ) => {
-
-
-      return apiClient<DoctorProfile>(
-      {url: `/api/v1/me/doctor-profile/`, method: 'GET', signal
-    },
-      options);
-    }
-
-
-
+  return apiClient<DoctorProfile>(
+    { url: `/api/v1/me/doctor-profile/`, method: 'GET', signal },
+    options
+  );
+};
 
 export const getDoctorProfileGetQueryKey = () => {
-    return [
-    `/api/v1/me/doctor-profile/`
-    ] as const;
-    }
+  return [`/api/v1/me/doctor-profile/`] as const;
+};
 
+export const getDoctorProfileGetQueryOptions = <
+  TData = Awaited<ReturnType<typeof doctorProfileGet>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof doctorProfileGet>>, TError, TData>>;
+  request?: SecondParameter<typeof apiClient>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
 
-export const getDoctorProfileGetQueryOptions = <TData = Awaited<ReturnType<typeof doctorProfileGet>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof doctorProfileGet>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
-) => {
+  const queryKey = queryOptions?.queryKey ?? getDoctorProfileGetQueryKey();
 
-const {query: queryOptions, request: requestOptions} = options ?? {};
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof doctorProfileGet>>> = ({ signal }) =>
+    doctorProfileGet(requestOptions, signal);
 
-  const queryKey =  queryOptions?.queryKey ?? getDoctorProfileGetQueryKey();
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof doctorProfileGet>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
 
+export type DoctorProfileGetQueryResult = NonNullable<Awaited<ReturnType<typeof doctorProfileGet>>>;
+export type DoctorProfileGetQueryError = ErrorType<unknown>;
 
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof doctorProfileGet>>> = ({ signal }) => doctorProfileGet(requestOptions, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof doctorProfileGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type DoctorProfileGetQueryResult = NonNullable<Awaited<ReturnType<typeof doctorProfileGet>>>
-export type DoctorProfileGetQueryError = ErrorType<unknown>
-
-
-export function useDoctorProfileGet<TData = Awaited<ReturnType<typeof doctorProfileGet>>, TError = ErrorType<unknown>>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof doctorProfileGet>>, TError, TData>> & Pick<
+export function useDoctorProfileGet<
+  TData = Awaited<ReturnType<typeof doctorProfileGet>>,
+  TError = ErrorType<unknown>,
+>(
+  options: {
+    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof doctorProfileGet>>, TError, TData>> &
+      Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof doctorProfileGet>>,
           TError,
           Awaited<ReturnType<typeof doctorProfileGet>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof apiClient>}
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useDoctorProfileGet<TData = Awaited<ReturnType<typeof doctorProfileGet>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof doctorProfileGet>>, TError, TData>> & Pick<
+        >,
+        'initialData'
+      >;
+    request?: SecondParameter<typeof apiClient>;
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useDoctorProfileGet<
+  TData = Awaited<ReturnType<typeof doctorProfileGet>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof doctorProfileGet>>, TError, TData>> &
+      Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof doctorProfileGet>>,
           TError,
           Awaited<ReturnType<typeof doctorProfileGet>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof apiClient>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useDoctorProfileGet<TData = Awaited<ReturnType<typeof doctorProfileGet>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof doctorProfileGet>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+        >,
+        'initialData'
+      >;
+    request?: SecondParameter<typeof apiClient>;
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useDoctorProfileGet<
+  TData = Awaited<ReturnType<typeof doctorProfileGet>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof doctorProfileGet>>, TError, TData>>;
+    request?: SecondParameter<typeof apiClient>;
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
-export function useDoctorProfileGet<TData = Awaited<ReturnType<typeof doctorProfileGet>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof doctorProfileGet>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+export function useDoctorProfileGet<
+  TData = Awaited<ReturnType<typeof doctorProfileGet>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof doctorProfileGet>>, TError, TData>>;
+    request?: SecondParameter<typeof apiClient>;
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getDoctorProfileGetQueryOptions(options);
 
-  const queryOptions = getDoctorProfileGetQueryOptions(options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
 
   return withQueryKey(query, queryOptions.queryKey);
 }
-
-
-
-
-
 
 export const doctorProfileUpdate = (
-    patchedDoctorProfileRequest?: BodyType<PatchedDoctorProfileRequest>,
- options?: SecondParameter<typeof apiClient>,signal?: AbortSignal
+  patchedDoctorProfileRequest?: BodyType<PatchedDoctorProfileRequest>,
+  options?: SecondParameter<typeof apiClient>,
+  signal?: AbortSignal
 ) => {
+  const formData = new FormData();
+  if (patchedDoctorProfileRequest?.medical_council_code !== undefined) {
+    formData.append(`medical_council_code`, patchedDoctorProfileRequest.medical_council_code);
+  }
+  if (patchedDoctorProfileRequest?.specialty !== undefined) {
+    formData.append(`specialty`, patchedDoctorProfileRequest.specialty);
+  }
+  if (patchedDoctorProfileRequest?.subspecialty !== undefined) {
+    formData.append(`subspecialty`, patchedDoctorProfileRequest.subspecialty);
+  }
+  if (patchedDoctorProfileRequest?.biography !== undefined) {
+    formData.append(`biography`, patchedDoctorProfileRequest.biography);
+  }
+  if (patchedDoctorProfileRequest?.preferred_language !== undefined) {
+    formData.append(`preferred_language`, patchedDoctorProfileRequest.preferred_language);
+  }
+  if (patchedDoctorProfileRequest?.profile_image !== undefined) {
+    formData.append(`profile_image`, patchedDoctorProfileRequest.profile_image);
+  }
+  if (patchedDoctorProfileRequest?.signature_image !== undefined) {
+    formData.append(`signature_image`, patchedDoctorProfileRequest.signature_image);
+  }
 
-      const formData = new FormData();
-if(patchedDoctorProfileRequest?.medical_council_code !== undefined) {
- formData.append(`medical_council_code`, patchedDoctorProfileRequest.medical_council_code);
- }
-if(patchedDoctorProfileRequest?.specialty !== undefined) {
- formData.append(`specialty`, patchedDoctorProfileRequest.specialty);
- }
-if(patchedDoctorProfileRequest?.subspecialty !== undefined) {
- formData.append(`subspecialty`, patchedDoctorProfileRequest.subspecialty);
- }
-if(patchedDoctorProfileRequest?.biography !== undefined) {
- formData.append(`biography`, patchedDoctorProfileRequest.biography);
- }
-if(patchedDoctorProfileRequest?.preferred_language !== undefined) {
- formData.append(`preferred_language`, patchedDoctorProfileRequest.preferred_language);
- }
-if(patchedDoctorProfileRequest?.profile_image !== undefined) {
- formData.append(`profile_image`, patchedDoctorProfileRequest.profile_image);
- }
-if(patchedDoctorProfileRequest?.signature_image !== undefined) {
- formData.append(`signature_image`, patchedDoctorProfileRequest.signature_image);
- }
-
-      return apiClient<DoctorProfile>(
-      {url: `/api/v1/me/doctor-profile/`, method: 'PATCH',
-      headers: {'Content-Type': 'multipart/form-data', },
-       data: formData, signal
+  return apiClient<DoctorProfile>(
+    {
+      url: `/api/v1/me/doctor-profile/`,
+      method: 'PATCH',
+      headers: { 'Content-Type': 'multipart/form-data' },
+      data: formData,
+      signal,
     },
-      options);
-    }
+    options
+  );
+};
 
+export const getDoctorProfileUpdateMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof doctorProfileUpdate>>,
+    TError,
+    { data?: BodyType<PatchedDoctorProfileRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof apiClient>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof doctorProfileUpdate>>,
+  TError,
+  { data?: BodyType<PatchedDoctorProfileRequest> },
+  TContext
+> => {
+  const mutationKey = ['doctorProfileUpdate'];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
 
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof doctorProfileUpdate>>,
+    { data?: BodyType<PatchedDoctorProfileRequest> }
+  > = props => {
+    const { data } = props ?? {};
 
+    return doctorProfileUpdate(data, requestOptions);
+  };
 
-export const getDoctorProfileUpdateMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof doctorProfileUpdate>>, TError,{data?: BodyType<PatchedDoctorProfileRequest>}, TContext>, request?: SecondParameter<typeof apiClient>}
-): UseMutationOptions<Awaited<ReturnType<typeof doctorProfileUpdate>>, TError,{data?: BodyType<PatchedDoctorProfileRequest>}, TContext> => {
+  return { mutationFn, ...mutationOptions };
+};
 
-const mutationKey = ['doctorProfileUpdate'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
+export type DoctorProfileUpdateMutationResult = NonNullable<
+  Awaited<ReturnType<typeof doctorProfileUpdate>>
+>;
+export type DoctorProfileUpdateMutationBody = BodyType<PatchedDoctorProfileRequest> | undefined;
+export type DoctorProfileUpdateMutationError = ErrorType<unknown>;
 
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof doctorProfileUpdate>>, {data?: BodyType<PatchedDoctorProfileRequest>}> = (props) => {
-          const {data} = props ?? {};
-
-          return  doctorProfileUpdate(data,requestOptions)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type DoctorProfileUpdateMutationResult = NonNullable<Awaited<ReturnType<typeof doctorProfileUpdate>>>
-    export type DoctorProfileUpdateMutationBody = BodyType<PatchedDoctorProfileRequest> | undefined
-    export type DoctorProfileUpdateMutationError = ErrorType<unknown>
-
-    export const useDoctorProfileUpdate = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof doctorProfileUpdate>>, TError,{data?: BodyType<PatchedDoctorProfileRequest>}, TContext>, request?: SecondParameter<typeof apiClient>}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof doctorProfileUpdate>>,
-        TError,
-        {data?: BodyType<PatchedDoctorProfileRequest>},
-        TContext
-      > => {
-      return useMutation(getDoctorProfileUpdateMutationOptions(options), queryClient);
-    }
-    export const doctorProfileSubmit = (
-
- options?: SecondParameter<typeof apiClient>,signal?: AbortSignal
+export const useDoctorProfileUpdate = <TError = ErrorType<unknown>, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof doctorProfileUpdate>>,
+      TError,
+      { data?: BodyType<PatchedDoctorProfileRequest> },
+      TContext
+    >;
+    request?: SecondParameter<typeof apiClient>;
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof doctorProfileUpdate>>,
+  TError,
+  { data?: BodyType<PatchedDoctorProfileRequest> },
+  TContext
+> => {
+  return useMutation(getDoctorProfileUpdateMutationOptions(options), queryClient);
+};
+export const doctorProfileSubmit = (
+  options?: SecondParameter<typeof apiClient>,
+  signal?: AbortSignal
 ) => {
+  return apiClient<Onboarding>(
+    { url: `/api/v1/me/doctor-profile/submit/`, method: 'POST', signal },
+    options
+  );
+};
 
+export const getDoctorProfileSubmitMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof doctorProfileSubmit>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof apiClient>;
+}): UseMutationOptions<Awaited<ReturnType<typeof doctorProfileSubmit>>, TError, void, TContext> => {
+  const mutationKey = ['doctorProfileSubmit'];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
 
-      return apiClient<Onboarding>(
-      {url: `/api/v1/me/doctor-profile/submit/`, method: 'POST', signal
-    },
-      options);
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof doctorProfileSubmit>>,
+    void
+  > = () => {
+    return doctorProfileSubmit(requestOptions);
+  };
 
+  return { mutationFn, ...mutationOptions };
+};
 
+export type DoctorProfileSubmitMutationResult = NonNullable<
+  Awaited<ReturnType<typeof doctorProfileSubmit>>
+>;
 
+export type DoctorProfileSubmitMutationError = ErrorType<unknown>;
 
-export const getDoctorProfileSubmitMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof doctorProfileSubmit>>, TError,void, TContext>, request?: SecondParameter<typeof apiClient>}
-): UseMutationOptions<Awaited<ReturnType<typeof doctorProfileSubmit>>, TError,void, TContext> => {
-
-const mutationKey = ['doctorProfileSubmit'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof doctorProfileSubmit>>, void> = () => {
-
-
-          return  doctorProfileSubmit(requestOptions)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type DoctorProfileSubmitMutationResult = NonNullable<Awaited<ReturnType<typeof doctorProfileSubmit>>>
-
-    export type DoctorProfileSubmitMutationError = ErrorType<unknown>
-
-    export const useDoctorProfileSubmit = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof doctorProfileSubmit>>, TError,void, TContext>, request?: SecondParameter<typeof apiClient>}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof doctorProfileSubmit>>,
-        TError,
-        void,
-        TContext
-      > => {
-      return useMutation(getDoctorProfileSubmitMutationOptions(options), queryClient);
-    }
-    export const doctorCredentialDocumentsList = (
-
- options?: SecondParameter<typeof apiClient>,signal?: AbortSignal
+export const useDoctorProfileSubmit = <TError = ErrorType<unknown>, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof doctorProfileSubmit>>,
+      TError,
+      void,
+      TContext
+    >;
+    request?: SecondParameter<typeof apiClient>;
+  },
+  queryClient?: QueryClient
+): UseMutationResult<Awaited<ReturnType<typeof doctorProfileSubmit>>, TError, void, TContext> => {
+  return useMutation(getDoctorProfileSubmitMutationOptions(options), queryClient);
+};
+export const doctorProfileReapply = (
+  options?: SecondParameter<typeof apiClient>,
+  signal?: AbortSignal
 ) => {
+  return apiClient<Onboarding>(
+    { url: `/api/v1/me/doctor-profile/reapply/`, method: 'POST', signal },
+    options
+  );
+};
 
+export const getDoctorProfileReapplyMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof doctorProfileReapply>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof apiClient>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof doctorProfileReapply>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationKey = ['doctorProfileReapply'];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
 
-      return apiClient<DoctorCredentialDocument[]>(
-      {url: `/api/v1/me/doctor-profile/documents/`, method: 'GET', signal
-    },
-      options);
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof doctorProfileReapply>>,
+    void
+  > = () => {
+    return doctorProfileReapply(requestOptions);
+  };
 
+  return { mutationFn, ...mutationOptions };
+};
 
+export type DoctorProfileReapplyMutationResult = NonNullable<
+  Awaited<ReturnType<typeof doctorProfileReapply>>
+>;
 
+export type DoctorProfileReapplyMutationError = ErrorType<unknown>;
+
+export const useDoctorProfileReapply = <TError = ErrorType<unknown>, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof doctorProfileReapply>>,
+      TError,
+      void,
+      TContext
+    >;
+    request?: SecondParameter<typeof apiClient>;
+  },
+  queryClient?: QueryClient
+): UseMutationResult<Awaited<ReturnType<typeof doctorProfileReapply>>, TError, void, TContext> => {
+  return useMutation(getDoctorProfileReapplyMutationOptions(options), queryClient);
+};
+export const doctorCredentialDocumentsList = (
+  options?: SecondParameter<typeof apiClient>,
+  signal?: AbortSignal
+) => {
+  return apiClient<DoctorCredentialDocument[]>(
+    { url: `/api/v1/me/doctor-profile/documents/`, method: 'GET', signal },
+    options
+  );
+};
 
 export const getDoctorCredentialDocumentsListQueryKey = () => {
-    return [
-    `/api/v1/me/doctor-profile/documents/`
-    ] as const;
-    }
+  return [`/api/v1/me/doctor-profile/documents/`] as const;
+};
 
+export const getDoctorCredentialDocumentsListQueryOptions = <
+  TData = Awaited<ReturnType<typeof doctorCredentialDocumentsList>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof doctorCredentialDocumentsList>>, TError, TData>
+  >;
+  request?: SecondParameter<typeof apiClient>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
 
-export const getDoctorCredentialDocumentsListQueryOptions = <TData = Awaited<ReturnType<typeof doctorCredentialDocumentsList>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof doctorCredentialDocumentsList>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
-) => {
+  const queryKey = queryOptions?.queryKey ?? getDoctorCredentialDocumentsListQueryKey();
 
-const {query: queryOptions, request: requestOptions} = options ?? {};
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof doctorCredentialDocumentsList>>> = ({
+    signal,
+  }) => doctorCredentialDocumentsList(requestOptions, signal);
 
-  const queryKey =  queryOptions?.queryKey ?? getDoctorCredentialDocumentsListQueryKey();
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof doctorCredentialDocumentsList>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
 
+export type DoctorCredentialDocumentsListQueryResult = NonNullable<
+  Awaited<ReturnType<typeof doctorCredentialDocumentsList>>
+>;
+export type DoctorCredentialDocumentsListQueryError = ErrorType<unknown>;
 
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof doctorCredentialDocumentsList>>> = ({ signal }) => doctorCredentialDocumentsList(requestOptions, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof doctorCredentialDocumentsList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type DoctorCredentialDocumentsListQueryResult = NonNullable<Awaited<ReturnType<typeof doctorCredentialDocumentsList>>>
-export type DoctorCredentialDocumentsListQueryError = ErrorType<unknown>
-
-
-export function useDoctorCredentialDocumentsList<TData = Awaited<ReturnType<typeof doctorCredentialDocumentsList>>, TError = ErrorType<unknown>>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof doctorCredentialDocumentsList>>, TError, TData>> & Pick<
+export function useDoctorCredentialDocumentsList<
+  TData = Awaited<ReturnType<typeof doctorCredentialDocumentsList>>,
+  TError = ErrorType<unknown>,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof doctorCredentialDocumentsList>>, TError, TData>
+    > &
+      Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof doctorCredentialDocumentsList>>,
           TError,
           Awaited<ReturnType<typeof doctorCredentialDocumentsList>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof apiClient>}
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useDoctorCredentialDocumentsList<TData = Awaited<ReturnType<typeof doctorCredentialDocumentsList>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof doctorCredentialDocumentsList>>, TError, TData>> & Pick<
+        >,
+        'initialData'
+      >;
+    request?: SecondParameter<typeof apiClient>;
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useDoctorCredentialDocumentsList<
+  TData = Awaited<ReturnType<typeof doctorCredentialDocumentsList>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof doctorCredentialDocumentsList>>, TError, TData>
+    > &
+      Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof doctorCredentialDocumentsList>>,
           TError,
           Awaited<ReturnType<typeof doctorCredentialDocumentsList>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof apiClient>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useDoctorCredentialDocumentsList<TData = Awaited<ReturnType<typeof doctorCredentialDocumentsList>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof doctorCredentialDocumentsList>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+        >,
+        'initialData'
+      >;
+    request?: SecondParameter<typeof apiClient>;
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useDoctorCredentialDocumentsList<
+  TData = Awaited<ReturnType<typeof doctorCredentialDocumentsList>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof doctorCredentialDocumentsList>>, TError, TData>
+    >;
+    request?: SecondParameter<typeof apiClient>;
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
-export function useDoctorCredentialDocumentsList<TData = Awaited<ReturnType<typeof doctorCredentialDocumentsList>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof doctorCredentialDocumentsList>>, TError, TData>>, request?: SecondParameter<typeof apiClient>}
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+export function useDoctorCredentialDocumentsList<
+  TData = Awaited<ReturnType<typeof doctorCredentialDocumentsList>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof doctorCredentialDocumentsList>>, TError, TData>
+    >;
+    request?: SecondParameter<typeof apiClient>;
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getDoctorCredentialDocumentsListQueryOptions(options);
 
-  const queryOptions = getDoctorCredentialDocumentsListQueryOptions(options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
 
   return withQueryKey(query, queryOptions.queryKey);
 }
 
-
-
-
-
-
 export const doctorCredentialDocumentUpload = (
-    doctorCredentialDocumentUploadRequest: BodyType<DoctorCredentialDocumentUploadRequest>,
- options?: SecondParameter<typeof apiClient>,signal?: AbortSignal
+  doctorCredentialDocumentUploadRequest: BodyType<DoctorCredentialDocumentUploadRequest>,
+  options?: SecondParameter<typeof apiClient>,
+  signal?: AbortSignal
 ) => {
+  const formData = new FormData();
+  formData.append(`document_type`, doctorCredentialDocumentUploadRequest.document_type);
+  formData.append(`file`, doctorCredentialDocumentUploadRequest.file);
 
-      const formData = new FormData();
-formData.append(`document_type`, doctorCredentialDocumentUploadRequest.document_type);
-formData.append(`file`, doctorCredentialDocumentUploadRequest.file);
-
-      return apiClient<DoctorCredentialDocument>(
-      {url: `/api/v1/me/doctor-profile/documents/`, method: 'POST',
-      headers: {'Content-Type': 'multipart/form-data', },
-       data: formData, signal
+  return apiClient<DoctorCredentialDocument>(
+    {
+      url: `/api/v1/me/doctor-profile/documents/`,
+      method: 'POST',
+      headers: { 'Content-Type': 'multipart/form-data' },
+      data: formData,
+      signal,
     },
-      options);
-    }
+    options
+  );
+};
 
+export const getDoctorCredentialDocumentUploadMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof doctorCredentialDocumentUpload>>,
+    TError,
+    { data: BodyType<DoctorCredentialDocumentUploadRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof apiClient>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof doctorCredentialDocumentUpload>>,
+  TError,
+  { data: BodyType<DoctorCredentialDocumentUploadRequest> },
+  TContext
+> => {
+  const mutationKey = ['doctorCredentialDocumentUpload'];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
 
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof doctorCredentialDocumentUpload>>,
+    { data: BodyType<DoctorCredentialDocumentUploadRequest> }
+  > = props => {
+    const { data } = props ?? {};
 
+    return doctorCredentialDocumentUpload(data, requestOptions);
+  };
 
-export const getDoctorCredentialDocumentUploadMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof doctorCredentialDocumentUpload>>, TError,{data: BodyType<DoctorCredentialDocumentUploadRequest>}, TContext>, request?: SecondParameter<typeof apiClient>}
-): UseMutationOptions<Awaited<ReturnType<typeof doctorCredentialDocumentUpload>>, TError,{data: BodyType<DoctorCredentialDocumentUploadRequest>}, TContext> => {
+  return { mutationFn, ...mutationOptions };
+};
 
-const mutationKey = ['doctorCredentialDocumentUpload'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
+export type DoctorCredentialDocumentUploadMutationResult = NonNullable<
+  Awaited<ReturnType<typeof doctorCredentialDocumentUpload>>
+>;
+export type DoctorCredentialDocumentUploadMutationBody =
+  BodyType<DoctorCredentialDocumentUploadRequest>;
+export type DoctorCredentialDocumentUploadMutationError = ErrorType<unknown>;
 
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof doctorCredentialDocumentUpload>>, {data: BodyType<DoctorCredentialDocumentUploadRequest>}> = (props) => {
-          const {data} = props ?? {};
-
-          return  doctorCredentialDocumentUpload(data,requestOptions)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type DoctorCredentialDocumentUploadMutationResult = NonNullable<Awaited<ReturnType<typeof doctorCredentialDocumentUpload>>>
-    export type DoctorCredentialDocumentUploadMutationBody = BodyType<DoctorCredentialDocumentUploadRequest>
-    export type DoctorCredentialDocumentUploadMutationError = ErrorType<unknown>
-
-    export const useDoctorCredentialDocumentUpload = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof doctorCredentialDocumentUpload>>, TError,{data: BodyType<DoctorCredentialDocumentUploadRequest>}, TContext>, request?: SecondParameter<typeof apiClient>}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof doctorCredentialDocumentUpload>>,
-        TError,
-        {data: BodyType<DoctorCredentialDocumentUploadRequest>},
-        TContext
-      > => {
-      return useMutation(getDoctorCredentialDocumentUploadMutationOptions(options), queryClient);
-    }
-    export const doctorCredentialDocumentDelete = (
-    documentId: string,
- options?: SecondParameter<typeof apiClient>,signal?: AbortSignal
+export const useDoctorCredentialDocumentUpload = <TError = ErrorType<unknown>, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof doctorCredentialDocumentUpload>>,
+      TError,
+      { data: BodyType<DoctorCredentialDocumentUploadRequest> },
+      TContext
+    >;
+    request?: SecondParameter<typeof apiClient>;
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof doctorCredentialDocumentUpload>>,
+  TError,
+  { data: BodyType<DoctorCredentialDocumentUploadRequest> },
+  TContext
+> => {
+  return useMutation(getDoctorCredentialDocumentUploadMutationOptions(options), queryClient);
+};
+export const doctorCredentialDocumentDelete = (
+  documentId: string,
+  options?: SecondParameter<typeof apiClient>,
+  signal?: AbortSignal
 ) => {
+  return apiClient<void>(
+    { url: `/api/v1/me/doctor-profile/documents/${documentId}/`, method: 'DELETE', signal },
+    options
+  );
+};
 
+export const getDoctorCredentialDocumentDeleteMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof doctorCredentialDocumentDelete>>,
+    TError,
+    { documentId: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof apiClient>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof doctorCredentialDocumentDelete>>,
+  TError,
+  { documentId: string },
+  TContext
+> => {
+  const mutationKey = ['doctorCredentialDocumentDelete'];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
 
-      return apiClient<void>(
-      {url: `/api/v1/me/doctor-profile/documents/${documentId}/`, method: 'DELETE', signal
-    },
-      options);
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof doctorCredentialDocumentDelete>>,
+    { documentId: string }
+  > = props => {
+    const { documentId } = props ?? {};
 
+    return doctorCredentialDocumentDelete(documentId, requestOptions);
+  };
 
+  return { mutationFn, ...mutationOptions };
+};
 
+export type DoctorCredentialDocumentDeleteMutationResult = NonNullable<
+  Awaited<ReturnType<typeof doctorCredentialDocumentDelete>>
+>;
 
-export const getDoctorCredentialDocumentDeleteMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof doctorCredentialDocumentDelete>>, TError,{documentId: string}, TContext>, request?: SecondParameter<typeof apiClient>}
-): UseMutationOptions<Awaited<ReturnType<typeof doctorCredentialDocumentDelete>>, TError,{documentId: string}, TContext> => {
+export type DoctorCredentialDocumentDeleteMutationError = ErrorType<unknown>;
 
-const mutationKey = ['doctorCredentialDocumentDelete'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof doctorCredentialDocumentDelete>>, {documentId: string}> = (props) => {
-          const {documentId} = props ?? {};
-
-          return  doctorCredentialDocumentDelete(documentId,requestOptions)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type DoctorCredentialDocumentDeleteMutationResult = NonNullable<Awaited<ReturnType<typeof doctorCredentialDocumentDelete>>>
-
-    export type DoctorCredentialDocumentDeleteMutationError = ErrorType<unknown>
-
-    export const useDoctorCredentialDocumentDelete = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof doctorCredentialDocumentDelete>>, TError,{documentId: string}, TContext>, request?: SecondParameter<typeof apiClient>}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof doctorCredentialDocumentDelete>>,
-        TError,
-        {documentId: string},
-        TContext
-      > => {
-      return useMutation(getDoctorCredentialDocumentDeleteMutationOptions(options), queryClient);
-    }
+export const useDoctorCredentialDocumentDelete = <TError = ErrorType<unknown>, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof doctorCredentialDocumentDelete>>,
+      TError,
+      { documentId: string },
+      TContext
+    >;
+    request?: SecondParameter<typeof apiClient>;
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof doctorCredentialDocumentDelete>>,
+  TError,
+  { documentId: string },
+  TContext
+> => {
+  return useMutation(getDoctorCredentialDocumentDeleteMutationOptions(options), queryClient);
+};

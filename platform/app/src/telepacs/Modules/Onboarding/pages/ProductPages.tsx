@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import {
   ArrowLeft,
+  AlertTriangle,
   BadgeCheck,
   Check,
   ChevronLeft,
@@ -22,6 +23,7 @@ import {
   Trash2,
   UploadCloud,
   UserRoundCheck,
+  XCircle,
 } from 'lucide-react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 
@@ -300,6 +302,7 @@ export function ProfilePage() {
   if (loading || !profile) return <PageLoader />;
   const locked = !profileEditableStates.includes(profile.review.state);
   const verifiedCredentialsLocked = profile.review.state === 'APPROVED';
+  const rejected = profile.review.state === 'REJECTED';
   const medicalFieldsLocked = locked || verifiedCredentialsLocked;
   const avatar = form.watch('profile_image');
   const signature = form.watch('signature_image');
@@ -340,19 +343,31 @@ export function ProfilePage() {
       {(error || requestError) && <InlineAlert>{error || requestError}</InlineAlert>}
       {notice && <InlineAlert tone="success">{notice}</InlineAlert>}
       {(verifiedCredentialsLocked || locked) && (
-        <section className={`tp-profile-edit-banner ${locked ? 'is-locked' : ''}`}>
+        <section
+          className={`tp-profile-edit-banner ${locked ? 'is-locked' : ''} ${rejected ? 'is-rejected' : ''}`}
+        >
           <span>{locked ? <LockKeyhole size={23} /> : <ShieldCheck size={23} />}</span>
           <div>
-            <small>{locked ? 'پرونده در حال بررسی' : 'ویرایش اطلاعات عمومی فعال است'}</small>
+            <small>
+              {rejected
+                ? 'نتیجه بررسی صلاحیت'
+                : locked
+                  ? 'پرونده در حال بررسی'
+                  : 'ویرایش اطلاعات عمومی فعال است'}
+            </small>
             <strong>
-              {locked
-                ? 'اطلاعات تا اعلام نتیجه بررسی قابل تغییر نیستند'
-                : 'معرفی حرفه‌ای و تصویر پروفایل را هر زمان نیاز بود به‌روز کنید'}
+              {rejected
+                ? 'اطلاعات این درخواست فقط برای مشاهده در دسترس است'
+                : locked
+                  ? 'اطلاعات تا اعلام نتیجه بررسی قابل تغییر نیستند'
+                  : 'معرفی حرفه‌ای و تصویر پروفایل را هر زمان نیاز بود به‌روز کنید'}
             </strong>
             <p>
-              {locked
-                ? 'در صورت نیاز به اصلاح، پس از بازگشت پرونده امکان ویرایش دوباره فعال می‌شود.'
-                : 'برای حفظ اعتبار تأیید، شماره نظام پزشکی، تخصص و تصویر امضا فقط پس از بازبینی مجدد تغییر می‌کنند.'}
+              {rejected
+                ? 'دلیل تصمیم و راهنمای اقدام بعدی را در تب وضعیت حساب مشاهده کنید.'
+                : locked
+                  ? 'در صورت نیاز به اصلاح، پس از بازگشت پرونده امکان ویرایش دوباره فعال می‌شود.'
+                  : 'برای حفظ اعتبار تأیید، شماره نظام پزشکی، تخصص و تصویر امضا فقط پس از بازبینی مجدد تغییر می‌کنند.'}
             </p>
           </div>
         </section>
@@ -537,6 +552,7 @@ export function CredentialsPage() {
   });
   if (loading || !profile || !snapshot) return <PageLoader />;
   const locked = !credentialEditableStates.includes(profile.review.state);
+  const rejected = profile.review.state === 'REJECTED';
   const file = form.watch('file');
 
   const upload = form.handleSubmit(async values => {
@@ -707,16 +723,26 @@ export function CredentialsPage() {
           ))
         )}
       </section>
-      <section className={`tp-submit-card ${locked ? 'is-readonly' : ''}`}>
+      <section
+        className={`tp-submit-card ${locked ? 'is-readonly' : ''} ${rejected ? 'is-rejected' : ''}`}
+      >
         <div className="tp-submit-card__icon">
-          <BadgeCheck size={27} />
+          {rejected ? <XCircle size={27} /> : <BadgeCheck size={27} />}
         </div>
         <div>
-          <h2>{locked ? 'پرونده برای بررسی ارسال شده است' : 'آماده ارسال برای بررسی هستید؟'}</h2>
+          <h2>
+            {rejected
+              ? 'این درخواست در بررسی صلاحیت تأیید نشده است'
+              : locked
+                ? 'پرونده برای بررسی ارسال شده است'
+                : 'آماده ارسال برای بررسی هستید؟'}
+          </h2>
           <p>
-            {snapshot.missing_fields.length
-              ? `${snapshot.missing_fields.length} مورد الزامی هنوز تکمیل نشده است.`
-              : 'همه موارد ضروری تکمیل شده‌اند. پس از ارسال، اطلاعات تا پایان بررسی قفل می‌شوند.'}
+            {rejected
+              ? 'مدارک ثبت‌شده فقط برای مشاهده در دسترس‌اند؛ جزئیات تصمیم را در تب وضعیت حساب ببینید.'
+              : snapshot.missing_fields.length
+                ? `${snapshot.missing_fields.length} مورد الزامی هنوز تکمیل نشده است.`
+                : 'همه موارد ضروری تکمیل شده‌اند. پس از ارسال، اطلاعات تا پایان بررسی قفل می‌شوند.'}
           </p>
         </div>
         {!locked && (
@@ -740,10 +766,46 @@ export function CredentialsPage() {
 
 const timelineStates: ReviewState[] = ['DRAFT', 'SUBMITTED', 'APPROVED'];
 export function ReviewPage() {
-  const { profile, loading, error } = useOnboardingData();
+  const navigate = useNavigate();
+  const { profile, loading, error, startReapplication, mutationBusy } = useOnboardingData();
+  const [actionError, setActionError] = useState('');
   if (loading || !profile) return <PageLoader />;
+  const isChangesRequested = profile.review.state === 'CHANGES_REQUESTED';
+  const isRejected = profile.review.state === 'REJECTED';
+  const hasReviewOutcome = isChangesRequested || isRejected;
   const currentIndex =
-    profile.review.state === 'APPROVED' ? 2 : profile.review.state === 'SUBMITTED' ? 1 : 0;
+    profile.review.state === 'APPROVED'
+      ? 2
+      : profile.review.state === 'SUBMITTED' || hasReviewOutcome
+        ? 1
+        : 0;
+  const summaryTitle = isRejected
+    ? 'درخواست صلاحیت پزشکی رد شد'
+    : isChangesRequested
+      ? 'پرونده برای اصلاح بازگشته است'
+      : profile.review.state === 'SUBMITTED'
+        ? 'پرونده شما در صف بررسی است'
+        : profile.review.state === 'APPROVED'
+          ? 'صلاحیت پزشکی تأیید شد'
+          : 'پرونده هنوز ارسال نشده است';
+  const summaryDescription = isRejected
+    ? 'نتیجه بررسی کارشناسی ثبت شده است. دلیل تصمیم و وضعیت ادامه فرایند را در ادامه ببینید.'
+    : isChangesRequested
+      ? 'پرونده شما باز شده است؛ موارد اعلام‌شده را اصلاح و دوباره برای بررسی ارسال کنید.'
+      : profile.review.state === 'APPROVED'
+        ? 'حساب پزشک فعال است و می‌توانید از امکانات فضای کاری استفاده کنید.'
+        : profile.review.state === 'SUBMITTED'
+          ? 'پس از تصمیم کارشناس، نتیجه در همین صفحه نمایش داده می‌شود.'
+          : 'مدارک و پروفایل را تکمیل و برای بررسی ارسال کنید.';
+  const beginReapplication = async () => {
+    setActionError('');
+    try {
+      await startReapplication();
+      navigate('/app/profile', { replace: true });
+    } catch (requestError) {
+      setActionError(getError(requestError));
+    }
+  };
   return (
     <div className="tp-page tp-page--narrow">
       <PageHeader
@@ -753,34 +815,30 @@ export function ReviewPage() {
       />
       <AccountProfileTabs />
       {error && <InlineAlert>{error}</InlineAlert>}
-      <section className="tp-review-summary">
+      {actionError && <InlineAlert>{actionError}</InlineAlert>}
+      <section
+        className={`tp-review-summary ${isRejected ? 'is-rejected' : ''} ${isChangesRequested ? 'is-changes-requested' : ''}`}
+      >
         <span className="tp-review-summary__icon">
-          {profile.review.state === 'APPROVED' ? <BadgeCheck size={30} /> : <Clock3 size={29} />}
+          {isRejected ? (
+            <XCircle size={30} />
+          ) : isChangesRequested ? (
+            <AlertTriangle size={29} />
+          ) : profile.review.state === 'APPROVED' ? (
+            <BadgeCheck size={30} />
+          ) : (
+            <Clock3 size={29} />
+          )}
         </span>
         <div>
           <span>وضعیت فعلی</span>
-          <h2>
-            {profile.review.state === 'SUBMITTED'
-              ? 'پرونده شما در صف بررسی است'
-              : profile.review.state === 'APPROVED'
-                ? 'صلاحیت پزشکی تأیید شد'
-                : profile.review.state === 'CHANGES_REQUESTED'
-                  ? 'اصلاح پرونده موردنیاز است'
-                  : 'پرونده هنوز ارسال نشده است'}
-          </h2>
-          <p>
-            {profile.review.public_notes ||
-              (profile.review.state === 'APPROVED'
-                ? 'حساب پزشک فعال است و می‌توانید از امکانات فضای کاری استفاده کنید.'
-                : profile.review.state === 'SUBMITTED'
-                  ? 'پس از تصمیم کارشناس، نتیجه در همین صفحه نمایش داده می‌شود.'
-                  : profile.review.state === 'CHANGES_REQUESTED'
-                    ? 'موارد اعلام‌شده را اصلاح و پرونده را دوباره برای بررسی ارسال کنید.'
-                    : 'مدارک و پروفایل را تکمیل و برای بررسی ارسال کنید.')}
-          </p>
+          <h2>{summaryTitle}</h2>
+          <p>{summaryDescription}</p>
         </div>
       </section>
-      <section className="tp-review-timeline">
+      <section
+        className={`tp-review-timeline ${isRejected ? 'is-rejected' : ''} ${isChangesRequested ? 'is-changes-requested' : ''}`}
+      >
         {timelineStates.map((state, index) => (
           <div
             key={state}
@@ -788,27 +846,93 @@ export function ReviewPage() {
               index < currentIndex ? 'is-complete' : index === currentIndex ? 'is-current' : ''
             }
           >
-            <span>{index <= currentIndex ? <Check size={15} /> : <Circle size={13} />}</span>
+            <span>
+              {index === currentIndex && isRejected ? (
+                <XCircle size={17} />
+              ) : index === currentIndex && isChangesRequested ? (
+                <AlertTriangle size={16} />
+              ) : index <= currentIndex ? (
+                <Check size={15} />
+              ) : (
+                <Circle size={13} />
+              )}
+            </span>
             <div>
               <strong>
                 {state === 'DRAFT'
                   ? 'تکمیل پرونده'
                   : state === 'SUBMITTED'
-                    ? 'بررسی توسط کارشناس'
+                    ? hasReviewOutcome
+                      ? 'نتیجه بررسی کارشناسی'
+                      : 'بررسی توسط کارشناس'
                     : 'فعال‌سازی حساب پزشک'}
               </strong>
               <small>
                 {state === 'DRAFT'
                   ? 'اطلاعات تماس، امضا و مدارک'
                   : state === 'SUBMITTED'
-                    ? 'کنترل اصالت مدارک و صلاحیت'
+                    ? isRejected
+                      ? 'درخواست تأیید نشد'
+                      : isChangesRequested
+                        ? 'نیازمند اصلاح پرونده'
+                        : 'کنترل اصالت مدارک و صلاحیت'
                     : 'آماده اتصال به کلینیک و مطالعات'}
               </small>
             </div>
           </div>
         ))}
       </section>
-      {profile.review.state === 'DRAFT' || profile.review.state === 'CHANGES_REQUESTED' ? (
+      {hasReviewOutcome && (
+        <section
+          className={`tp-review-decision-card ${isRejected ? 'is-rejected' : 'is-changes-requested'}`}
+        >
+          <header>
+            <span>{isRejected ? <XCircle size={23} /> : <AlertTriangle size={22} />}</span>
+            <div>
+              <small>پیام کارشناس بررسی صلاحیت</small>
+              <h2>{isRejected ? 'دلیل رد درخواست' : 'موارد موردنیاز برای اصلاح'}</h2>
+            </div>
+          </header>
+          <div className="tp-review-decision-card__reason">
+            <span>توضیح ثبت‌شده</span>
+            <p>
+              {profile.review.public_notes ||
+                (isRejected
+                  ? 'توضیح عمومی برای این تصمیم ثبت نشده است.'
+                  : 'پرونده برای بررسی و اصلاح اطلاعات بازگردانده شده است.')}
+            </p>
+          </div>
+          {isChangesRequested ? (
+            <div className="tp-review-decision-card__actions">
+              <Link to="/app/profile">اصلاح اطلاعات پروفایل</Link>
+              <Link
+                className="is-primary"
+                to="/app/credentials"
+              >
+                بررسی مدارک و ارسال مجدد <ArrowLeft size={17} />
+              </Link>
+            </div>
+          ) : (
+            <div className="tp-review-decision-card__reapply">
+              <div>
+                <strong>امکان ثبت درخواست جدید برای شما فعال است</strong>
+                <p>
+                  با شروع درخواست مجدد، نتیجه این بررسی در تاریخچه حفظ می‌شود و پرونده برای اصلاح
+                  اطلاعات و مدارک باز خواهد شد.
+                </p>
+              </div>
+              <PrimaryButton
+                type="button"
+                busy={mutationBusy}
+                onClick={() => void beginReapplication()}
+              >
+                ثبت درخواست مجدد <ArrowLeft size={17} />
+              </PrimaryButton>
+            </div>
+          )}
+        </section>
+      )}
+      {profile.review.state === 'DRAFT' ? (
         <Link
           className="tp-wide-link"
           to="/app/credentials"

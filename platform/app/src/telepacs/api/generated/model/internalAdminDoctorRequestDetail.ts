@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { InternalAdminApplicant } from './internalAdminApplicant';
+import type { InternalAdminCredentialSubmission } from './internalAdminCredentialSubmission';
 import type { InternalAdminDocument } from './internalAdminDocument';
 import type { InternalAdminReview } from './internalAdminReview';
 
@@ -27,6 +28,7 @@ export interface InternalAdminDoctorRequestDetail {
   readonly submitted_for_review_at: string | null;
   readonly review: InternalAdminReview;
   readonly documents: readonly InternalAdminDocument[];
+  readonly submissions: readonly InternalAdminCredentialSubmission[];
   readonly created_at: string;
   readonly updated_at: string;
 }
